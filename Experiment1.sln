@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{173eebe0-97a1-d500-d9b0-8f9a17bfdb31}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityPlayModeSaver", "UnityPlayModeSaver.csproj", "{25f30ebc-23a3-bbf0-1109-3f01c0d10cf0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityPlayModeSaverEditor", "UnityPlayModeSaverEditor.csproj", "{8da5fc9c-ea23-1aaf-ab13-ff45e9302f1a}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{173eebe0-97a1-d500-d9b0-8f9a17bfdb31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{173eebe0-97a1-d500-d9b0-8f9a17bfdb31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25f30ebc-23a3-bbf0-1109-3f01c0d10cf0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25f30ebc-23a3-bbf0-1109-3f01c0d10cf0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8da5fc9c-ea23-1aaf-ab13-ff45e9302f1a}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8da5fc9c-ea23-1aaf-ab13-ff45e9302f1a}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
