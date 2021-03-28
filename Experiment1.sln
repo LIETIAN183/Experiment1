@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{173eebe0-97a1-d500-d9b0-8f9a17bfdb31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sirenix.OdinInspector.CompatibilityLayer", "Sirenix.OdinInspector.CompatibilityLayer.csproj", "{ec7eaf83-3ff0-7961-7ac8-fe6c34cff7d4}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityPlayModeSaver", "UnityPlayModeSaver.csproj", "{25f30ebc-23a3-bbf0-1109-3f01c0d10cf0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sirenix.OdinInspector.CompatibilityLayer.Editor", "Sirenix.OdinInspector.CompatibilityLayer.Editor.csproj", "{63e33eed-8a7d-533b-9add-ff03091582df}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityPlayModeSaverEditor", "UnityPlayModeSaverEditor.csproj", "{8da5fc9c-ea23-1aaf-ab13-ff45e9302f1a}"
 EndProject
@@ -14,8 +18,12 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{173eebe0-97a1-d500-d9b0-8f9a17bfdb31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{173eebe0-97a1-d500-d9b0-8f9a17bfdb31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ec7eaf83-3ff0-7961-7ac8-fe6c34cff7d4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ec7eaf83-3ff0-7961-7ac8-fe6c34cff7d4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{25f30ebc-23a3-bbf0-1109-3f01c0d10cf0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{25f30ebc-23a3-bbf0-1109-3f01c0d10cf0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63e33eed-8a7d-533b-9add-ff03091582df}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63e33eed-8a7d-533b-9add-ff03091582df}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8da5fc9c-ea23-1aaf-ab13-ff45e9302f1a}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8da5fc9c-ea23-1aaf-ab13-ff45e9302f1a}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
