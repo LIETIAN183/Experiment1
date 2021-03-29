@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿using System.ComponentModel;
+using System.Threading;
+using System.Reflection.Emit;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -7,23 +10,29 @@ public class Earthquake : MonoBehaviour
 {
     public Transform DataManager;
     private Rigidbody rb;
-    public int timeLength = 0;
+    public int timeLength;
     // Start is called before the first frame update
     public int timeCount = 0;
     //由于PhysicX不支持double精度，所以不可避免地造成精度损失
-    public List<Vector3> acc = new List<Vector3>();
-    void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-        acc = DataManager.GetComponent<EqDataReader>().acceleration;
-        timeLength = DataManager.GetComponent<EqDataReader>().timeLength;
+    public List<Vector3> acc;
 
+    public Vector3 currentAcceleration;
+
+    /// <summary>
+    /// This function is called when the object becomes enabled and active.
+    /// </summary>
+    void OnEnable()
+    {
+        currentAcceleration = Vector3.zero;
+        rb = GetComponent<Rigidbody>();
+        rb.useGravity = false;// 地面不受重力影响
+        DataManager.GetComponent<EqDataManger>().getData(out acc, out timeLength);
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        rb.velocity += currentAcceleration * Time.deltaTime;
     }
 
     /// <summary>
@@ -32,10 +41,35 @@ public class Earthquake : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
-        if (timeCount <= timeLength - 1)
+        // 每隔 0.01s更新加速度
+        if (timeCount++ <= timeLength - 1)
         {
-            rb.AddForce(acc[timeCount], ForceMode.Acceleration);
+            currentAcceleration = acc[timeCount];
         }
-        timeCount++;
+        else
+        {
+            // 地震结束
+            this.enabled = false;
+        }
+
+    }
+
+    /// <summary>
+    /// This function is called when the behaviour becomes disabled or inactive.
+    /// </summary>
+    void OnDisable()
+    {
+        reset();
+    }
+
+    // 重置脚本
+    private void reset()
+    {
+        rb.velocity = Vector3.zero;
+        DataManager = null;
+        timeLength = 0;
+        timeCount = 0;
+        acc = null;
+        currentAcceleration = Vector3.zero;
     }
 }

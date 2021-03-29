@@ -1,50 +1,21 @@
-﻿using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using UnityEngine;
 using System.IO;
+using System.Text.RegularExpressions;
+using UnityEngine;
 using System;
 using Sirenix.OdinInspector;
-using System.Collections;
 using System.Linq;
-// Read Earthquake Data
-// [ExecuteInEditMode]
-// use OdinInspector
-public class EqDataReader : MonoBehaviour
+// using System.Linq;
+using System.Collections.Generic;
+
+public static class EqDataReader
 {
 
-    [PropertyOrder(0)]
-    [Button("Start Earthquake")]
-    private void startEq()
-    {
-        //判断是否已经选择某个地震数据
-        if (string.IsNullOrEmpty(earthquakes))
-        {
-            Debug.Log("Select Earthquake First!!!");
-            return;
-        }
-
-        ReadData(new DirectoryInfo(Application.dataPath + "/Data/" + earthquakes + "/"));
-
-        //开始地震模拟，激活Ground的Earthquake脚本
-        GameObject[] grounds = GameObject.FindGameObjectsWithTag("Ground");
-        foreach (var g in grounds)
-        {
-            g.GetComponent<Earthquake>().enabled = true;
-        }
-    }
-
-    [PropertyOrder(1)]
-    [ValueDropdown("EarthquakeData"), ShowInInspector]
-    public string earthquakes = null;
-
-#if UNITY_EDITOR // Editor-related code must be excluded from builds
-#pragma warning disable // And these members are in fact being used, though the compiler cannot tell. Let's not have bothersome warnings.
-    private IEnumerable<string> EarthquakeData()
+    public static IEnumerable<string> EarthquakeFolders(string directoryPath)
     {
         try
         {
             // 读取Data文件夹下的每个地震数据文件夹
-            DirectoryInfo dataDir = new DirectoryInfo(Application.dataPath + "/Data/");
+            DirectoryInfo dataDir = new DirectoryInfo(directoryPath);
             DirectoryInfo[] dirs = dataDir.GetDirectories();
             return dirs.Select(dir => dir.Name).ToArray();// 提取DirectoryInfo中的文件夹名字property，创建新数组
         }
@@ -53,51 +24,47 @@ public class EqDataReader : MonoBehaviour
             Debug.Log($"{e}");
             throw;
         }
-
-    }
-#endif
-
-    // [ShowInInspector]
-    public List<Vector3> acceleration;
-    public int skipLine = 3;
-    public int timeLength;
-    public float gravityValue = 9.81f;
-
-
-    /// <summary>
-    /// Awake is called when the script instance is being loaded.
-    /// </summary>
-    void Awake()
-    {
-        // x = ReadData(xFilePath);
-        // y = ReadData(yFilePath);
-        // z = ReadData(zFilePath);
-    }
-    void Start()
-    {
-
     }
 
-    //读取地震时程数据
-    void ReadData(DirectoryInfo folderPath)
+    // Read Earthquake Data from Specific File
+    public static void ReadData(DirectoryInfo folderPath, int skipLine, out int timeLength, out List<Vector3> acceleration)
     {
-        FileInfo[] files = folderPath.GetFiles("*.txt");
+        // Init variable
+        acceleration = new List<Vector3>();
+        timeLength = int.MaxValue;      // 设置时间长度为最大，从而找出数据中时间的最短值
+        string line;                    // 存储每一行的字符串
+        string temp;                    // 临时变量，存储判断的角度值
+        string[] linedata;              // 存储分割空格后的字符串形式的数据数组
+        int count;                      // 辅助计算跳过开头的行数
+        Vector3 angle;                  // 存储加速度数据的角度 Vector
+        int horizontalAngel;            // 存储水平平面上绕y轴旋转的度数
 
-        timeLength = int.MaxValue;
-        string line, temp;
-        string[] linedata;
-        int count;
-        Vector3 angle;
-        int horizontalAngel;
+        // 获取目录下的所有 txt 文件
+        FileInfo[] files;
+        try
+        {
+            files = folderPath.GetFiles("*.txt");
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log($"{e}");
+            throw;
+        }
+        // 若文件下内无 txt 文件，返回 NULL
+        if (files.Count().Equals(0))
+        {
+            Debug.Log("No TXT File In Current Directory!!!");
+            timeLength = 0;
+            return;
+        }
 
+        // 读取数据
         foreach (var file in files)
         {
             // 读取txt标题中标注的角度
-            // 用于与加速度相乘
+            // 用于与加速度相乘，得到加速度矢量
             angle = Vector3.zero;
-            count = skipLine;
             temp = file.Name.Substring(file.Name.Length - 7, 3);
-            Debug.Log(temp);
             if (temp.Contains("UP"))
             {
                 angle = new Vector3(0, 1, 0);
@@ -113,29 +80,37 @@ public class EqDataReader : MonoBehaviour
             using (StreamReader reader = file.OpenText())
             {
                 // 跳过读取前skipLine行
+                count = skipLine;
                 do
                 {
                     line = reader.ReadLine();
                 } while (count-- > 0);
 
-                // 读取点的个数，并选择最小值
+                // 读取点的个数，并更新最小值
                 Regex r = new Regex(@"(\d{4})");
                 Match m = r.Match(line);
+                if (string.IsNullOrEmpty(m.Groups[0].Value))
+                {
+                    Debug.Log("Please check the skipLine!!!");
+                    timeLength = 0;
+                    return;
+                }
                 int number = int.Parse(m.Groups[0].Value);
                 timeLength = number < timeLength ? number : timeLength;
-                line = reader.ReadLine();
 
                 // 读取加速度值，第一次List缺少空间，用try catch捕获异常，从而实现数据的添加
                 // 可能该方法并不好，尝试未来使用其他方式
                 // TODO: use another to save data, notice the first time List is lack of capacity
+                line = reader.ReadLine();
                 while (line != null)
                 {
+                    //分割字符串为字符串数据数组
                     linedata = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var str in linedata)
                     {
                         try
                         {
-                            acceleration[count++] += angle * Convert.ToSingle(str) * gravityValue;
+                            acceleration[count++] += angle * Convert.ToSingle(str);
                         }
                         catch (System.Exception e)
                         {
@@ -144,7 +119,7 @@ public class EqDataReader : MonoBehaviour
                         }
                         finally
                         {
-                            acceleration.Add(angle * Convert.ToSingle(str) * gravityValue);
+                            acceleration.Add(angle * Convert.ToSingle(str));
                         }
                     }
                     line = reader.ReadLine();
@@ -152,38 +127,6 @@ public class EqDataReader : MonoBehaviour
                 reader.Close();
             }
         }
-        // List<double> datas = new List<double>();
-
-
-
+        // return acceleration;
     }
-    // List<double> ReadData(string filePath)
-    // {
-    //     List<double> datas = new List<double>();
-
-    //     string line;
-    //     string[] linedata;
-    //     int count = skipReadLine;
-
-    //     using (StreamReader reader = new StreamReader(filePath))
-    //     {
-    //         line = reader.ReadLine();
-    //         while (count-- > 0)
-    //         {
-    //             line = reader.ReadLine();
-    //         }
-
-    //         while (line != null)
-    //         {
-    //             linedata = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-    //             foreach (var str in linedata)
-    //             {
-    //                 datas.Add(Convert.ToDouble(str) * gravityValue);
-    //             }
-    //             line = reader.ReadLine();
-    //         }
-    //         reader.Close();
-    //     }
-    //     return datas;
-    // }
 }
