@@ -1,27 +1,64 @@
-﻿using System.Collections;
+﻿using System.Reflection.Emit;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Sirenix.OdinInspector;
 public class Test : MonoBehaviour
 {
-    public float torque;
-    private Rigidbody rb;
-    Quaternion target = Quaternion.Euler(30, 0, 0);
-    // Start is called before the first frame update
+    Rigidbody _rb;
+    Vector3 angle;
+
+    Vector3 lastVelocity;
+    public Vector3 acc;
+    public Vector3 vel;
+    public Vector3 cur_vel;
+    public Vector3 dis;
+
+    float time = 0;
+    [Button("forward")]
+    void forward()
+    {
+        angle = Vector3.forward;
+
+    }
+
+    [Button("Right")]
+    void right()
+    {
+        angle = Vector3.right;
+    }
+
+    [Button("Left")]
+    void left()
+    {
+        angle = Vector3.left;
+    }
+
+    [Button("Back")]
+    void back()
+    {
+        angle = Vector3.back;
+    }
     void Start()
     {
-
-        rb = GetComponent<Rigidbody>();
-        // transform.Rotate(new Vector3(10, 0, 0), Space.Self);
-        // transform.Rotate(20.0f, 0.0f, 0.0f, Space.World);
+        _rb = GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        // float turn = Input.GetAxis("Vertical");
-        // rb.AddTorque(transform.up * torque * turn);
-        // transform.rotation = Quaternion.RotateTowards(transform.rotation, target, 10f);
+        time += Time.deltaTime;
+        // _rb.AddForce(angle, ForceMode.Acceleration);
+
+
+        dis.x = 0.5f * angle.x * time * time;
+        dis.y = 0.5f * angle.y * time * time;
+        dis.z = 0.5f * angle.z * time * time;
+
+        vel.x = angle.x * time;
+        vel.y = angle.y * time;
+        vel.z = angle.z * time;
+        cur_vel = _rb.velocity;
 
     }
 
@@ -30,12 +67,10 @@ public class Test : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
-        // float turn = Input.GetAxis("Horizontal");
-        // rb.AddTorque(transform.up * torque * turn);
-        float turn = Input.GetAxis("Vertical");
-        // ConsoleProDebug.Watch("forward:", transform.right.ToString());
-        // ConsoleProDebug.Watch("turn:", turn.ToString());
-        rb.AddTorque(transform.right * torque * turn);
+
+        acc = (_rb.velocity - lastVelocity) / Time.fixedDeltaTime;
+        lastVelocity = _rb.velocity;
+        _rb.AddForce(angle, ForceMode.Acceleration);
     }
 
 }

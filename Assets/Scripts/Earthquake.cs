@@ -1,21 +1,24 @@
-﻿using System.ComponentModel;
-using System.Threading;
-using System.Reflection.Emit;
-using System.Collections;
+﻿using System.Globalization;
 using System.Collections.Generic;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
+using Sirenix.OdinInspector;
+
 
 public class Earthquake : MonoBehaviour
 {
-    public Transform DataManager;
     private Rigidbody rb;
-    public int timeLength;
-    // Start is called before the first frame update
-    public int timeCount = 0;
-    //由于PhysicX不支持double精度，所以不可避免地造成精度损失
-    public List<Vector3> acc;
 
+    // 地震运行时间
+    private int timeLength;
+    // Start is called before the first frame update
+    [ShowInInspector, ReadOnly]
+    [ProgressBar(0, "timeLength")]
+    private int timeCount;
+
+    // 存储加速度数据
+    //由于PhysicX不支持double精度，所以不可避免地造成精度损失
+    private List<Vector3> acc;
+    [ReadOnly]
     public Vector3 currentAcceleration;
 
     /// <summary>
@@ -23,16 +26,17 @@ public class Earthquake : MonoBehaviour
     /// </summary>
     void OnEnable()
     {
-        currentAcceleration = Vector3.zero;
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;// 地面不受重力影响
-        DataManager.GetComponent<EqDataManger>().getData(out acc, out timeLength);
+        reset();
+        EqManger.Instance.getData(out acc, out timeLength);// 读取数据
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        rb.velocity += currentAcceleration * Time.deltaTime;
+
     }
 
     /// <summary>
@@ -45,6 +49,7 @@ public class Earthquake : MonoBehaviour
         if (timeCount++ <= timeLength - 1)
         {
             currentAcceleration = acc[timeCount];
+            rb.AddForce(currentAcceleration, ForceMode.Acceleration);
         }
         else
         {
@@ -56,6 +61,7 @@ public class Earthquake : MonoBehaviour
 
     /// <summary>
     /// This function is called when the behaviour becomes disabled or inactive.
+    /// 地震结束，执行地面静止代码
     /// </summary>
     void OnDisable()
     {
@@ -65,11 +71,10 @@ public class Earthquake : MonoBehaviour
     // 重置脚本
     private void reset()
     {
+        currentAcceleration = Vector3.zero;
         rb.velocity = Vector3.zero;
-        DataManager = null;
         timeLength = 0;
         timeCount = 0;
         acc = null;
-        currentAcceleration = Vector3.zero;
     }
 }

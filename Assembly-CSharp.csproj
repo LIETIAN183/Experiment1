@@ -79,8 +79,8 @@
      <Compile Include="Assets\EasyColliderEditor\Scripts\Shader\EasyColliderCompute.cs" />
      <Compile Include="Assets\Scripts\CenterofMass.cs" />
      <Compile Include="Assets\Scripts\Earthquake.cs" />
-     <Compile Include="Assets\Scripts\EqDataManger.cs" />
      <Compile Include="Assets\Scripts\EqDataReader.cs" />
+     <Compile Include="Assets\Scripts\EqManger.cs" />
      <Compile Include="Assets\Scripts\Fire.cs" />
      <Compile Include="Assets\Scripts\Test.cs" />
      <None Include="Assets\EasyColliderEditor\Scripts\Shader\EasyColliderShader.shader" />

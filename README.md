@@ -15,3 +15,9 @@
 
 - 添加 EqDataManger 控制地震的开始与结束，分离数据读取
 - 代码优化
+- 修改 .gitignore，清理不必要上传的文件
+
+#### 2021.3.30
+
+- 修改 Manger 为单例模式
+- 验证 ForceMode.Acceleration 运行结果通过 Test.cs，此函数最好放在 FixedUpdate() 中使用

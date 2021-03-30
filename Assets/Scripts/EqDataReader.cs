@@ -2,9 +2,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using System;
-using Sirenix.OdinInspector;
 using System.Linq;
-// using System.Linq;
 using System.Collections.Generic;
 
 public static class EqDataReader
