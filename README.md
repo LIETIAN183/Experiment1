@@ -21,3 +21,8 @@
 
 - 修改 Manger 为单例模式
 - 验证 ForceMode.Acceleration 运行结果通过 Test.cs，此函数最好放在 FixedUpdate() 中使用
+
+#### 2021.4.2
+
+- 添加 UI 界面控制
+- Add Force on Nonstructural Component

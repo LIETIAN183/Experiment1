@@ -14,16 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PixelRect:
     serializedVersion: 2
-    x: 0.6666667
-    y: 51.333336
-    width: 2557.3335
-    height: 1388
+    x: 0
+    y: 42.666668
+    width: 2560
+    height: 1397.3334
   m_ShowMode: 4
   m_Title: 
   m_RootView: {fileID: 2}
-  m_MinSize: {x: 875, y: 300}
+  m_MinSize: {x: 875, y: 471}
   m_MaxSize: {x: 10000, y: 10000}
-  m_Maximized: 0
+  m_Maximized: 1
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -44,9 +44,9 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 2558
-    height: 1388
-  m_MinSize: {x: 875, y: 300}
+    width: 2560
+    height: 1398
+  m_MinSize: {x: 875, y: 471}
   m_MaxSize: {x: 10000, y: 10000}
 --- !u!114 &3
 MonoBehaviour:
@@ -65,7 +65,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 2558
+    width: 2560
     height: 30
   m_MinSize: {x: 0, y: 0}
   m_MaxSize: {x: 0, y: 0}
@@ -86,8 +86,8 @@ MonoBehaviour:
   m_Position:
     serializedVersion: 2
     x: 0
-    y: 1368
-    width: 2558
+    y: 1378
+    width: 2560
     height: 20
   m_MinSize: {x: 0, y: 0}
   m_MaxSize: {x: 0, y: 0}
@@ -112,12 +112,12 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 30
-    width: 2558
-    height: 1338
-  m_MinSize: {x: 910, y: 442}
-  m_MaxSize: {x: 22005, y: 10021}
+    width: 2560
+    height: 1348
+  m_MinSize: {x: 908, y: 421}
+  m_MaxSize: {x: 22003, y: 10021}
   vertical: 0
-  controlID: 148
+  controlID: 156
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -137,12 +137,12 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1495
-    height: 1338
-  m_MinSize: {x: 201, y: 442}
-  m_MaxSize: {x: 4001, y: 8042}
+    width: 1492
+    height: 1348
+  m_MinSize: {x: 201, y: 421}
+  m_MaxSize: {x: 4001, y: 8021}
   vertical: 1
-  controlID: 44
+  controlID: 36
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -160,15 +160,13 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1495
-    height: 917
-  m_MinSize: {x: 201, y: 221}
-  m_MaxSize: {x: 4001, y: 4021}
+    width: 1492
+    height: 927
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 12}
   m_Panes:
   - {fileID: 12}
-  - {fileID: 13}
-  - {fileID: 14}
   m_Selected: 0
   m_LastSelected: 1
 --- !u!114 &8
@@ -187,16 +185,16 @@ MonoBehaviour:
   m_Position:
     serializedVersion: 2
     x: 0
-    y: 917
-    width: 1495
+    y: 927
+    width: 1492
     height: 421
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
-  m_ActualView: {fileID: 17}
+  m_MinSize: {x: 201, y: 221}
+  m_MaxSize: {x: 4001, y: 4021}
+  m_ActualView: {fileID: 15}
   m_Panes:
+  - {fileID: 13}
+  - {fileID: 14}
   - {fileID: 15}
-  - {fileID: 16}
-  - {fileID: 17}
   m_Selected: 2
   m_LastSelected: 0
 --- !u!114 &9
@@ -214,15 +212,15 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 1495
+    x: 1492
     y: 0
-    width: 300
-    height: 1338
+    width: 303
+    height: 1348
   m_MinSize: {x: 200, y: 200}
   m_MaxSize: {x: 4000, y: 4000}
-  m_ActualView: {fileID: 18}
+  m_ActualView: {fileID: 16}
   m_Panes:
-  - {fileID: 18}
+  - {fileID: 16}
   m_Selected: 0
   m_LastSelected: 0
 --- !u!114 &10
@@ -242,13 +240,13 @@ MonoBehaviour:
     serializedVersion: 2
     x: 1795
     y: 0
-    width: 348
-    height: 1338
+    width: 349
+    height: 1348
   m_MinSize: {x: 232, y: 271}
   m_MaxSize: {x: 10002, y: 10021}
-  m_ActualView: {fileID: 19}
+  m_ActualView: {fileID: 17}
   m_Panes:
-  - {fileID: 19}
+  - {fileID: 17}
   m_Selected: 0
   m_LastSelected: 0
 --- !u!114 &11
@@ -266,16 +264,16 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 2143
+    x: 2144
     y: 0
-    width: 415
-    height: 1338
+    width: 416
+    height: 1348
   m_MinSize: {x: 275, y: 100}
   m_MaxSize: {x: 4000, y: 4000}
-  m_ActualView: {fileID: 20}
+  m_ActualView: {fileID: 18}
   m_Panes:
-  - {fileID: 20}
-  - {fileID: 21}
+  - {fileID: 18}
+  - {fileID: 19}
   m_Selected: 0
   m_LastSelected: 1
 --- !u!114 &12
@@ -299,10 +297,10 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 0.6666667
-    y: 81.333336
-    width: 1494
-    height: 896
+    x: 0
+    y: 72.66667
+    width: 1491
+    height: 906
   m_ViewDataDictionary: {fileID: 0}
   m_ShowContextualTools: 1
   m_WindowGUID: c2195ab6979962743a43a7c97e67511a
@@ -314,9 +312,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: -1.6456678, y: 2.6054194, z: 7.262542}
+    m_Target: {x: -1.8694744, y: 0.45830607, z: -0.22947323}
     speed: 2
-    m_Value: {x: -1.6456678, y: 2.6054194, z: 7.262542}
+    m_Value: {x: -1.8694744, y: 0.45830607, z: -0.22947323}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -362,13 +360,13 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: 0.120181784, y: 0.67238295, z: -0.1119607, w: 0.72175294}
+    m_Target: {x: 0.1614899, y: 0.66789335, z: -0.15181418, w: 0.7104965}
     speed: 2
-    m_Value: {x: 0.120181486, y: 0.6723813, z: -0.11196042, w: 0.72175115}
+    m_Value: {x: 0.16148883, y: 0.6678889, z: -0.15181316, w: 0.7104917}
   m_Size:
-    m_Target: 8.57434
+    m_Target: 4.5093384
     speed: 2
-    m_Value: 8.57434
+    m_Value: 4.5093384
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -402,59 +400,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 12111, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MinSize: {x: 400, y: 100}
-  m_MaxSize: {x: 2048, y: 2048}
-  m_TitleContent:
-    m_Text: Asset Store
-    m_Image: {fileID: -4391848389275900105, guid: 0000000000000000d000000000000000,
-      type: 0}
-    m_Tooltip: 
-  m_Pos:
-    serializedVersion: 2
-    x: 0
-    y: 72.66667
-    width: 1497
-    height: 904
-  m_ViewDataDictionary: {fileID: 0}
---- !u!114 &14
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 924ffcbe75518854f97b48776d0f1939, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_MinSize: {x: 100, y: 100}
-  m_MaxSize: {x: 4000, y: 4000}
-  m_TitleContent:
-    m_Text: Fire
-    m_Image: {fileID: 2800000, guid: 7d62654fc399cc349a1ed7e0eab44ff0, type: 3}
-    m_Tooltip: 
-  m_Pos:
-    serializedVersion: 2
-    x: 0
-    y: 72.66667
-    width: 1491
-    height: 870
-  m_ViewDataDictionary: {fileID: 0}
-  m_Selected: 91cfb8546da0e4e4388ed798d4aee9d3
-  m_GraphObject: {fileID: 0}
---- !u!114 &15
-MonoBehaviour:
-  m_ObjectHideFlags: 52
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
   m_Script: {fileID: 1586788657, guid: a2284c517ee274c19a6ba4c1a8c96fb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
@@ -466,21 +411,21 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1.3333334
-    y: 998
-    width: 1495
+    x: 0
+    y: 1000
+    width: 1491
     height: 400
   m_ViewDataDictionary: {fileID: 0}
-  logPanelScroll: {x: 0, y: 0}
+  logPanelScroll: {x: 0, y: -98}
   logPanelSelectedIndex: -1
   logPanelAutoScroll: 1
-  currentFrame: 1572890
+  currentFrame: 2421229
   logs:
-    lastGrabbedIndex: 1
-    lastGrabbedCount: 2
+    lastGrabbedIndex: 2
+    lastGrabbedCount: 3
     proEntries: []
     newEntries:
-    - logType: 1
+    - logType: 4
       ignore: 0
       processed: 1
       tempFilterProcessed: 1
@@ -491,734 +436,48 @@ MonoBehaviour:
       listIndex: 0
       nativeIndex: 0
       nativeIdentifier: 0
-      originalLog: System.ArgumentOutOfRangeException
-      originalStackTrace: 'System.ArgumentOutOfRangeException
+      originalLog: 'NullReferenceException: Object reference not set to an instance
+        of an object'
+      originalStackTrace: 'NullReferenceException: Object reference not set to an
+        instance of an object
 
-        UnityEngine.Debug:Log(Object)
-
-        EqDataReader:ReadData(DirectoryInfo,
-        Int32, Int32&, List`1&) (at Assets/Scripts/EqDataReader.cs:117)
-
-        EqDataManger:startEq()
-        (at Assets/Scripts/EqDataManger.cs:49)
-
-        System.Reflection.MethodBase:Invoke(Object,
-        Object[])
-
-        Sirenix.OdinInspector.Editor.Drawers.DefaultMethodDrawer:InvokeMethodInfo(MethodInfo)
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-        Drawers/DefaultMethodDrawer.cs:514)
-
-        Sirenix.OdinInspector.Editor.Drawers.DefaultMethodDrawer:InvokeButton()
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-        Drawers/DefaultMethodDrawer.cs:415)
-
-        Sirenix.OdinInspector.Editor.Drawers.DefaultMethodDrawer:DrawNormalButton()
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-        Drawers/DefaultMethodDrawer.cs:272)
-
-        Sirenix.OdinInspector.Editor.Drawers.DefaultMethodDrawer:DrawPropertyLayout(GUIContent)
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-        Drawers/DefaultMethodDrawer.cs:184)
-
-        Sirenix.OdinInspector.Editor.OdinDrawer:DrawProperty(GUIContent)
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs:109)
-
-        Sirenix.OdinInspector.Editor.InspectorProperty:Draw(GUIContent)
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs:807)
-
-        Sirenix.OdinInspector.Editor.InspectorProperty:Draw()
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs:695)
-
-        Sirenix.OdinInspector.Editor.Drawers.UnityObjectRootDrawer`1:DrawPropertyLayout(GUIContent)
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Value
-        Drawers/UnityObjectRootDrawer.cs:60)
-
-        Sirenix.OdinInspector.Editor.OdinDrawer:CallNextDrawer(GUIContent)
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs:155)
-
-        Sirenix.OdinInspector.Editor.Drawers.FixBrokenUnityObjectWrapperDrawer`1:DrawPropertyLayout(GUIContent)
-        (at Assets/Plugins/Sirenix/Odin Inspector/Scripts/Editor/FixBrokenUnityObjectWrapperDrawer.cs:41)
-
-        Sirenix.OdinInspector.Editor.OdinDrawer:DrawProperty(GUIContent)
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs:109)
-
-        Sirenix.OdinInspector.Editor.InspectorProperty:Draw(GUIContent)
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs:807)
-
-        Sirenix.OdinInspector.Editor.PropertyTree:DrawProperties()
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs:485)
-
-        Sirenix.OdinInspector.Editor.PropertyTree:Draw(Boolean)
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs:389)
-
-        Sirenix.OdinInspector.Editor.OdinEditor:DrawTree()
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs:93)
-
-        Sirenix.OdinInspector.Editor.OdinEditor:DrawOdinInspector()
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs:216)
-
-        Sirenix.OdinInspector.Editor.OdinEditor:OnInspectorGUI()
-        (at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs:85)
-
-        UnityEngine.GUIUtility:ProcessEvent(Int32,
-        IntPtr)
+        Earthquake.OnEnable () (at Assets/Scripts/Earthquake.cs:32)
 
 '
-      nativeFileName: Assets/Scripts/EqDataReader.cs
-      nativeLineNumber: 117
+      nativeFileName: Assets/Scripts/Earthquake.cs
+      nativeLineNumber: 32
       watchName: 
-      logText: System.ArgumentOutOfRangeException
-      logTruncatedText: System.ArgumentOutOfRangeException
+      logText: 'NullReferenceException: Object reference not set to an instance of
+        an object'
+      logTruncatedText: 'NullReferenceException: Object reference not set to an instance
+        of an object'
       logColumnText: 
       fileName: 
       className: 
       namespaceName: 
       lineCount: 1
       hasSourceCode: 0
-      timeStamp: 15:06:19
-      timeFrame: -1
-      timeStampDateTimeNow: 
-      instanceID: 0
-      collapsedCount: 6
+      timeStamp: 21:17:49.227
+      timeFrame: 5
+      timeStampDateTimeNow: 21:17:49.227
+      instanceID: 16470
+      collapsedCount: 1
       cachedHeight: -1
       cachedHeightLogWidth: 0
       stackEntries:
-      - fileName: Assets/Scripts/EqDataReader.cs
-        fileNameWithoutAssets: Scripts/EqDataReader.cs
-        fileNameWithoutAssetsPlusLineNumber: Scripts/EqDataReader.cs:117
-        fileNameWithoutPath: EqDataReader.cs
-        fileNameWithoutPathPlusLineNumber: EqDataReader.cs:117
+      - fileName: Assets/Scripts/Earthquake.cs
+        fileNameWithoutAssets: Scripts/Earthquake.cs
+        fileNameWithoutAssetsPlusLineNumber: Scripts/Earthquake.cs:32
+        fileNameWithoutPath: Earthquake.cs
+        fileNameWithoutPathPlusLineNumber: Earthquake.cs:32
         instanceID: -1
-        className: EqDataReader
-        methodName: ReadData
+        className: Earthquake
+        methodName: OnEnable
         namespaceName: None
-        lineNumber: 117
+        lineNumber: 32
         charNumber: 0
-        stackLabel: EqDataReader.ReadData()
-        stackLabel2: ' at /Scripts/EqDataReader.cs:117'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Assets/Scripts/EqDataManger.cs
-        fileNameWithoutAssets: Scripts/EqDataManger.cs
-        fileNameWithoutAssetsPlusLineNumber: Scripts/EqDataManger.cs:49
-        fileNameWithoutPath: EqDataManger.cs
-        fileNameWithoutPathPlusLineNumber: EqDataManger.cs:49
-        instanceID: -1
-        className: EqDataManger
-        methodName: startEq
-        namespaceName: None
-        lineNumber: 49
-        charNumber: 0
-        stackLabel: EqDataManger.startEq()
-        stackLabel2: ' at /Scripts/EqDataManger.cs:49'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: None
-        fileNameWithoutAssets: None
-        fileNameWithoutAssetsPlusLineNumber: None
-        fileNameWithoutPath: None
-        fileNameWithoutPathPlusLineNumber: None
-        instanceID: -1
-        className: MethodBase
-        methodName: Invoke
-        namespaceName: System.Reflection
-        lineNumber: 0
-        charNumber: 0
-        stackLabel: MethodBase.Invoke()
-        stackLabel2: 
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-          Drawers/DefaultMethodDrawer.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Misc Drawers/DefaultMethodDrawer.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Misc Drawers/DefaultMethodDrawer.cs:514
-        fileNameWithoutPath: DefaultMethodDrawer.cs
-        fileNameWithoutPathPlusLineNumber: DefaultMethodDrawer.cs:514
-        instanceID: -1
-        className: DefaultMethodDrawer
-        methodName: InvokeMethodInfo
-        namespaceName: Sirenix.OdinInspector.Editor.Drawers
-        lineNumber: 514
-        charNumber: 0
-        stackLabel: DefaultMethodDrawer.InvokeMethodInfo()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-          Drawers/DefaultMethodDrawer.cs:514'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-          Drawers/DefaultMethodDrawer.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Misc Drawers/DefaultMethodDrawer.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Misc Drawers/DefaultMethodDrawer.cs:415
-        fileNameWithoutPath: DefaultMethodDrawer.cs
-        fileNameWithoutPathPlusLineNumber: DefaultMethodDrawer.cs:415
-        instanceID: -1
-        className: DefaultMethodDrawer
-        methodName: InvokeButton
-        namespaceName: Sirenix.OdinInspector.Editor.Drawers
-        lineNumber: 415
-        charNumber: 0
-        stackLabel: DefaultMethodDrawer.InvokeButton()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-          Drawers/DefaultMethodDrawer.cs:415'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-          Drawers/DefaultMethodDrawer.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Misc Drawers/DefaultMethodDrawer.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Misc Drawers/DefaultMethodDrawer.cs:272
-        fileNameWithoutPath: DefaultMethodDrawer.cs
-        fileNameWithoutPathPlusLineNumber: DefaultMethodDrawer.cs:272
-        instanceID: -1
-        className: DefaultMethodDrawer
-        methodName: DrawNormalButton
-        namespaceName: Sirenix.OdinInspector.Editor.Drawers
-        lineNumber: 272
-        charNumber: 0
-        stackLabel: DefaultMethodDrawer.DrawNormalButton()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-          Drawers/DefaultMethodDrawer.cs:272'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-          Drawers/DefaultMethodDrawer.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Misc Drawers/DefaultMethodDrawer.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Misc Drawers/DefaultMethodDrawer.cs:184
-        fileNameWithoutPath: DefaultMethodDrawer.cs
-        fileNameWithoutPathPlusLineNumber: DefaultMethodDrawer.cs:184
-        instanceID: -1
-        className: DefaultMethodDrawer
-        methodName: DrawPropertyLayout
-        namespaceName: Sirenix.OdinInspector.Editor.Drawers
-        lineNumber: 184
-        charNumber: 0
-        stackLabel: DefaultMethodDrawer.DrawPropertyLayout()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Misc
-          Drawers/DefaultMethodDrawer.cs:184'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs:109
-        fileNameWithoutPath: OdinDrawer.cs
-        fileNameWithoutPathPlusLineNumber: OdinDrawer.cs:109
-        instanceID: -1
-        className: OdinDrawer
-        methodName: DrawProperty
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 109
-        charNumber: 0
-        stackLabel: OdinDrawer.DrawProperty()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs:109'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs:807
-        fileNameWithoutPath: InspectorProperty.cs
-        fileNameWithoutPathPlusLineNumber: InspectorProperty.cs:807
-        instanceID: -1
-        className: InspectorProperty
-        methodName: Draw
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 807
-        charNumber: 0
-        stackLabel: InspectorProperty.Draw()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs:807'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs:695
-        fileNameWithoutPath: InspectorProperty.cs
-        fileNameWithoutPathPlusLineNumber: InspectorProperty.cs:695
-        instanceID: -1
-        className: InspectorProperty
-        methodName: Draw
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 695
-        charNumber: 0
-        stackLabel: InspectorProperty.Draw()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs:695'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Value
-          Drawers/UnityObjectRootDrawer.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Value Drawers/UnityObjectRootDrawer.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/Value Drawers/UnityObjectRootDrawer.cs:60
-        fileNameWithoutPath: UnityObjectRootDrawer.cs
-        fileNameWithoutPathPlusLineNumber: UnityObjectRootDrawer.cs:60
-        instanceID: -1
-        className: UnityObjectRootDrawer`1
-        methodName: DrawPropertyLayout
-        namespaceName: Sirenix.OdinInspector.Editor.Drawers
-        lineNumber: 60
-        charNumber: 0
-        stackLabel: UnityObjectRootDrawer`1.DrawPropertyLayout()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/Value
-          Drawers/UnityObjectRootDrawer.cs:60'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs:155
-        fileNameWithoutPath: OdinDrawer.cs
-        fileNameWithoutPathPlusLineNumber: OdinDrawer.cs:155
-        instanceID: -1
-        className: OdinDrawer
-        methodName: CallNextDrawer
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 155
-        charNumber: 0
-        stackLabel: OdinDrawer.CallNextDrawer()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs:155'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Assets/Plugins/Sirenix/Odin Inspector/Scripts/Editor/FixBrokenUnityObjectWrapperDrawer.cs
-        fileNameWithoutAssets: Plugins/Sirenix/Odin Inspector/Scripts/Editor/FixBrokenUnityObjectWrapperDrawer.cs
-        fileNameWithoutAssetsPlusLineNumber: Plugins/Sirenix/Odin Inspector/Scripts/Editor/FixBrokenUnityObjectWrapperDrawer.cs:41
-        fileNameWithoutPath: FixBrokenUnityObjectWrapperDrawer.cs
-        fileNameWithoutPathPlusLineNumber: FixBrokenUnityObjectWrapperDrawer.cs:41
-        instanceID: -1
-        className: FixBrokenUnityObjectWrapperDrawer`1
-        methodName: DrawPropertyLayout
-        namespaceName: Sirenix.OdinInspector.Editor.Drawers
-        lineNumber: 41
-        charNumber: 0
-        stackLabel: FixBrokenUnityObjectWrapperDrawer`1.DrawPropertyLayout()
-        stackLabel2: ' at /Plugins/Sirenix/Odin Inspector/Scripts/Editor/FixBrokenUnityObjectWrapperDrawer.cs:41'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs:109
-        fileNameWithoutPath: OdinDrawer.cs
-        fileNameWithoutPathPlusLineNumber: OdinDrawer.cs:109
-        instanceID: -1
-        className: OdinDrawer
-        methodName: DrawProperty
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 109
-        charNumber: 0
-        stackLabel: OdinDrawer.DrawProperty()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinDrawer.cs:109'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs:807
-        fileNameWithoutPath: InspectorProperty.cs
-        fileNameWithoutPathPlusLineNumber: InspectorProperty.cs:807
-        instanceID: -1
-        className: InspectorProperty
-        methodName: Draw
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 807
-        charNumber: 0
-        stackLabel: InspectorProperty.Draw()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/InspectorProperty.cs:807'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs:485
-        fileNameWithoutPath: PropertyTree.cs
-        fileNameWithoutPathPlusLineNumber: PropertyTree.cs:485
-        instanceID: -1
-        className: PropertyTree
-        methodName: DrawProperties
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 485
-        charNumber: 0
-        stackLabel: PropertyTree.DrawProperties()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs:485'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs:389
-        fileNameWithoutPath: PropertyTree.cs
-        fileNameWithoutPathPlusLineNumber: PropertyTree.cs:389
-        instanceID: -1
-        className: PropertyTree
-        methodName: Draw
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 389
-        charNumber: 0
-        stackLabel: PropertyTree.Draw()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Core/PropertyTree.cs:389'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs:93
-        fileNameWithoutPath: OdinEditor.cs
-        fileNameWithoutPathPlusLineNumber: OdinEditor.cs:93
-        instanceID: -1
-        className: OdinEditor
-        methodName: DrawTree
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 93
-        charNumber: 0
-        stackLabel: OdinEditor.DrawTree()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs:93'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs:216
-        fileNameWithoutPath: OdinEditor.cs
-        fileNameWithoutPathPlusLineNumber: OdinEditor.cs:216
-        instanceID: -1
-        className: OdinEditor
-        methodName: DrawOdinInspector
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 216
-        charNumber: 0
-        stackLabel: OdinEditor.DrawOdinInspector()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs:216'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs
-        fileNameWithoutAssets: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs
-        fileNameWithoutAssetsPlusLineNumber: Y:/Repositories/sirenix-development-framework/Sirenix
-          Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs:85
-        fileNameWithoutPath: OdinEditor.cs
-        fileNameWithoutPathPlusLineNumber: OdinEditor.cs:85
-        instanceID: -1
-        className: OdinEditor
-        methodName: OnInspectorGUI
-        namespaceName: Sirenix.OdinInspector.Editor
-        lineNumber: 85
-        charNumber: 0
-        stackLabel: OdinEditor.OnInspectorGUI()
-        stackLabel2: ' at Y:/Repositories/sirenix-development-framework/Sirenix Solution/Sirenix.OdinInspector.Editor/Drawers/OdinEditor.cs:85'
-        stackLabel1Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel1Width: 0
-        stackLabel1Height: 0
-        stackLabel2Content:
-          m_Text: 
-          m_Image: {fileID: 0}
-          m_Tooltip: 
-        stackLabel2Width: 0
-        stackLabel2Height: 0
-        stackSourceLineHeight: 0
-        sourceCode: []
-        sourceCodeUpdated: 0
-        showSource: 1
-      - fileName: None
-        fileNameWithoutAssets: None
-        fileNameWithoutAssetsPlusLineNumber: None
-        fileNameWithoutPath: None
-        fileNameWithoutPathPlusLineNumber: None
-        instanceID: -1
-        className: GUIUtility
-        methodName: ProcessEvent
-        namespaceName: UnityEngine
-        lineNumber: 0
-        charNumber: 0
-        stackLabel: GUIUtility.ProcessEvent()
-        stackLabel2: 
+        stackLabel: Earthquake.OnEnable()
+        stackLabel2: ' at /Scripts/Earthquake.cs:32'
         stackLabel1Content:
           m_Text: 
           m_Image: {fileID: 0}
@@ -1343,7 +602,7 @@ MonoBehaviour:
         showInToolbar: 1
         hideLabelInToolbar: 0
         hideWhenNoMatches: 0
-    - logType: 2
+    - logType: 4
       ignore: 0
       processed: 1
       tempFilterProcessed: 1
@@ -1354,37 +613,303 @@ MonoBehaviour:
       listIndex: 0
       nativeIndex: 1
       nativeIdentifier: 0
-      originalLog: A meta data file (.meta) exists but its asset 'Assets/Scripts/test'
-        can't be found. When moving or deleting files outside of Unity, please ensure
-        that the corresponding .meta file is moved or deleted along with it.
-      originalStackTrace: 'A meta data file (.meta) exists but its asset ''Assets/Scripts/test''
-        can''t be found. When moving or deleting files outside of Unity, please ensure
-        that the corresponding .meta file is moved or deleted along with it.
+      originalLog: 'NullReferenceException: Object reference not set to an instance
+        of an object'
+      originalStackTrace: 'NullReferenceException: Object reference not set to an
+        instance of an object
+
+        Earthquake.OnEnable () (at Assets/Scripts/Earthquake.cs:32)
 
 '
-      nativeFileName: E:\unity\Modules/AssetDatabase/Editor/V2/FilteredFileIterationState.cpp
-      nativeLineNumber: 78
+      nativeFileName: Assets/Scripts/Earthquake.cs
+      nativeLineNumber: 32
       watchName: 
-      logText: A meta data file (.meta) exists but its asset 'Assets/Scripts/test'
-        can't be found. When moving or deleting files outside of Unity, please ensure
-        that the corresponding .meta file is moved or deleted along with it.
-      logTruncatedText: A meta data file (.meta) exists but its asset 'Assets/Scripts/test'
-        can't be found. When moving or deleting files outside of Unity, please ensure
-        that the corresponding .meta file is moved or deleted along with it.
+      logText: 'NullReferenceException: Object reference not set to an instance of
+        an object'
+      logTruncatedText: 'NullReferenceException: Object reference not set to an instance
+        of an object'
       logColumnText: 
       fileName: 
       className: 
       namespaceName: 
       lineCount: 1
       hasSourceCode: 0
-      timeStamp: 16:22:26
-      timeFrame: -1
-      timeStampDateTimeNow: 
-      instanceID: 0
+      timeStamp: 21:17:49.250
+      timeFrame: 5
+      timeStampDateTimeNow: 21:17:49.250
+      instanceID: 16742
       collapsedCount: 1
       cachedHeight: -1
       cachedHeightLogWidth: 0
-      stackEntries: []
+      stackEntries:
+      - fileName: Assets/Scripts/Earthquake.cs
+        fileNameWithoutAssets: Scripts/Earthquake.cs
+        fileNameWithoutAssetsPlusLineNumber: Scripts/Earthquake.cs:32
+        fileNameWithoutPath: Earthquake.cs
+        fileNameWithoutPathPlusLineNumber: Earthquake.cs:32
+        instanceID: -1
+        className: Earthquake
+        methodName: OnEnable
+        namespaceName: None
+        lineNumber: 32
+        charNumber: 0
+        stackLabel: Earthquake.OnEnable()
+        stackLabel2: ' at /Scripts/Earthquake.cs:32'
+        stackLabel1Content:
+          m_Text: 
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+        stackLabel1Width: 0
+        stackLabel1Height: 0
+        stackLabel2Content:
+          m_Text: 
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+        stackLabel2Width: 0
+        stackLabel2Height: 0
+        stackSourceLineHeight: 0
+        sourceCode: []
+        sourceCodeUpdated: 0
+        showSource: 1
+      ignoredStackEntries: []
+      lastMatchedCount: 0
+      belongsToFilters: []
+      belongsToStandardFilters: []
+      assignedTempFilter:
+        name: 
+        isEnabled: 1
+        collapsed: 0
+        itemGUID: 
+        filterName: 
+        mainColor: {r: 1, g: 1, b: 1, a: 1}
+        isStandardFilter: 0
+        isTempFilter: 0
+        filterOnly: 0
+        useAdvancedColors: 0
+        customTextColor: {r: 1, g: 1, b: 1, a: 1}
+        customBackgroundColor: {r: 1, g: 1, b: 1, a: 1}
+        swallowStandard: 1
+        standardCanSwallow: 0
+        overrideStandardColors: 1
+        overrideStandardIcon: 1
+        collapseIconBackground: 0
+        collapseIconSymbol: 0
+        collapseIconLetter: 0
+        collapseIconTexture: 0
+        useIconBackground: 1
+        useIconSymbol: 0
+        useIconLetter: 0
+        useIconTexture: 0
+        filterFormatVersion: -1
+        iconColorize: 0
+        useAndOpForSearchList: 0
+        searchList:
+          list: []
+          selectionList: 0
+          collapsable: 1
+          collapsed: 0
+        iconLetter:
+          name: 
+          isEnabled: 1
+          collapsed: 0
+          itemGUID: 
+          iconType: 1
+          iconType2: 1
+          iconText: A
+          useIconTextFirstLetter: 1
+          useIconLogColor: 1
+          iconColor: {r: 1, g: 1, b: 1, a: 1}
+          iconBuiltInID: BACKGROUNDS_ECPBGROUNDEDSQUARE
+          iconTextureGUID: 
+          useIconShadow: 1
+          iconOffset: {x: 0, y: 0}
+          iconShadowOffset: {x: 0.5, y: 0.5}
+          iconSize: 13
+        iconSymbol:
+          name: 
+          isEnabled: 1
+          collapsed: 0
+          itemGUID: 
+          iconType: 1
+          iconType2: 1
+          iconText: A
+          useIconTextFirstLetter: 1
+          useIconLogColor: 1
+          iconColor: {r: 1, g: 1, b: 1, a: 1}
+          iconBuiltInID: BACKGROUNDS_ECPBGROUNDEDSQUARE
+          iconTextureGUID: 
+          useIconShadow: 1
+          iconOffset: {x: 0, y: 0}
+          iconShadowOffset: {x: 0.5, y: 0.5}
+          iconSize: 13
+        iconBackground:
+          name: 
+          isEnabled: 1
+          collapsed: 0
+          itemGUID: 
+          iconType: 1
+          iconType2: 1
+          iconText: A
+          useIconTextFirstLetter: 1
+          useIconLogColor: 1
+          iconColor: {r: 1, g: 1, b: 1, a: 1}
+          iconBuiltInID: BACKGROUNDS_ECPBGROUNDEDSQUARE
+          iconTextureGUID: 
+          useIconShadow: 1
+          iconOffset: {x: 0, y: 0}
+          iconShadowOffset: {x: 0.5, y: 0.5}
+          iconSize: 13
+        iconTexture:
+          name: 
+          isEnabled: 1
+          collapsed: 0
+          itemGUID: 
+          iconType: 1
+          iconType2: 1
+          iconText: A
+          useIconTextFirstLetter: 1
+          useIconLogColor: 1
+          iconColor: {r: 1, g: 1, b: 1, a: 1}
+          iconBuiltInID: BACKGROUNDS_ECPBGROUNDEDSQUARE
+          iconTextureGUID: 
+          useIconShadow: 1
+          iconOffset: {x: 0, y: 0}
+          iconShadowOffset: {x: 0.5, y: 0.5}
+          iconSize: 13
+        showInToolbar: 1
+        hideLabelInToolbar: 0
+        hideWhenNoMatches: 0
+    - logType: 1
+      ignore: 0
+      processed: 1
+      tempFilterProcessed: 1
+      remoteEndPoint: Local
+      logPanelVisible: 1
+      logPanelIndex: 0
+      logOutputHeight: -1
+      listIndex: 0
+      nativeIndex: 2
+      nativeIdentifier: 0
+      originalLog: System.ArgumentOutOfRangeException
+      originalStackTrace: 'System.ArgumentOutOfRangeException
+
+        UnityEngine.Debug:Log(Object)
+
+        EqDataReader:ReadData(DirectoryInfo,
+        Int32, Int32&, List`1&) (at Assets/Scripts/EqDataReader.cs:115)
+
+        EqManger:startEq()
+        (at Assets/Scripts/EqManger.cs:57)
+
+        EqManger:Start() (at Assets/Scripts/EqManger.cs:148)
+
+'
+      nativeFileName: Assets/Scripts/EqDataReader.cs
+      nativeLineNumber: 115
+      watchName: 
+      logText: System.ArgumentOutOfRangeException
+      logTruncatedText: System.ArgumentOutOfRangeException
+      logColumnText: 
+      fileName: 
+      className: 
+      namespaceName: 
+      lineCount: 1
+      hasSourceCode: 0
+      timeStamp: 21:17:49.250
+      timeFrame: 5
+      timeStampDateTimeNow: 21:17:49.250
+      instanceID: 0
+      collapsedCount: 3
+      cachedHeight: -1
+      cachedHeightLogWidth: 0
+      stackEntries:
+      - fileName: Assets/Scripts/EqDataReader.cs
+        fileNameWithoutAssets: Scripts/EqDataReader.cs
+        fileNameWithoutAssetsPlusLineNumber: Scripts/EqDataReader.cs:115
+        fileNameWithoutPath: EqDataReader.cs
+        fileNameWithoutPathPlusLineNumber: EqDataReader.cs:115
+        instanceID: -1
+        className: EqDataReader
+        methodName: ReadData
+        namespaceName: None
+        lineNumber: 115
+        charNumber: 0
+        stackLabel: EqDataReader.ReadData()
+        stackLabel2: ' at /Scripts/EqDataReader.cs:115'
+        stackLabel1Content:
+          m_Text: 
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+        stackLabel1Width: 0
+        stackLabel1Height: 0
+        stackLabel2Content:
+          m_Text: 
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+        stackLabel2Width: 0
+        stackLabel2Height: 0
+        stackSourceLineHeight: 0
+        sourceCode: []
+        sourceCodeUpdated: 0
+        showSource: 1
+      - fileName: Assets/Scripts/EqManger.cs
+        fileNameWithoutAssets: Scripts/EqManger.cs
+        fileNameWithoutAssetsPlusLineNumber: Scripts/EqManger.cs:57
+        fileNameWithoutPath: EqManger.cs
+        fileNameWithoutPathPlusLineNumber: EqManger.cs:57
+        instanceID: -1
+        className: EqManger
+        methodName: startEq
+        namespaceName: None
+        lineNumber: 57
+        charNumber: 0
+        stackLabel: EqManger.startEq()
+        stackLabel2: ' at /Scripts/EqManger.cs:57'
+        stackLabel1Content:
+          m_Text: 
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+        stackLabel1Width: 0
+        stackLabel1Height: 0
+        stackLabel2Content:
+          m_Text: 
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+        stackLabel2Width: 0
+        stackLabel2Height: 0
+        stackSourceLineHeight: 0
+        sourceCode: []
+        sourceCodeUpdated: 0
+        showSource: 1
+      - fileName: Assets/Scripts/EqManger.cs
+        fileNameWithoutAssets: Scripts/EqManger.cs
+        fileNameWithoutAssetsPlusLineNumber: Scripts/EqManger.cs:148
+        fileNameWithoutPath: EqManger.cs
+        fileNameWithoutPathPlusLineNumber: EqManger.cs:148
+        instanceID: -1
+        className: EqManger
+        methodName: Start
+        namespaceName: None
+        lineNumber: 148
+        charNumber: 0
+        stackLabel: EqManger.Start()
+        stackLabel2: ' at /Scripts/EqManger.cs:148'
+        stackLabel1Content:
+          m_Text: 
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+        stackLabel1Width: 0
+        stackLabel1Height: 0
+        stackLabel2Content:
+          m_Text: 
+          m_Image: {fileID: 0}
+          m_Tooltip: 
+        stackLabel2Width: 0
+        stackLabel2Height: 0
+        stackSourceLineHeight: 0
+        sourceCode: []
+        sourceCodeUpdated: 0
+        showSource: 1
       ignoredStackEntries: []
       lastMatchedCount: 0
       belongsToFilters: []
@@ -1497,7 +1022,7 @@ MonoBehaviour:
     compilerErrorEntries: []
     timeFrames: 
     _filteredEntries: []
---- !u!114 &16
+--- !u!114 &14
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2027,7 +1552,7 @@ MonoBehaviour:
         asm: UnityEditor}
       data:
         m_PaneScroll: {x: 0, y: 0}
---- !u!114 &17
+--- !u!114 &15
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2048,9 +1573,9 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 0.6666667
-    y: 998.6667
-    width: 1494
+    x: 0
+    y: 1000
+    width: 1491
     height: 400
   m_ViewDataDictionary: {fileID: 0}
   m_SerializedViewNames: []
@@ -2097,29 +1622,29 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 21
-      width: 1494
+      width: 1491
       height: 379
     m_Scale: {x: 1, y: 1}
-    m_Translation: {x: 747, y: 189.5}
+    m_Translation: {x: 745.5, y: 189.5}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -747
+      x: -745.5
       y: -189.5
-      width: 1494
+      width: 1491
       height: 379
     m_MinimalGUI: 1
   m_defaultScale: 1
-  m_LastWindowPixelSize: {x: 2241, y: 600}
+  m_LastWindowPixelSize: {x: 2236.5, y: 600}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 00000000000000000000
   m_XRRenderMode: 0
   m_RenderTexture: {fileID: 0}
---- !u!114 &18
+--- !u!114 &16
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2140,17 +1665,17 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1496
-    y: 81.333336
-    width: 298
-    height: 1317
+    x: 1492
+    y: 72.66667
+    width: 301
+    height: 1327
   m_ViewDataDictionary: {fileID: 0}
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: ffffff7f
+      m_SelectedIDs: 42490000
       m_LastClickedID: 0
-      m_ExpandedIDs: 42f8feffa0fefeff3ac6ffff
+      m_ExpandedIDs: 40fbffffd43f0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -2174,7 +1699,7 @@ MonoBehaviour:
       m_IsLocked: 1
     m_CurrentSortingName: TransformSorting
   m_WindowGUID: 486ba33f5fda00849bcfb7b7ba98a48e
---- !u!114 &19
+--- !u!114 &17
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2195,10 +1720,10 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 1796
-    y: 81.333336
-    width: 346
-    height: 1317
+    x: 1795.3334
+    y: 72.66667
+    width: 347
+    height: 1327
   m_ViewDataDictionary: {fileID: 0}
   m_SearchFilter:
     m_NameFilter: 
@@ -2213,7 +1738,7 @@ MonoBehaviour:
     m_SkipHidden: 1
     m_SearchArea: 1
     m_Folders:
-    - Packages
+    - Assets/Plugins
   m_ViewMode: 0
   m_StartGridSize: 64
   m_LastFolders: []
@@ -2225,7 +1750,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: a83e0000
     m_LastClickedID: 16040
-    m_ExpandedIDs: 00000000e8770000ea770000ec770000ee770000f0770000f2770000f4770000f6770000f8770000fa770000fc770000fe77000000780000027800000478000006780000087800000a7800000c7800000e78000010780000127800001478000016780000187800001a7800001c7800001e78000020780000227800002478000026780000287800002a780000
+    m_ExpandedIDs: 00000000084900000a4900000c4900000e49000010490000124900001449000016490000184900001a4900001c4900001e49000020490000224900002449000026490000284900002a4900002c4900002e49000030490000324900003449000036490000384900003a4900003c4900003e49000040490000424900004449000046490000484900004a490000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2253,7 +1778,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: ffffffff00000000e8770000ea770000ec770000ee770000f0770000f2770000f4770000f6770000f8770000fa770000fc770000fe77000000780000027800000478000006780000087800000a7800000c7800000e78000010780000127800001478000016780000187800001a7800001c7800001e78000020780000227800002478000026780000287800002a780000ffffff7f
+    m_ExpandedIDs: ffffffff00000000084900000a4900000c4900000e49000010490000124900001449000016490000184900001a4900001c4900001e49000020490000224900002449000026490000284900002a4900002c4900002e49000030490000324900003449000036490000384900003a4900003c4900003e490000444900001e520000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -2309,7 +1834,7 @@ MonoBehaviour:
     m_GridSize: 64
   m_SkipHiddenPackages: 1
   m_DirectoriesAreaWidth: 110
---- !u!114 &20
+--- !u!114 &18
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2331,9 +1856,9 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 2144
-    y: 81.333336
-    width: 413
-    height: 1317
+    y: 72.66667
+    width: 415
+    height: 1327
   m_ViewDataDictionary: {fileID: 0}
   m_OpenAddComponentMenu: 0
   m_ObjectsLockedBeforeSerialization: []
@@ -2347,7 +1872,7 @@ MonoBehaviour:
   m_PreviewWindow: {fileID: 0}
   m_LastInspectedObjectInstanceID: -1
   m_LastVerticalScrollValue: 0
---- !u!114 &21
+--- !u!114 &19
 MonoBehaviour:
   m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2368,8 +1893,8 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: -414
-    y: 301.6667
-    width: 413
-    height: 1326
+    x: 2144
+    y: 72.66667
+    width: 415
+    height: 1327
   m_ViewDataDictionary: {fileID: 0}

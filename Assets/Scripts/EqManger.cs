@@ -4,16 +4,20 @@ using System.IO;
 using Sirenix.OdinInspector;
 using System.Linq;
 using UnityEngine.SceneManagement;
-
+using UnityEngine.Events;
 // Read Earthquake Data
 // use OdinInspector
 [ExecuteInEditMode]
 public class EqManger : MonoBehaviour
 {
-
+    // 地震事件
+    public UnityEvent StartEarthquake { get; set; }
+    public UnityEvent StopEarthquake { get; set; }
     // 单例模式
-    public static EqManger Instance { get; private set; }
-
+    public static EqManger Instance
+    {
+        get; private set;
+    }
 
 
 
@@ -46,7 +50,7 @@ public class EqManger : MonoBehaviour
     // [PropertyOrder(4)]
     [ButtonGroup("Control Earthquake/Buttons")]
     // [ButtonGroup("Start Earthquake")]
-    private void startEq()
+    public void startEq()
     {
         //判断是否已经选择某个地震数据
         if (string.IsNullOrEmpty(earthquakes))
@@ -55,6 +59,7 @@ public class EqManger : MonoBehaviour
             return;
         }
 
+        // 读取数据
         EqDataReader.ReadData(new DirectoryInfo(Application.dataPath + "/Data/" + earthquakes + "/"), skipLine, out timeLength, out acceleration);
         // 判断读取数据是否正常
         if (acceleration.Capacity == 0)
@@ -62,9 +67,12 @@ public class EqManger : MonoBehaviour
             Debug.Log("Read Acceleration Failed!!!");
             return;
         }
+
         // 转换单位 从 g 转换为 m/s2 乘以重力加速度大小
         acceleration = acceleration.Select(a => a * gravityValue).ToList();
 
+        // 开始计时
+        Counter.Instance.enabled = true;
         //开始地震模拟，激活Ground的Earthquake脚本
         foreach (var eq in eqScripts)
         {
@@ -79,13 +87,14 @@ public class EqManger : MonoBehaviour
     {
         foreach (var eq in eqScripts)
         {
-            eq.GetComponent<Earthquake>().enabled = false;
+            eq.enabled = false;
         }
+        Counter.Instance.enabled = false;// UI 界面暂停时停止 Counter
     }
 
     // 重置场景
     [Button("Restart")]
-    private void restart()
+    public void restart()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -102,10 +111,16 @@ public class EqManger : MonoBehaviour
 
 
     //---------------------------------------------------------Method-------------------------------------------------------------------------------
-    public void getData(out List<Vector3> acceleration, out int timeLength)
+    // TODO: 考虑加速度数据传输后可能被 Earthquake 脚本修改
+    public void getData(out List<Vector3> acceleration, out int timeLength)// Earthquake 脚本从中获得数据
     {
         acceleration = this.acceleration;
         timeLength = this.timeLength;
+    }
+
+    public int getTime()
+    {
+        return this.timeLength;
     }
 
     // 初始化这时 Earthquake 脚本
@@ -117,16 +132,17 @@ public class EqManger : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            // DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(gameObject);
         }
-        // else
-        // {
-        //     Destroy(gameObject);
-        // }
+        else
+        {
+            Destroy(gameObject);
+        }
         init();
     }
 
 
+    // 获取所有的地震脚本并设置为未激活状态
     private Earthquake[] eqScripts;
     void init()
     {
@@ -135,5 +151,17 @@ public class EqManger : MonoBehaviour
         {
             eq.enabled = false;
         }
+        Counter.Instance.StopEarthquake.AddListener(stopEq);
     }
+
+    /// <summary>
+    /// Start is called on the frame when a script is enabled just before
+    /// any of the Update methods is called the first time.
+    /// </summary>
+    // void Start()
+    // {
+    //     // earthquakes = EqDataReader.EarthquakeFolders(Application.dataPath + "/Data/")[0];
+    //     earthquakes = "RSN1063_NORTHR";
+    //     startEq();
+    // }
 }

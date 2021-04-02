@@ -13,7 +13,8 @@ public class Earthquake : MonoBehaviour
     // Start is called before the first frame update
     [ShowInInspector, ReadOnly]
     [ProgressBar(0, "timeLength")]
-    private int timeCount;
+    // TODO: 全局计时器
+    // private int timeCount;
 
     // 存储加速度数据
     //由于PhysicX不支持double精度，所以不可避免地造成精度损失
@@ -45,17 +46,18 @@ public class Earthquake : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
+
         // 每隔 0.01s更新加速度
-        if (timeCount++ <= timeLength - 1)
-        {
-            currentAcceleration = acc[timeCount];
-            rb.AddForce(currentAcceleration, ForceMode.Acceleration);
-        }
-        else
-        {
-            // 地震结束
-            this.enabled = false;
-        }
+        // if (timeCount++ <= timeLength - 1)
+        // {
+        currentAcceleration = acc[Counter.Instance.count];
+        rb.AddForce(currentAcceleration, ForceMode.Acceleration);
+        // }
+        // else
+        // {
+        //     // 地震结束
+        //     this.enabled = false;
+        // }
 
     }
 
@@ -74,7 +76,7 @@ public class Earthquake : MonoBehaviour
         currentAcceleration = Vector3.zero;
         rb.velocity = Vector3.zero;
         timeLength = 0;
-        timeCount = 0;
+        // timeCount = 0;
         acc = null;
     }
 }
