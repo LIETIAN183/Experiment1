@@ -54,14 +54,13 @@ public class UIControl : MonoBehaviour
         selectEq.options = EqDataReader.EarthquakeFolders(Application.dataPath + "/Data/").Select(f => new Dropdown.OptionData(f)).ToList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>，显示在下拉框中
         selectEq.onValueChanged.AddListener(index => EqManger.Instance.earthquakes = selectEq.options[index].text);// 下拉框选择后，赋值 earthquakes
         startBtn.onClick.AddListener(EqManger.Instance.startEq);// 关联地震开始按钮
-        startBtn.onClick.AddListener(() => progress.maxValue = EqManger.Instance.getTime());
+        startBtn.onClick.AddListener(() => progress.maxValue = EqManger.Instance.getTime());// 设置 Slider 最大值
         stopBtn.onClick.AddListener(EqManger.Instance.stopEq);// 关联地震结束按钮
         restartBtn.onClick.AddListener(EqManger.Instance.restart);// 关联重置场景按钮
-        Counter.Instance.onValueChanged.AddListener(UpdateProgress);
+        Counter.Instance.onValueChanged.AddListener(UpdateProgress);// 更新 Slider 滑动条进度
     }
     public void UpdateProgress(int i)
     {
-        Debug.Log(i);
         progress.value = i;
     }
 }

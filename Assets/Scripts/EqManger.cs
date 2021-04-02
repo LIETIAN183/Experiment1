@@ -7,12 +7,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 // Read Earthquake Data
 // use OdinInspector
-[ExecuteInEditMode]
+
 public class EqManger : MonoBehaviour
 {
     // 地震事件
-    public UnityEvent StartEarthquake { get; set; }
-    public UnityEvent StopEarthquake { get; set; }
+    // public UnityEvent StartEarthquake { get; set; }
+    // public UnityEvent StopEarthquake { get; set; }
     // 单例模式
     public static EqManger Instance
     {

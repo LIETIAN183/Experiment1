@@ -25,4 +25,5 @@
 #### 2021.4.2
 
 - 添加 UI 界面控制
+- 添加全局计数器显示于 UI 界面
 - Add Force on Nonstructural Component

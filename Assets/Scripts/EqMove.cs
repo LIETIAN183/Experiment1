@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
+// [ExecuteInEditMode]
 public class EqMove : MonoBehaviour
 {
     public Earthquake ground;
@@ -14,6 +15,11 @@ public class EqMove : MonoBehaviour
     void Start()
     {
         rbs = GetComponentsInChildren<Rigidbody>();
+        Physics.SyncTransforms();
+        foreach (var rb in rbs)
+        {
+            rb.ResetCenterOfMass();
+        }
     }
 
     // Update is called once per frame
@@ -39,6 +45,10 @@ public class EqMove : MonoBehaviour
     /// </summary>
     void OnDrawGizmos()
     {
+        foreach (var rb in rbs)
+        {
+            // Gizmos.DrawSphere(rb.centerOfMass, 0.05f);
+        }
         // Giz
     }
 }

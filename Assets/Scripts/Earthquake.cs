@@ -13,8 +13,6 @@ public class Earthquake : MonoBehaviour
     // Start is called before the first frame update
     [ShowInInspector, ReadOnly]
     [ProgressBar(0, "timeLength")]
-    // TODO: 全局计时器
-    // private int timeCount;
 
     // 存储加速度数据
     //由于PhysicX不支持double精度，所以不可避免地造成精度损失
@@ -76,7 +74,6 @@ public class Earthquake : MonoBehaviour
         currentAcceleration = Vector3.zero;
         rb.velocity = Vector3.zero;
         timeLength = 0;
-        // timeCount = 0;
         acc = null;
     }
 }
