@@ -1,23 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-// public class RigidbodyEditor : MonoBehaviour
-// {
-//     // Start is called before the first frame update
-//     void Start()
-//     {
-
-//     }
-
-//     // Update is called once per frame
-//     void Update()
-//     {
-
-//     }
-// }
 using UnityEditor;
-// using UnityEngine;
 [CustomEditor(typeof(Rigidbody))]
 public class RigidbodyEditor : Editor
 {
@@ -25,8 +9,7 @@ public class RigidbodyEditor : Editor
     {
         Rigidbody rb = target as Rigidbody;
         Handles.color = Color.red;
-        // Handles.SphereCap(1, rb.transform.TransformPoint(rb.centerOfMass), rb.rotation, 1f);
-        Handles.SphereHandleCap(1, rb.transform.TransformPoint(rb.centerOfMass), rb.rotation, 0.01f, EventType.Repaint);
+        Handles.SphereHandleCap(1, rb.transform.TransformPoint(rb.centerOfMass), rb.rotation, 0.01f, EventType.Repaint);// 显示 Rigidbody 的质心位置
     }
     public override void OnInspectorGUI()
     {

@@ -15,7 +15,7 @@
 
 - 添加 EqDataManger 控制地震的开始与结束，分离数据读取
 - 代码优化
-- 修改 .gitignore，清理不必要上传的文件
+- 添加 .gitignore
 
 #### 2021.3.30
 
@@ -27,3 +27,10 @@
 - 添加 UI 界面控制
 - 添加全局计数器显示于 UI 界面
 - Add Force on Nonstructural Component
+- 清理 git,删除已跟踪的文件，使得 .gitignore 生效
+
+#### 2021.4.3
+
+- 修正模型缩放旋转，修正模型质心位置，修正模型坐标关系
+- 修改 EqManger 的 Acceleration 为 private set
+- 通过 Event 解耦 Script 间的联系 Progress 20%

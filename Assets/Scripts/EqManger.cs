@@ -11,15 +11,30 @@ using UnityEngine.Events;
 public class EqManger : MonoBehaviour
 {
     // 地震事件
-    // public UnityEvent StartEarthquake { get; set; }
-    // public UnityEvent StopEarthquake { get; set; }
+    public UnityEvent StartEarthquake { get; set; } = new UnityEvent();
+    public UnityEvent EndEarthquake { get; set; } = new UnityEvent();
     // 单例模式
     public static EqManger Instance
     {
         get; private set;
     }
 
-
+    /// <summary>
+    /// Awake is called when the script instance is being loaded.
+    /// </summary>
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        init();
+    }
 
     // -------------------------------------------------Set ReadData Parameter---------------------------------------------------------
     [TitleGroup("Read Data Settings")]
@@ -43,8 +58,6 @@ public class EqManger : MonoBehaviour
     }
 #endif
 
-
-
     //--------------------------------------------Control Earthquake-----------------------------------------------------------------
     [TitleGroup("Control Earthquake")]
     // [PropertyOrder(4)]
@@ -60,9 +73,9 @@ public class EqManger : MonoBehaviour
         }
 
         // 读取数据
-        EqDataReader.ReadData(new DirectoryInfo(Application.dataPath + "/Data/" + earthquakes + "/"), skipLine, out timeLength, out acceleration);
+        acceleration = EqDataReader.ReadData(new DirectoryInfo(Application.dataPath + "/Data/" + earthquakes + "/"), skipLine, out timeLength);
         // 判断读取数据是否正常
-        if (acceleration.Capacity == 0)
+        if (acceleration == null)
         {
             Debug.Log("Read Acceleration Failed!!!");
             return;
@@ -74,10 +87,7 @@ public class EqManger : MonoBehaviour
         // 开始计时
         Counter.Instance.enabled = true;
         //开始地震模拟，激活Ground的Earthquake脚本
-        foreach (var eq in eqScripts)
-        {
-            eq.enabled = true;
-        }
+        StartEarthquake.Invoke();
     }
 
     // [PropertyOrder(5)]
@@ -85,10 +95,7 @@ public class EqManger : MonoBehaviour
     [ButtonGroup("Control Earthquake/Buttons")]
     public void stopEq()
     {
-        foreach (var eq in eqScripts)
-        {
-            eq.enabled = false;
-        }
+        EndEarthquake.Invoke();
         Counter.Instance.enabled = false;// UI 界面暂停时停止 Counter
     }
 
@@ -105,52 +112,28 @@ public class EqManger : MonoBehaviour
     [TitleGroup("Earthquake Data")]
     [ShowInInspector, ReadOnly]
     private int timeLength;
-    [ShowInInspector, ReadOnly]
-    private List<Vector3> acceleration;
+    [ShowInInspector]
+    public List<Vector3> acceleration { get; private set; }
 
 
 
     //---------------------------------------------------------Method-------------------------------------------------------------------------------
     // TODO: 考虑加速度数据传输后可能被 Earthquake 脚本修改
-    public void getData(out List<Vector3> acceleration, out int timeLength)// Earthquake 脚本从中获得数据
+    public Vector3 getAcc(int index)// Earthquake 脚本从中获得数据
     {
-        acceleration = this.acceleration;
-        timeLength = this.timeLength;
+        return acceleration[index];
     }
 
     public int getTime()
     {
         return this.timeLength;
     }
-
-    // 初始化这时 Earthquake 脚本
-    /// <summary>
-    /// Awake is called when the script instance is being loaded.
-    /// </summary>
-    void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-        init();
-    }
-
-
     // 获取所有的地震脚本并设置为未激活状态
-    private Earthquake[] eqScripts;
+    private GroundMove[] eqScripts;
     void init()
     {
-        eqScripts = GameObject.FindGameObjectsWithTag("Ground").Select(g => g.GetComponent<Earthquake>()).ToArray();
-        foreach (var eq in eqScripts)
-        {
-            eq.enabled = false;
-        }
+        // StartEarthquake = new UnityEvent();
+        // EndEarthquake = new UnityEvent();
         Counter.Instance.StopEarthquake.AddListener(stopEq);
     }
 

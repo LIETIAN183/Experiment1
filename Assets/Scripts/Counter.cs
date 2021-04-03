@@ -8,21 +8,18 @@ using Sirenix.OdinInspector;
 public class Counter : MonoBehaviour
 {
     public static Counter Instance { get; private set; }
-    [ShowInInspector]
+    [ShowInInspector, ProgressBar(0, "max")]
     public int count
     {
         get;
         private set;
     }
-    [ShowInInspector]
+    [HideInInspector]
     public int max
     {
         get;
         private set;
     }
-
-
-
     public CounterEvent onValueChanged { get; set; }
     public UnityEvent StopEarthquake { get; set; }
 

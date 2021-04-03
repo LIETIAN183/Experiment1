@@ -40,8 +40,8 @@ public class UIControl : MonoBehaviour
         selectEq = GetComponentInChildren<Dropdown>();
         // TODO: 性能优化，此查找方式可能太费性能
         startBtn = GameObject.Find("StartBtn").GetComponent<Button>();
-        stopBtn = GameObject.Find("StopBtn").GetComponent<Button>();
-        restartBtn = GameObject.Find("RestartBtn").GetComponent<Button>();
+        stopBtn = GameObject.Find("EndBtn").GetComponent<Button>();
+        restartBtn = GameObject.Find("ReLoadBtn").GetComponent<Button>();
         progress = GetComponentInChildren<Slider>();
     }
     /// <summary>

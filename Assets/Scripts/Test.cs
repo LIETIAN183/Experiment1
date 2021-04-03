@@ -7,13 +7,11 @@ public class Test : MonoBehaviour
 {
     Rigidbody _rb;
     Vector3 angle;
+    public int degree = 0;
 
     Vector3 lastVelocity;
     public Vector3 acc;
-    public Vector3 vel;
     public Vector3 cur_vel;
-    public Vector3 dis;
-
     float time = 0;
     [Button("forward")]
     void forward()
@@ -39,6 +37,8 @@ public class Test : MonoBehaviour
     {
         angle = Vector3.back;
     }
+
+
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
@@ -49,15 +49,6 @@ public class Test : MonoBehaviour
     {
         time += Time.deltaTime;
         // _rb.AddForce(angle, ForceMode.Acceleration);
-
-
-        dis.x = 0.5f * angle.x * time * time;
-        dis.y = 0.5f * angle.y * time * time;
-        dis.z = 0.5f * angle.z * time * time;
-
-        vel.x = angle.x * time;
-        vel.y = angle.y * time;
-        vel.z = angle.z * time;
         cur_vel = _rb.velocity;
 
     }
@@ -73,4 +64,10 @@ public class Test : MonoBehaviour
         _rb.AddForce(angle, ForceMode.Acceleration);
     }
 
+    [Button("Calculate Angle")]
+    void CalculateAngle()
+    {
+        Vector3 temp = Quaternion.AngleAxis(degree, Vector3.up) * Vector3.forward;
+        Debug.Log(temp);
+    }
 }
