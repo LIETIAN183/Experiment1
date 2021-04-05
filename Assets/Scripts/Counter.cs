@@ -5,27 +5,34 @@ using UnityEngine;
 using UnityEngine.Events;
 using Sirenix.OdinInspector;
 
+
+// onValueChanged 为 UnityEvent<int> ，必须先继承实现构造函数
+public class CounterEvent : UnityEvent<int>
+{
+    public CounterEvent() { }
+}
+
 public class Counter : MonoBehaviour
 {
+    // 单例模式
     public static Counter Instance { get; private set; }
-    [ShowInInspector, ProgressBar(0, "max")]
+
+    [ShowInInspector, ProgressBar(0, "maxTime")]
     public int count
     {
         get;
         private set;
     }
-    [HideInInspector]
-    public int max
-    {
-        get;
-        private set;
-    }
+
+    [ShowInInspector, ReadOnly]
+    private int maxTime;
+
+    // 监听计数器变化
     public CounterEvent onValueChanged { get; set; }
-    public UnityEvent StopEarthquake { get; set; }
 
     void Awake()
     {
-
+        // 单例模式判断
         if (Instance == null)
         {
             Instance = this;
@@ -35,33 +42,21 @@ public class Counter : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        Init();
-    }
 
-    void Init()
-    {
-        onValueChanged = new CounterEvent();// 初始化 UnityEvent
-        StopEarthquake = new UnityEvent();
-        this.enabled = false;// 不激活脚本
+        // 初始化 UnityEvent
+        onValueChanged = new CounterEvent();
     }
 
     /// <summary>
-    /// This function is called when the object becomes enabled and active.
-    /// 初始化参数
+    /// Start is called on the frame when a script is enabled just before
+    /// any of the Update methods is called the first time.
     /// </summary>
-    void OnEnable()
+    void Start()
     {
-        count = 0;
-        max = EqManger.Instance.getTime();
-    }
-
-    /// <summary>
-    /// This function is called when the behaviour becomes disabled or inactive.
-    /// </summary>
-    void OnDisable()
-    {
-        count = 0;
-        max = 0;
+        EqManger.Instance.startEarthquake.AddListener(() => this.enabled = true);
+        EqManger.Instance.startEarthquake.AddListener(() => maxTime = EqManger.Instance.GetTime());
+        EqManger.Instance.endEarthquake.AddListener(() => this.enabled = false);
+        this.enabled = false;
     }
 
     /// <summary>
@@ -70,18 +65,37 @@ public class Counter : MonoBehaviour
     /// </summary>
     void FixedUpdate()
     {
-        if (count == max - 1)
+        if (count >= maxTime - 1)
         {
             // Stop Earthquake
-            StopEarthquake.Invoke();
-            // this.enabled = false;
+            EqManger.Instance.endEarthquake.Invoke();
         }
         onValueChanged.Invoke(count++);
     }
 
-
-    public class CounterEvent : UnityEvent<int>
+    /// <summary>
+    /// This function is called when the object becomes enabled and active.
+    /// </summary>
+    void OnEnable()
     {
-        public CounterEvent() { }
+        Reset();
+    }
+
+    /// <summary>
+    /// This function is called when the behaviour becomes disabled or inactive.
+    /// </summary>
+    void OnDisable()
+    {
+        Reset();
+    }
+
+    /// <summary>
+    /// Reset is called when the user hits the Reset button in the Inspector's
+    /// context menu or when adding the component the first time.
+    /// </summary>
+    void Reset()
+    {
+        count = 0;
+        maxTime = 0;
     }
 }

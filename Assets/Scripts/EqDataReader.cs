@@ -27,7 +27,7 @@ public static class EqDataReader
     }
 
     // Read Earthquake Data from Specific File
-    public static List<Vector3> ReadData(DirectoryInfo folderPath, int skipLine, out int timeLength)
+    public static List<Vector3> ReadFile(DirectoryInfo folderPath, int skipLine, out int timeLength)
     {
         timeLength = int.MaxValue;      // 设置时间长度为最大，从而找出数据中时间的最短值
 

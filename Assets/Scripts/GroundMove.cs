@@ -7,8 +7,6 @@ public class GroundMove : MonoBehaviour
 
     // 存储加速度数据
     //由于PhysicX不支持double精度，所以不可避免地造成精度损失
-    private List<Vector3> acc;
-
     [ShowInInspector, ReadOnly]
     public Vector3 currentAcceleration { get; private set; }
 
@@ -19,18 +17,18 @@ public class GroundMove : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.useGravity = false;// 地面不受重力影响
-
     }
+
     /// <summary>
     /// Start is called on the frame when a script is enabled just before
     /// any of the Update methods is called the first time.
     /// </summary>
     void Start()
     {
-        // 监听事件
-        EqManger.Instance.StartEarthquake.AddListener(() => this.enabled = true);
-        EqManger.Instance.EndEarthquake.AddListener(() => this.enabled = false);
-        Counter.Instance.onValueChanged.AddListener(count => currentAcceleration = EqManger.Instance.getAcc(count));// 匿名函数 Counter 变化时，更新对应加速度
+        // 注册监听事件
+        EqManger.Instance.startEarthquake.AddListener(() => this.enabled = true);
+        EqManger.Instance.endEarthquake.AddListener(() => this.enabled = false);
+        Counter.Instance.onValueChanged.AddListener(count => currentAcceleration = EqManger.Instance.GetAcc(count));// 匿名函数 Counter 变化时，更新对应加速度
         this.enabled = false; // 不激活脚本
     }
 
@@ -69,8 +67,5 @@ public class GroundMove : MonoBehaviour
     {
         currentAcceleration = Vector3.zero;
         rb.velocity = Vector3.zero;
-        acc = null;
     }
 }
-
-
