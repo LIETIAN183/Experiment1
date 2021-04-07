@@ -1,14 +1,10 @@
-﻿using System.Security.Cryptography;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
+﻿using UnityEngine;
 
 // TODO: 创建一个移动 父物体 pivot 到子物体几何中心的脚本，父物体只是一个用来包括子物体的空物体
+// TODO: 提升物体运动效果
 // [ExecuteInEditMode]
 public class ComponentMove : MonoBehaviour
 {
-    // FIXME: Ground 目前还需要手动在 Insptor 中设置，目标能通过代码自动识别物体下方的 Ground
     public GroundMove ground;
     public Rigidbody[] rbs;
 
@@ -29,6 +25,7 @@ public class ComponentMove : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
         // 注册监听事件
         EqManger.Instance.startEarthquake.AddListener(() => this.enabled = true);
         EqManger.Instance.endEarthquake.AddListener(() => this.enabled = false);
@@ -45,5 +42,14 @@ public class ComponentMove : MonoBehaviour
         {
             rb.AddForceAtPosition(ground.currentAcceleration * rb.mass, rb.centerOfMass, ForceMode.Force);
         }
+    }
+
+    /// <summary>
+    /// Reset is called when the user hits the Reset button in the Inspector's
+    /// context menu or when adding the component the first time.
+    /// </summary>
+    void Reset()
+    {
+        ground = GameObject.Find("Ground").GetComponent<GroundMove>();
     }
 }

@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Sirenix.OdinInspector;
+
 public class GroundMove : MonoBehaviour
 {
     private Rigidbody rb;
@@ -28,6 +28,8 @@ public class GroundMove : MonoBehaviour
         // 注册监听事件
         EqManger.Instance.startEarthquake.AddListener(() => this.enabled = true);
         EqManger.Instance.endEarthquake.AddListener(() => this.enabled = false);
+
+        // 加速度随着计时器变化而更新
         Counter.Instance.onValueChanged.AddListener(count => currentAcceleration = EqManger.Instance.GetAcc(count));// 匿名函数 Counter 变化时，更新对应加速度
         this.enabled = false; // 不激活脚本
     }

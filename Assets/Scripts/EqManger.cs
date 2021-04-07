@@ -45,13 +45,12 @@ public class EqManger : MonoBehaviour
     // 显示可选择的不同地震
     [ValueDropdown("EarthquakeFolders"), Required, TitleGroup("Read Data Settings")]
     public string folders = null;
-#if UNITY_EDITOR // Editor-related code must be excluded from builds
-#pragma warning disable // And these members are in fact being used, though the compiler cannot tell. Let's not have bothersome warnings.
+
+    // TODO: ADD 重新载入目录的选项
     public IEnumerable<string> EarthquakeFolders()
     {
         return EqDataReader.EarthquakeFolders(Application.dataPath + "/Data/");
     }
-#endif
 
     //--------------------------------------------Control Earthquake-----------------------------------------------------------------
     [TitleGroup("Control Earthquake")]
@@ -61,7 +60,11 @@ public class EqManger : MonoBehaviour
     public void StartEq()
     {
         // 读取数据
-        GetData();
+        if (!GetData())
+        {
+            return;//读取数据失败，不开始地震仿真
+            // TODO: 报错提示
+        }
         //开始地震模拟，激活Ground的Earthquake脚本
         startEarthquake.Invoke();
     }
@@ -91,13 +94,13 @@ public class EqManger : MonoBehaviour
     [ShowInInspector, TitleGroup("Earthquake Data")]
     public List<Vector3> acceleration { get; private set; }
 
-    void GetData()
+    bool GetData()
     {
         //判断是否已经选择某个地震数据
         if (string.IsNullOrEmpty(folders))
         {
             Debug.Log("Select Earthquake First!!!");
-            return;
+            return false;
         }
 
         // 读取数据
@@ -106,11 +109,12 @@ public class EqManger : MonoBehaviour
         if (acceleration == null)
         {
             Debug.Log("Read Acceleration Failed!!!");
-            return;
+            return false;
         }
 
         // 转换单位 从 g 转换为 m/s2 乘以重力加速度大小
         acceleration = acceleration.Select(a => a * gravityValue).ToList();
+        return true;
     }
 
     //---------------------------------------------------------Method-------------------------------------------------------------------------------
@@ -122,6 +126,20 @@ public class EqManger : MonoBehaviour
     public int GetTime()
     {
         return this.timeLength;
+    }
+
+    /// <summary>
+    /// Reset is called when the user hits the Reset button in the Inspector's
+    /// context menu or when adding the component the first time.
+    /// </summary>
+    void Reset()
+    {
+        skipLine = 3;
+        gravityValue = 9.81f;
+        folders = null;
+        timeLength = 0;
+        acceleration = null;
+
     }
 
     // For Test

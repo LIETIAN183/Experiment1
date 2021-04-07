@@ -2,7 +2,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using System;
-using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 public static class EqDataReader
 {
 
+    // 读取可选的仿真地震选项
     public static IEnumerable<string> EarthquakeFolders(string directoryPath)
     {
         try
@@ -73,7 +73,7 @@ public static class EqDataReader
             {
                 // Quaternion * Vector3 work, Vector3 * Quaternion not work
                 angle = Quaternion.AngleAxis(int.Parse(degreeStr), Vector3.up) * Vector3.forward;
-                Debug.Log(angle);
+                // Debug.Log(angle);
             }
 
             // 读取文件
@@ -101,7 +101,6 @@ public static class EqDataReader
                 // Debug.Log(number);
                 timeLength = number < timeLength ? number : timeLength;
 
-                // TODO: 读取卡顿，待优化
                 // TODO: use another way to save data, notice the first time List is lack of capacity
                 // Debug.Log(count);
                 count = 0;
@@ -112,6 +111,7 @@ public static class EqDataReader
                     linedata = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (var str in linedata)
                     {
+                        // 初始时 List 没有空间，只能使用Add函数添加
                         if (count >= acceleration.Count)
                         {
 

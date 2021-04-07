@@ -1,7 +1,4 @@
-﻿using System.Runtime.Serialization;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 using Sirenix.OdinInspector;
 
@@ -53,9 +50,12 @@ public class Counter : MonoBehaviour
     /// </summary>
     void Start()
     {
-        EqManger.Instance.startEarthquake.AddListener(() => this.enabled = true);
-        EqManger.Instance.startEarthquake.AddListener(() => maxTime = EqManger.Instance.GetTime());
+        // 注册事件
+        // 地震开始，Counter 组件激活，更新 maxTime 值为地震时长 开始计数
+        EqManger.Instance.startEarthquake.AddListener(() => { this.enabled = true; maxTime = EqManger.Instance.GetTime(); });
+        // 地震结束，Counter 组件取消激活
         EqManger.Instance.endEarthquake.AddListener(() => this.enabled = false);
+        // 默认不激活 Counter 组件
         this.enabled = false;
     }
 

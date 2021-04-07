@@ -34,3 +34,14 @@
 - 修正模型缩放旋转，修正模型质心位置，修正模型坐标关系
 - 修改 EqManger 的 Acceleration 为 private set
 - 通过 Event 解耦 Script 间的联系 Progress 20%
+
+#### 2021.4.5
+
+- 完成重构，解耦不同组件的关系
+- 添加 Pause/Continue Button
+
+#### 2021.4.7
+
+- 添加 UI 分辨率适配
+- 添加测试脚本/场景
+- 添加计划
