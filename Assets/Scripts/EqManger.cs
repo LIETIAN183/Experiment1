@@ -9,6 +9,7 @@ using UnityEngine.Events;
 // Read Earthquake Data
 // use OdinInspector
 // TODO: change Debug to Visulizable tips
+// TODO: 优化物理计算 预先计算？
 public class EqManger : MonoBehaviour
 {
     // 地震事件

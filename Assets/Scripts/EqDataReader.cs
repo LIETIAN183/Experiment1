@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-// TODO: 使用 Addressable 方式读取数据
+// TODO: 修改为 Resource 加载数据，优化资源存储方式 修改为 Resource Manger
 public static class EqDataReader
 {
 
