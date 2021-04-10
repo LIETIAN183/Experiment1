@@ -33,7 +33,7 @@ public class Counter : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);// 切换场景时不销毁
         }
         else
         {

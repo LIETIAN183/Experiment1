@@ -10,6 +10,7 @@ using UnityEngine.Events;
 // use OdinInspector
 // TODO: change Debug to Visulizable tips
 // TODO: 优化物理计算 预先计算？
+// TODO: 修改地震结束后的操作
 public class EqManger : MonoBehaviour
 {
     // 地震事件
@@ -30,7 +31,7 @@ public class EqManger : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject); // 切换场景时不销毁
         }
         else
         {
@@ -43,14 +44,14 @@ public class EqManger : MonoBehaviour
     public int skipLine = 3;
     [TitleGroup("Read Data Settings")]
     public float gravityValue = 9.81f;
-    // 显示可选择的不同地震
+    // 显示可选择的不同地震 folder 名字即为地震名字
     [ValueDropdown("EarthquakeFolders"), Required, TitleGroup("Read Data Settings")]
-    public string folders = null;
+    public string folder = null;
 
     // TODO: ADD 重新载入目录的选项
     public IEnumerable<string> EarthquakeFolders()
     {
-        return EqDataReader.EarthquakeFolders(Application.dataPath + "/Data/");
+        return EqDataReader.EarthquakeFolders(Application.streamingAssetsPath + "/Data/");
     }
 
     //--------------------------------------------Control Earthquake-----------------------------------------------------------------
@@ -80,9 +81,9 @@ public class EqManger : MonoBehaviour
 
     // 重置场景
     [Button("Restart")]
-    public void ReLoad()
+    public void Reload()
     {
-        endEarthquake.Invoke();
+        // endEarthquake.Invoke();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -98,14 +99,14 @@ public class EqManger : MonoBehaviour
     bool GetData()
     {
         //判断是否已经选择某个地震数据
-        if (string.IsNullOrEmpty(folders))
+        if (string.IsNullOrEmpty(folder))
         {
             Debug.Log("Select Earthquake First!!!");
             return false;
         }
 
         // 读取数据
-        acceleration = EqDataReader.ReadFile(new DirectoryInfo(Application.dataPath + "/Data/" + folders + "/"), skipLine, out timeLength);
+        acceleration = EqDataReader.ReadFile(new DirectoryInfo(Application.dataPath + "/Data/" + folder + "/"), skipLine, out timeLength);
         // 判断读取数据是否正常
         if (acceleration == null)
         {
@@ -137,7 +138,7 @@ public class EqManger : MonoBehaviour
     {
         skipLine = 3;
         gravityValue = 9.81f;
-        folders = null;
+        folder = null;
         timeLength = 0;
         acceleration = null;
 

@@ -50,3 +50,22 @@
 
 - 添加 FPSCounter
 - 选择使用 AdvancedPeoplePack2 作为人物模型
+- Modify UI interface
+
+#### 2021.4.10
+
+- 更换 UI
+
+---
+
+# Unity 插件
+
+- Hierarchy 2
+- Advanced People Pack 2
+- Modern UI Pack
+- Odin - Inspector and Serializer
+- Edeitor Console Pro
+- Play Mode Saver
+- Sensor Toolkit
+- Peek
+- **Maybe** Easy Character Movement
