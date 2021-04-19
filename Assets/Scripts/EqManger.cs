@@ -106,7 +106,7 @@ public class EqManger : MonoBehaviour
         }
 
         // 读取数据
-        acceleration = EqDataReader.ReadFile(new DirectoryInfo(Application.dataPath + "/Data/" + folder + "/"), skipLine, out timeLength);
+        acceleration = EqDataReader.ReadFile(new DirectoryInfo(Application.streamingAssetsPath + "/Data/" + folder + "/"), skipLine, out timeLength);
         // 判断读取数据是否正常
         if (acceleration == null)
         {

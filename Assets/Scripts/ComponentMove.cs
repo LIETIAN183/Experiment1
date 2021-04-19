@@ -40,7 +40,8 @@ public class ComponentMove : MonoBehaviour
         // 地震对物体施加力
         foreach (var rb in rbs)
         {
-            rb.AddForceAtPosition(ground.currentAcceleration * rb.mass, rb.centerOfMass, ForceMode.Force);
+            // rb.AddForceAtPosition(ground.currentAcceleration * rb.mass, rb.centerOfMass, ForceMode.Force);
+            rb.AddForce(ground.currentAcceleration * rb.mass, ForceMode.Force);
         }
     }
 

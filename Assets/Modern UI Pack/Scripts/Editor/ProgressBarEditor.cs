@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+// using Microsoft.VisualBasic.CompilerServices;
+using UnityEngine;
 using UnityEditor;
 
 namespace Michsky.UI.ModernUIPack
@@ -11,7 +13,7 @@ namespace Michsky.UI.ModernUIPack
 
         private void OnEnable()
         {
-            pbTarget = (ProgressBar)target;
+            pbTarget = target as ProgressBar;
         }
 
         public override void OnInspectorGUI()

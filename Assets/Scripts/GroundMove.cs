@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Sirenix.OdinInspector;
 
+// TODO：设置 Ground 为 Kinematic，修改运动方式
 public class GroundMove : MonoBehaviour
 {
     private Rigidbody rb;

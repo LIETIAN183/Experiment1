@@ -5,6 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - Shelf
+  - c1
+  - c2
+  - c3
+  - c4
   layers:
   - Default
   - TransparentFX
@@ -15,7 +20,7 @@ TagManager:
   - 
   - 
   - Earthquake
-  - 
+  - Agent
   - 
   - 
   - 
