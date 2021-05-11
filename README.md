@@ -56,11 +56,30 @@
 
 - 更换 UI
 
+#### 2021.4.11 - 2021.4.18
+
+- 了解 ComputeShader
+- 了解 PhysX GPU 运行是否可行，Unity 上不可行，无法在 GPU 上进行物理计算
+- 了解 Unity DOTS
+
+#### 2021.4.19
+
+- 切换为 DOTS 架构
+
+### 2021.4.21
+
+- 切换进度 80%
+
+### 2021.5.11
+
+- 完成 DOTS 架构转换
+- 实现地震模拟原型
+
 ---
 
 # Unity 插件
 
-- Hierarchy 2
+- ~~Hierarchy 2~~
 - Advanced People Pack 2
 - Modern UI Pack
 - Odin - Inspector and Serializer

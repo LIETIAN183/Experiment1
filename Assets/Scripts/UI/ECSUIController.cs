@@ -1,0 +1,160 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+using Unity.Entities;
+using System.Collections.Generic;
+using Sirenix.OdinInspector;
+using Michsky.UI.ModernUIPack;
+using UnityEngine.SceneManagement;
+
+// TODO: 添加 CineMachine
+// TODO: UI 可移动或隐藏
+// TODO: Display Acc
+public class ECSUIController : MonoBehaviour
+{
+    public static ECSUIController Instance { get; private set; }
+    public HorizontalSelector EqSelector;
+    // StatusBtn 实现 Pause/Continue 功能
+    public ButtonManager startBtn, pauseBtn, reloadBtn, exitBtn;
+    // 判断 PauseBtn 应该显示 Pause 还是 Continue
+    bool pauseBtnFlag = false;
+    public ProgressBar progress;
+
+    /// <summary>
+    /// Awake is called when the script instance is being loaded.
+    /// </summary>
+    void Awake()
+    {
+        // 单例模式判断
+        if (Instance == null)
+        {
+            Instance = this;
+            // DontDestroyOnLoad(gameObject); // 切换场景时不销毁
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        pauseBtn.GetComponent<CanvasGroup>().interactable = false;
+    }
+    /// <summary>
+    /// Start is called on the frame when a script is enabled just before
+    /// any of the Update methods is called the first time.
+    /// </summary>
+    void Start()
+    {
+        // 关联 HorizontalSelector
+        EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
+        EqSelector.SetupSelector();
+
+        // StartBtn 地震开始
+        startBtn.clickEvent.AddListener(() =>
+            {
+                // 获得选择的地震 Index. 开始仿真
+                World.DefaultGameObjectInjectionWorld.GetExistingSystem<EqControllerSystem>().Active(EqSelector.index);
+                // 设置 Progress 最大值
+                progress.maxValue = GroundMotionBlobAssetsConstructor.gmBlobRefs[EqSelector.index].Value.gmArray.Length;
+
+                // 更新 Button 状态
+                startBtn.GetComponent<CanvasGroup>().interactable = false;
+                pauseBtn.GetComponent<CanvasGroup>().interactable = true;
+            });// 关联地震开始按钮
+
+        // PauseBtn 暂停/继续
+        pauseBtn.clickEvent.AddListener(ChangeStatus);
+
+        // ReloadBtn 重新载入场景
+        // 场景相应的 Lighting Setting 设置 Auto Generate, 否则 Reload 后光照存在问题
+        reloadBtn.clickEvent.AddListener(() =>
+        {
+            // Debug 代码
+            // Debug.Log(SceneManager.sceneCount);
+            // Debug.Log(SceneManager.GetSceneAt(0).name);
+            // Debug.Log(SceneManager.GetSceneAt(1).name);
+
+            // 关闭 System
+            World.DefaultGameObjectInjectionWorld.GetExistingSystem<GroundMotionSystem>().Enabled = false;
+            // 重置场景
+            var entityManager = Unity.Entities.World.DefaultGameObjectInjectionWorld.EntityManager;
+            entityManager.DestroyEntity(entityManager.UniversalQuery);
+            // 不能使用 SceneManager.GetActiveScene().name 此方法返回 SubScene 的名字，而不是主场景的名字
+            SceneManager.LoadScene("EqSimulation", LoadSceneMode.Single);
+        });// 关联重置场景按钮
+
+        // Exit Button
+        exitBtn.clickEvent.AddListener(Application.Quit);
+
+
+    }
+
+    // 修改 Pause Button
+    // PauseBtnFlag false 时显示 Pause, true 时显示 Continue
+    // TODO: 暂停导致 PauseButton 按钮动画播放不完全
+    // TODO: TImeScale 方法在 ECS 场景中是否适用存疑
+    void ChangeStatus()
+    {
+        switch (pauseBtnFlag)
+        {
+            case false: // 从显示 Pause 转到显示 Continue
+                pauseBtn.buttonText = "Continue";
+                Time.timeScale = 0;// 暂停状态
+                break;
+            case true: // 从显示 Continue 转到显示 Pause
+                pauseBtn.buttonText = "Pause";
+                Time.timeScale = 1;// 继续状态
+                break;
+        }
+        // 更新 ButtonManger, 否则修改 Text 不生效，因为该 ButtonManger 存在两个 Text
+        pauseBtn.UpdateUI();
+        pauseBtnFlag = !pauseBtnFlag;
+        // pauseBtn.buttonText = "Continue";
+        // Debug.Log(pauseBtn.buttonText);
+    }
+
+    /// <summary>
+    /// Reset is called when the user hits the Reset button in the Inspector's
+    /// context menu or when adding the component the first time.
+    /// 重置函数
+    /// </summary>
+    void Reset()
+    {
+        EqSelector = GetComponentInChildren<HorizontalSelector>();
+        // Button[] buttons = GetComponentsInChildren<Button>();
+        foreach (var button in GetComponentsInChildren<ButtonManager>())
+        {
+            switch (button.name)
+            {
+                case "StartBtn":
+                    startBtn = button;
+                    break;
+                case "PauseBtn":
+                    pauseBtn = button;
+                    break;
+                case "ReloadBtn":
+                    reloadBtn = button;
+                    break;
+                case "ExitBtn":
+                    exitBtn = button;
+                    break;
+                default:
+                    break;
+            }
+        }
+        progress = GetComponentInChildren<ProgressBar>();
+        progress.currentValue = 0;
+        progress.maxValue = 0;
+        pauseBtn.GetComponent<CanvasGroup>().interactable = false;
+    }
+
+    // 从 BlobAsset 中获得所有地震的名字列表
+    List<HorizontalSelector.Item> GetNameList()
+    {
+        List<HorizontalSelector.Item> nameList = new List<HorizontalSelector.Item>();
+        foreach (var item in GroundMotionBlobAssetsConstructor.gmBlobRefs)
+        {
+            string name = item.Value.gmName.ToString();
+            nameList.Add(new HorizontalSelector.Item(name));
+        }
+        return nameList;
+    }
+}
