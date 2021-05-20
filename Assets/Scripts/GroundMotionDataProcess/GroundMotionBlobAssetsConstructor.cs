@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 
+// TODO: float 存在精度问题
 public class GroundMotionBlobAssetsConstructor : GameObjectConversionSystem
 {
     public static List<BlobAssetReference<GroundMotionBlobAsset>> gmBlobRefs;

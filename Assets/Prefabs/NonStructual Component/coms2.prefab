@@ -147,13 +147,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_ShapeType: 0
   m_PrimitiveCenter:
-    x: 0.001174625
-    y: -0.008676022
-    z: -0.0003767796
+    x: 0
+    y: -0.02
+    z: 0
   m_PrimitiveSize:
-    x: 0.08325589
-    y: 0.25552216
-    z: 0.056269005
+    x: 0.08
+    y: 0.23
+    z: 0.05
   m_PrimitiveOrientation:
     Value:
       x: -0
@@ -161,15 +161,15 @@ MonoBehaviour:
       z: 0
     RotationOrder: 4
   m_Capsule:
-    Height: 0.25552216
-    Radius: 0.041627944
+    Height: 0.23
+    Radius: 0.04
     Axis: 1
   m_Cylinder:
-    Height: 0.25552216
-    Radius: 0.041627944
+    Height: 0.23
+    Radius: 0.04
     Axis: 1
   m_CylinderSideCount: 20
-  m_SphereRadius: 0.12776108
+  m_SphereRadius: 0.115
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 0.01

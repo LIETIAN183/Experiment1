@@ -80,11 +80,12 @@
 # Unity 插件
 
 - ~~Hierarchy 2~~
-- Advanced People Pack 2
+- ~~Advanced People Pack 2~~
+- POLYGON Starter Pack - Low Poly 3D Art by Synty
 - Modern UI Pack
 - Odin - Inspector and Serializer
 - Edeitor Console Pro
-- Play Mode Saver
+- ~~Play Mode Saver~~
 - Sensor Toolkit
-- Peek
+- ~~Peek~~
 - **Maybe** Easy Character Movement

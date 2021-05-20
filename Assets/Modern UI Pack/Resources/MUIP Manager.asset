@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: MUIP Manager
   m_EditorClassIdentifier: 
   enableDynamicUpdate: 1
-  enableExtendedColorPicker: 1
-  editorHints: 1
+  enableExtendedColorPicker: 0
+  editorHints: 0
   changeRootFolder: 0
   rootFolder: Modern UI Pack/Prefabs/
   animatedIconColor: {r: 1, g: 1, b: 1, a: 1}

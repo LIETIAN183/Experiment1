@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 4637122544882695140}
   - component: {fileID: 2128862412930997147}
   - component: {fileID: 6050038606311549082}
-  - component: {fileID: 2403461591048595496}
   - component: {fileID: 2932539695042848993}
   m_Layer: 8
   m_Name: coms3
@@ -153,9 +152,9 @@ MonoBehaviour:
     y: 0
     z: 0
   m_PrimitiveSize:
-    x: 0.127077
-    y: 0.22370538
-    z: 0.08836191
+    x: 0.128
+    y: 0.224
+    z: 0.088
   m_PrimitiveOrientation:
     Value:
       x: -0
@@ -163,15 +162,15 @@ MonoBehaviour:
       z: 0
     RotationOrder: 4
   m_Capsule:
-    Height: 0.22370538
-    Radius: 0.0635385
+    Height: 0.224
+    Radius: 0.064
     Axis: 1
   m_Cylinder:
-    Height: 0.22370538
-    Radius: 0.0635385
+    Height: 0.224
+    Radius: 0.064
     Axis: 1
   m_CylinderSideCount: 20
-  m_SphereRadius: 0.11185269
+  m_SphereRadius: 0.112
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 0.01
@@ -278,19 +277,6 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
---- !u!114 &2403461591048595496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6582752007392565809}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 326954824ea582646ba0332ceab2b5cf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  y_lateset: 0
 --- !u!114 &2932539695042848993
 MonoBehaviour:
   m_ObjectHideFlags: 0

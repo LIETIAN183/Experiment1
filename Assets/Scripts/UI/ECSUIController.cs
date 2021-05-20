@@ -37,6 +37,7 @@ public class ECSUIController : MonoBehaviour
 
         pauseBtn.GetComponent<CanvasGroup>().interactable = false;
     }
+
     /// <summary>
     /// Start is called on the frame when a script is enabled just before
     /// any of the Update methods is called the first time.
@@ -46,8 +47,11 @@ public class ECSUIController : MonoBehaviour
         // 关联 HorizontalSelector
         EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
         EqSelector.SetupSelector();
+        // 设置第一个选项为默认值
+        EqSelector.index = 0;
+        EqSelector.UpdateUI();
 
-        // StartBtn 地震开始
+        // StartBtn 地震开始按钮
         startBtn.clickEvent.AddListener(() =>
             {
                 // 获得选择的地震 Index. 开始仿真
@@ -60,18 +64,14 @@ public class ECSUIController : MonoBehaviour
                 pauseBtn.GetComponent<CanvasGroup>().interactable = true;
             });// 关联地震开始按钮
 
-        // PauseBtn 暂停/继续
+        // PauseBtn 暂停/继续按钮
         pauseBtn.clickEvent.AddListener(ChangeStatus);
 
-        // ReloadBtn 重新载入场景
+        // ReloadBtn 重新载入场景按钮
+        // FIXME
         // 场景相应的 Lighting Setting 设置 Auto Generate, 否则 Reload 后光照存在问题
         reloadBtn.clickEvent.AddListener(() =>
         {
-            // Debug 代码
-            // Debug.Log(SceneManager.sceneCount);
-            // Debug.Log(SceneManager.GetSceneAt(0).name);
-            // Debug.Log(SceneManager.GetSceneAt(1).name);
-
             // 关闭 System
             World.DefaultGameObjectInjectionWorld.GetExistingSystem<GroundMotionSystem>().Enabled = false;
             // 重置场景
@@ -83,8 +83,6 @@ public class ECSUIController : MonoBehaviour
 
         // Exit Button
         exitBtn.clickEvent.AddListener(Application.Quit);
-
-
     }
 
     // 修改 Pause Button
@@ -109,6 +107,18 @@ public class ECSUIController : MonoBehaviour
         pauseBtnFlag = !pauseBtnFlag;
         // pauseBtn.buttonText = "Continue";
         // Debug.Log(pauseBtn.buttonText);
+    }
+
+    // 从 BlobAsset 中获得所有地震的名字列表
+    List<HorizontalSelector.Item> GetNameList()
+    {
+        List<HorizontalSelector.Item> nameList = new List<HorizontalSelector.Item>();
+        foreach (var item in GroundMotionBlobAssetsConstructor.gmBlobRefs)
+        {
+            string name = item.Value.gmName.ToString();
+            nameList.Add(new HorizontalSelector.Item(name));
+        }
+        return nameList;
     }
 
     /// <summary>
@@ -144,17 +154,5 @@ public class ECSUIController : MonoBehaviour
         progress.currentValue = 0;
         progress.maxValue = 0;
         pauseBtn.GetComponent<CanvasGroup>().interactable = false;
-    }
-
-    // 从 BlobAsset 中获得所有地震的名字列表
-    List<HorizontalSelector.Item> GetNameList()
-    {
-        List<HorizontalSelector.Item> nameList = new List<HorizontalSelector.Item>();
-        foreach (var item in GroundMotionBlobAssetsConstructor.gmBlobRefs)
-        {
-            string name = item.Value.gmName.ToString();
-            nameList.Add(new HorizontalSelector.Item(name));
-        }
-        return nameList;
     }
 }
