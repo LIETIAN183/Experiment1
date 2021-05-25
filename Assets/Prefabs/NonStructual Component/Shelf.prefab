@@ -20,6 +20,7 @@ GameObject:
   - component: {fileID: 6445781704428220619}
   - component: {fileID: 6445781704428220612}
   - component: {fileID: -7896770302525701117}
+  - component: {fileID: -5730240480669232056}
   m_Layer: 0
   m_Name: shelf
   m_TagString: Shelf
@@ -1151,5 +1152,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-5730240480669232056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6445781704428220609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a19b1b331cd7add48aa846585919aa64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

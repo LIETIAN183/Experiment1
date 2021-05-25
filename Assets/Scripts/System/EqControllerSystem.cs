@@ -1,3 +1,4 @@
+using System.Security.AccessControl;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -6,6 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+[UpdateAfter(typeof(InitializeSystem))]
 // [UpdateAfter(typeof(CollisionEventSystem))]
 public class EqControllerSystem : SystemBase
 {
@@ -39,7 +41,7 @@ public class EqControllerSystem : SystemBase
 
         float3 verticalAcc = new float3(0, acc.y, 0);
         acc.y = 0;
-        float havokCoefficeitn = 0.1f;
+        float havokCoefficeitn = 0.05f;
         // Control Coms
         Entities
         .WithAll<ComsTag>()
@@ -51,6 +53,38 @@ public class EqControllerSystem : SystemBase
             physicsVelocity.ApplyLinearImpulse(physicsMass, verticalAcc / physicsMass.InverseMass * 0.01f);
         }).ScheduleParallel();
 
+        float rotationAngle = 1;
+        float rotationDirection = 0;
+        if (acc.z > 0)
+        {
+            rotationDirection = 1;
+        }
+        else
+        {
+            rotationDirection = -1;
+        }
+        float power = .005f;
+        float strength = math.sqrt(acc.x * acc.x + acc.z * acc.z);
+
+        Entities.WithAll<BendTag>().WithName("Bend").ForEach((ref Rotation rotation, in BendTag bend, in LocalToWorld localToWorld) =>
+        {
+            // TODO：rotation y 中存储的数字不是 1 ，而是近似  1 的数值 Why
+            // 表示自身坐标系和世界坐标系的夹角大于 90 度，更相近于旋转 180 度后的世界坐标系
+            // 对于反向的物体，虽然旋转也是绕着 X 轴旋转，但是需要旋转的角度相反
+            if (localToWorld.Forward.z < 0)
+            {// -：自身坐标系和世界坐标系夹角大于90，需要旋转反向
+             // rotationDirectio: 旋转方向和地震方向相关
+             // rotationAngle: 基础旋转角度
+             // power: 基础强度系数
+             // strength * math.abs(localToWorld.Forward.z): 地震强度系数乘以与物体可摇晃方向的夹角
+                rotation.Value = math.mul(bend.baseRotation, quaternion.RotateX(-rotationDirection * rotationAngle * power * strength * math.abs(localToWorld.Forward.z)));
+            }
+            else
+            {
+                rotation.Value = math.mul(bend.baseRotation, quaternion.RotateX(rotationDirection * rotationAngle * power * strength * math.abs(localToWorld.Forward.z)));
+            }
+            // rotation.Value = math.mul(rotation.Value, quaternion.RotateY(1 * deltaTime));
+        }).ScheduleParallel();
         // Havok Physics 物体旋转，打击到其他小物体，致使弹飞
         // Entities
         // .WithAll<ComsTag>()

@@ -230,6 +230,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Row (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1097608169516260334, guid: 2483a9bee86b37b4fae5a5d4966a65ae,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4592019073671079410, guid: 2483a9bee86b37b4fae5a5d4966a65ae,
         type: 3}
       propertyPath: m_RootOrder
@@ -1302,6 +1307,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Row
+      objectReference: {fileID: 0}
+    - target: {fileID: 1097608169516260334, guid: 2483a9bee86b37b4fae5a5d4966a65ae,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4592019073671079410, guid: 2483a9bee86b37b4fae5a5d4966a65ae,
         type: 3}
