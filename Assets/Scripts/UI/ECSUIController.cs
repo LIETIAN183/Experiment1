@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using Unity.Entities;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using Michsky.UI.ModernUIPack;
 using UnityEngine.SceneManagement;
 

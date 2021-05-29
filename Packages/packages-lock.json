@@ -34,8 +34,8 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.burst": {
-      "version": "1.4.1",
-      "depth": 1,
+      "version": "1.5.0-pre.4",
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.mathematics": "1.2.1"
@@ -81,7 +81,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.entities": {
-      "version": "0.17.0-preview.41",
+      "version": "0.17.0-preview.42",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -128,6 +128,13 @@
       "dependencies": {},
       "url": "https://packages.unity.cn"
     },
+    "com.unity.inputsystem": {
+      "version": "1.0.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.cn"
+    },
     "com.unity.jobs": {
       "version": "0.8.0-preview.23",
       "depth": 1,
@@ -157,6 +164,13 @@
     "com.unity.nuget.newtonsoft-json": {
       "version": "2.0.0-preview",
       "depth": 2,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.cn"
+    },
+    "com.unity.performance.profile-analyzer": {
+      "version": "1.0.3",
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.cn"
@@ -210,7 +224,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.postprocessing": {
-      "version": "3.1.0",
+      "version": "3.1.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -236,6 +250,17 @@
         "com.unity.properties": "1.6.0-preview",
         "com.unity.serialization": "1.6.1-preview",
         "com.unity.modules.uielements": "1.0.0"
+      },
+      "url": "https://packages.unity.cn"
+    },
+    "com.unity.render-pipelines.universal": {
+      "version": "10.4.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.mathematics": "1.1.0",
+        "com.unity.render-pipelines.core": "10.4.0",
+        "com.unity.shadergraph": "10.4.0"
       },
       "url": "https://packages.unity.cn"
     },
@@ -276,7 +301,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.test-framework": {
-      "version": "1.1.24",
+      "version": "1.1.26",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -306,7 +331,7 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.timeline": {
-      "version": "1.4.8",
+      "version": "1.5.2",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -325,6 +350,21 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "com.unity.visualscripting": {
+      "version": "1.5.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0",
+        "com.unity.modules.ai": "1.0.0",
+        "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.jsonserialize": "1.0.0",
+        "com.unity.modules.particlesystem": "1.0.0",
+        "com.unity.modules.physics": "1.0.0",
+        "com.unity.modules.physics2d": "1.0.0"
+      },
+      "url": "https://packages.unity.cn"
     },
     "nuget.castle-core": {
       "version": "1.0.1",

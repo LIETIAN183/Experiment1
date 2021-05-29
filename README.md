@@ -90,6 +90,6 @@
 - Odin - Inspector and Serializer
 - Edeitor Console Pro
 - ~~Play Mode Saver~~
-- Sensor Toolkit
+- ~~Sensor Toolkit~~
 - ~~Peek~~
 - **Maybe** Easy Character Movement

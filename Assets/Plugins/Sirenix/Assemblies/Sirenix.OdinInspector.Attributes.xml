@@ -2073,6 +2073,11 @@
             Gets or sets the title for the dropdown. Null by default.
             </summary>
         </member>
+        <member name="F:Sirenix.OdinInspector.TypeFilterAttribute.DrawValueNormally">
+            <summary>
+            If true, the value will be drawn normally after the type selector dropdown has been drawn. False by default.
+            </summary>
+        </member>
         <member name="M:Sirenix.OdinInspector.TypeFilterAttribute.#ctor(System.String)">
             <summary>
             Creates a dropdown menu for a property.
@@ -2856,6 +2861,11 @@
         <member name="F:Sirenix.OdinInspector.InlineButtonAttribute.Label">
             <summary>
             Optional label of the button.
+            </summary>
+        </member>
+        <member name="F:Sirenix.OdinInspector.InlineButtonAttribute.ShowIf">
+            <summary>
+            Optional resolved string that specifies a condition for whether to show the inline button or not.
             </summary>
         </member>
         <member name="M:Sirenix.OdinInspector.InlineButtonAttribute.#ctor(System.String,System.String)">
