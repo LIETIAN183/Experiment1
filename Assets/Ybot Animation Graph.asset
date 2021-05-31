@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 12c7eecbc6a15bd448d8df8b7fcb207c, type: 3}
-  m_Name: Agent Animation Graph
+  m_Name: Ybot Animation Graph
   m_EditorClassIdentifier: 
   m_GraphModel:
     id: 0
   m_CompiledGraph:
-    DisplayName: Agent_Animation_Graph
+    DisplayName: Ybot_Animation_Graph
     Definition:
       Assets: []
       ExposedObjects: []
@@ -119,17 +119,17 @@ MonoBehaviour:
           Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
         m_SerializedStencil:
           id: 4
-        m_Name: Agent Animation Graph
+        m_Name: Ybot Animation Graph
         InputComponentBindings: []
         IsStandAloneGraph: 1
     00000001:
       type: {class: AnimationOutputNodeModel, ns: Unity.Animation.Editor, asm: Unity.Animation.Editor}
       data:
         m_Guid:
-          m_Value0: 5511155938766586017
-          m_Value1: 14465961337323780284
+          m_Value0: 5134739361262063351
+          m_Value1: 1054264238476172465
         m_GraphAssetModel: {fileID: 11400000}
-        m_Position: {x: 21, y: 19}
+        m_Position: {x: 0, y: 0}
         m_Color: {r: 0.776, g: 0.443, b: 0, a: 0.5}
         m_HasUserColor: 0
         m_Title: Output
@@ -146,10 +146,10 @@ MonoBehaviour:
       type: {class: AnimationClipNodeModel, ns: Unity.Animation.Model, asm: Unity.Animation.Editor}
       data:
         m_Guid:
-          m_Value0: 5367389311303316387
-          m_Value1: 5856043245951786675
+          m_Value0: 4663750338669172103
+          m_Value1: 15802043021496525233
         m_GraphAssetModel: {fileID: 11400000}
-        m_Position: {x: -420, y: -16}
+        m_Position: {x: -524, y: -34}
         m_Color: {r: 0.776, g: 0.443, b: 0, a: 0.5}
         m_HasUserColor: 0
         m_Title: 
@@ -177,22 +177,22 @@ MonoBehaviour:
         m_GraphAssetModel: {fileID: 11400000}
         m_FromPortReference:
           NodeModelGuid:
-            m_Value0: 5367389311303316387
-            m_Value1: 5856043245951786675
+            m_Value0: 4663750338669172103
+            m_Value1: 15802043021496525233
           GraphAssetModel: {fileID: 11400000}
           UniqueId: Pose
         m_ToPortReference:
           NodeModelGuid:
-            m_Value0: 5511155938766586017
-            m_Value1: 14465961337323780284
+            m_Value0: 5134739361262063351
+            m_Value1: 1054264238476172465
           GraphAssetModel: {fileID: 11400000}
           UniqueId: Result
         m_EdgeControlPoints: []
         m_EditMode: 0
         m_EdgeLabel: 
         m_Guid:
-          m_Value0: 5269620564364605619
-          m_Value1: 451393519551185836
+          m_Value0: 5620831689307262020
+          m_Value1: 1565334015967539609
         m_SerializedCapabilities:
         - .Deletable
         - .Copiable
@@ -203,7 +203,7 @@ MonoBehaviour:
     00000005:
       type: {class: AnimationClipReferenceConstant, ns: Unity.Animation.Editor, asm: Unity.Animation.Editor}
       data:
-        m_Value: {fileID: 4781951162920444690, guid: 46111ba04849c5145875f8ee85a04f36,
+        m_Value: {fileID: -203655887218126122, guid: 3ae9f403913013e4188695064cb578fd,
           type: 3}
     00000006:
       type: {class: MotionIDConstant, ns: Unity.Animation.Editor, asm: Unity.Animation.Editor}

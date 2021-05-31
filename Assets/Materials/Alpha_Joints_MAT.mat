@@ -34,13 +34,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Alpha_Joints_MAT
-  m_Shader: {fileID: -6465566751694194690, guid: 925a2b45b81eea74181a472674b30f72,
+  m_Shader: {fileID: -6465566751694194690, guid: dcaf31c6480d1e643a316ec5264a5b28,
     type: 3}
-  m_ShaderKeywords: _DISABLE_SSR_TRANSPARENT _NORMALMAP_TANGENT_SPACE
+  m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2225
+  m_CustomRenderQueue: -1
   stringTagMap:
     MotionVector: User
   disabledShaderPasses:
@@ -340,7 +340,7 @@ Material:
     m_Colors:
     - Color_7f918a0c5e30441daf6444fb0fcb9d0d: {r: 0.38431367, g: 0.45098037, b: 0.45882344,
         a: 0}
-    - _BaseColor: {r: 0.38431373, g: 0.449593, b: 0.4586854, a: 1}
+    - _BaseColor: {r: 0.38431367, g: 0.449593, b: 0.4586854, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0.3843137, g: 0.449593, b: 0.4586854, a: 1}
     - _DiffusionProfileAsset: {r: 0, g: 0, b: 0, a: 0}
