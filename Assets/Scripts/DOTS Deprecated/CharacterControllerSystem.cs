@@ -41,7 +41,7 @@ public sealed class Backup : SystemBase
         var collisionWorld = buildPhysicsWorld.PhysicsWorld.CollisionWorld;
 
         Entities
-        .WithAll<PlayerTag>().WithoutBurst()
+        .WithAll<AgentTag>().WithoutBurst()
         .ForEach((Entity entity, ref CharacterControllerData characterControllerData, ref Translation translation, ref Rotation rotation, ref PhysicsCollider physicsCollider) =>
         {
             // UnityEngine.Debug.Log(characterControllerData.gravity);

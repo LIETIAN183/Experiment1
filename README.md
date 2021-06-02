@@ -83,16 +83,24 @@
 
 - 终于成功实现了 DOTS Animation
 
+#### 2021.6.1
+
+- 实现 Build 后 Animation 继续生效
+
+#### 2021.6.2
+
+- 重构代码，添加全局控制
+
 ---
 
 # Unity 插件
 
 - ~~Hierarchy 2~~
 - ~~Advanced People Pack 2~~
-- POLYGON Starter Pack - Low Poly 3D Art by Synty
+- ~~POLYGON Starter Pack - Low Poly 3D Art by Synty~~
 - Modern UI Pack
 - Odin - Inspector and Serializer
-- Edeitor Console Pro
+- Editor Console Pro
 - ~~Play Mode Saver~~
 - ~~Sensor Toolkit~~
 - ~~Peek~~

@@ -35,6 +35,9 @@ public class ECSUIController : MonoBehaviour
         }
 
         pauseBtn.GetComponent<CanvasGroup>().interactable = false;
+
+        // TODO： 修复 Reload 卡顿
+        reloadBtn.GetComponent<CanvasGroup>().interactable = false;
     }
 
     /// <summary>
@@ -54,7 +57,7 @@ public class ECSUIController : MonoBehaviour
         startBtn.clickEvent.AddListener(() =>
             {
                 // 获得选择的地震 Index. 开始仿真
-                World.DefaultGameObjectInjectionWorld.GetExistingSystem<EqControllerSystem>().Active(EqSelector.index);
+                World.DefaultGameObjectInjectionWorld.GetExistingSystem<ECSSystemManager>().Active(EqSelector.index);
                 // 设置 Progress 最大值
                 progress.maxValue = GroundMotionBlobAssetsConstructor.gmBlobRefs[EqSelector.index].Value.gmArray.Length;
 
@@ -81,7 +84,8 @@ public class ECSUIController : MonoBehaviour
         });// 关联重置场景按钮
 
         // Exit Button
-        exitBtn.clickEvent.AddListener(Application.Quit);
+        // exitBtn.clickEvent.AddListener(Application.Quit);
+        exitBtn.clickEvent.AddListener(System.Diagnostics.Process.GetCurrentProcess().Kill);
     }
 
     // 修改 Pause Button
