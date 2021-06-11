@@ -29,5 +29,6 @@ public class ECSSystemManager : SystemBase
         simulation.GetExistingSystem<GroundMotionSystem>().Enabled = false;
         simulation.GetExistingSystem<ComsMotionSystem>().Enabled = false;
         simulation.GetExistingSystem<ComsBendSystem>().Enabled = false;
+        ECSUIController.Instance.ShowNotification("Simulation End");
     }
 }

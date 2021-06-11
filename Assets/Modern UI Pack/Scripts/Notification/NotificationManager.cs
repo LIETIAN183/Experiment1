@@ -43,9 +43,9 @@ namespace Michsky.UI.ModernUIPack
 
                 if (useCustomContent == false)
                 {
-                    iconObj.sprite = icon;
+                    // iconObj.sprite = icon;
                     titleObj.text = title;
-                    descriptionObj.text = description;
+                    // descriptionObj.text = description;
                 }
             }
 
@@ -100,9 +100,9 @@ namespace Michsky.UI.ModernUIPack
         {
             try
             {
-                iconObj.sprite = icon;
+                // iconObj.sprite = icon;
                 titleObj.text = title;
-                descriptionObj.text = description;
+                // descriptionObj.text = description;
             }
 
             catch

@@ -29,10 +29,7 @@ public class AccTimerSystem : SystemBase
         // 超出范围后地震仿真结束
         if (accTimer.timeCount >= gmArray.Length)
         {
-            // Debug.Log("End");
-            // TODO: UI 显示仿真结束提示
             World.DefaultGameObjectInjectionWorld.GetExistingSystem<ECSSystemManager>().Dective();
-            // this.Enabled = false;
         }
     }
 

@@ -18,6 +18,8 @@ public class ECSUIController : MonoBehaviour
     bool pauseBtnFlag = false;
     public ProgressBar progress;
 
+    public NotificationManager notification;
+
     /// <summary>
     /// Awake is called when the script instance is being loaded.
     /// </summary>
@@ -38,6 +40,10 @@ public class ECSUIController : MonoBehaviour
 
         // TODO： 修复 Reload 卡顿
         reloadBtn.GetComponent<CanvasGroup>().interactable = false;
+
+        // 关联 HorizontalSelector 数据
+        EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
+        EqSelector.SetupSelector();
     }
 
     /// <summary>
@@ -46,12 +52,10 @@ public class ECSUIController : MonoBehaviour
     /// </summary>
     void Start()
     {
-        // 关联 HorizontalSelector
-        EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
-        EqSelector.SetupSelector();
-        // 设置第一个选项为默认值
-        EqSelector.index = 0;
+        //TODO: 放在 OnCreat() 不生效，不知道为什么
+        EqSelector.ForwardClick();
         EqSelector.UpdateUI();
+
 
         // StartBtn 地震开始按钮
         startBtn.clickEvent.AddListener(() =>
@@ -63,7 +67,10 @@ public class ECSUIController : MonoBehaviour
 
                 // 更新 Button 状态
                 startBtn.GetComponent<CanvasGroup>().interactable = false;
+                EqSelector.Interactable(false);
                 pauseBtn.GetComponent<CanvasGroup>().interactable = true;
+
+                ShowNotification("Start Simulation");
             });// 关联地震开始按钮
 
         // PauseBtn 暂停/继续按钮
@@ -157,5 +164,13 @@ public class ECSUIController : MonoBehaviour
         progress.currentValue = 0;
         progress.maxValue = 0;
         pauseBtn.GetComponent<CanvasGroup>().interactable = false;
+        notification = GetComponentInChildren<NotificationManager>();
+    }
+
+    public void ShowNotification(string message)
+    {
+        notification.title = message;
+        notification.UpdateUI();
+        notification.OpenNotification();
     }
 }

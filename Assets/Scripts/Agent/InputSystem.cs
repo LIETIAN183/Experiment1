@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[DisableAutoCreation]
 public class PlayerControllerSystem : SystemBase
 {
     protected override void OnUpdate()

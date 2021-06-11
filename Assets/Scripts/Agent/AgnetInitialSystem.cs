@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Physics;
+using Unity.Mathematics;
 
 public class AgnetInitialSystem : SystemBase
 {
@@ -13,6 +14,8 @@ public class AgnetInitialSystem : SystemBase
             // mass.InverseInertia[1] = LockY ? 0 : mass.InverseInertia[1];
             // mass.InverseInertia[2] = LockZ ? 0 : mass.InverseInertia[2];
             physicsMass.InverseInertia.xz = 0;
+
+            // agentData.escapeDirection = float3.zero;
         }).ScheduleParallel();
         Enabled = false;
     }
