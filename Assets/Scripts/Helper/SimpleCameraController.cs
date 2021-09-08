@@ -1,5 +1,6 @@
 ﻿#if ENABLE_INPUT_SYSTEM && ENABLE_INPUT_SYSTEM_PACKAGE
 #define USE_INPUT_SYSTEM
+using System.Diagnostics;
     using UnityEngine.InputSystem;
     using UnityEngine.InputSystem.Controls;
 #endif
@@ -51,9 +52,6 @@ namespace UnityTemplateProjects
                 x += rotatedTranslation.x;
                 y += rotatedTranslation.y;
                 z += rotatedTranslation.z;
-                // x += translation.x;
-                // y += translation.y;
-                // z += translation.z;
             }
 
             public void LerpTowards(CameraState target, float positionLerpPct, float rotationLerpPct)
@@ -81,7 +79,7 @@ namespace UnityTemplateProjects
 
         [Header("Movement Settings")]
         [Tooltip("Exponential boost factor on translation, controllable by mouse wheel.")]
-        public bool rightClickToLook = false;
+        public bool rightClickToLook = true;
 
         [Tooltip("Exponential boost factor on translation, controllable by mouse wheel.")]
         public float boost = 3.5f;
@@ -148,7 +146,7 @@ namespace UnityTemplateProjects
         {
             Vector3 translation = Vector3.zero;
 
-            // Exit Sample  
+            // Exit Sample
             if (Input.GetKey(KeyCode.Escape))
             {
                 Application.Quit();
@@ -169,6 +167,7 @@ namespace UnityTemplateProjects
 
             // Translation
             translation = GetInputTranslationDirection() * Time.unscaledDeltaTime;
+
 
             // Modify movement by a boost factor (defined in Inspector)
             translation *= Mathf.Pow(2.0f, boost);

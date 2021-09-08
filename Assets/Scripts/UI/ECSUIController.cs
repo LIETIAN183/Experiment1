@@ -35,15 +35,6 @@ public class ECSUIController : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        pauseBtn.GetComponent<CanvasGroup>().interactable = false;
-
-        // TODO： 修复 Reload 卡顿
-        reloadBtn.GetComponent<CanvasGroup>().interactable = false;
-
-        // 关联 HorizontalSelector 数据
-        EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
-        EqSelector.SetupSelector();
     }
 
     /// <summary>
@@ -52,6 +43,14 @@ public class ECSUIController : MonoBehaviour
     /// </summary>
     void Start()
     {
+        pauseBtn.GetComponent<CanvasGroup>().interactable = false;
+
+        // TODO： 修复 Reload 卡顿
+        reloadBtn.GetComponent<CanvasGroup>().interactable = false;
+
+        // 关联 HorizontalSelector 数据
+        EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
+        EqSelector.SetupSelector();
         //TODO: 放在 OnCreat() 不生效，不知道为什么
         EqSelector.ForwardClick();
         EqSelector.UpdateUI();

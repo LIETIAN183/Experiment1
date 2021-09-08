@@ -1,6 +1,8 @@
 using Unity.Entities;
 using Unity.Physics;
 
+// https://docs.unity3d.com/Packages/com.unity.entities@0.2/api/Unity.Entities.AlwaysSynchronizeSystemAttribute.html
+// 就是依赖执行完后再执行自身，但这里是否需要这个还不清楚
 [AlwaysSynchronizeSystem]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateAfter(typeof(AccTimerSystem))]

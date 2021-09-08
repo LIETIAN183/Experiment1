@@ -6,9 +6,9 @@ public class EnvInitialSystem : SystemBase
 {
     protected override void OnUpdate()
     {
-        Entities.WithAll<BendTag>().ForEach((ref BendTag bend, in Rotation rotation) =>
+        Entities.WithAll<SubShakeData>().ForEach((ref SubShakeData subBendData, in Rotation rotation, in Translation translation) =>
         {
-            bend.baseRotation = rotation.Value;
+            subBendData.originLocalPosition = translation.Value;
         }).ScheduleParallel();
         Enabled = false;
     }

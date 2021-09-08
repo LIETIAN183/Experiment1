@@ -1,5 +1,5 @@
 using Unity.Entities;
-
+using UnityEngine;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class AccTimerSystem : SystemBase
 {
@@ -31,6 +31,9 @@ public class AccTimerSystem : SystemBase
         {
             World.DefaultGameObjectInjectionWorld.GetExistingSystem<ECSSystemManager>().Dective();
         }
+        // Debug Acc
+        // var temp = GetSingleton<AccTimerData>().acc;
+        // Debug.Log(new Vector3(temp.x, temp.y, temp.z).magnitude);
     }
 
     public void Active(int index)

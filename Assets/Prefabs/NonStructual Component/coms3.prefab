@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6050038606311549082}
   - component: {fileID: 2932539695042848993}
   m_Layer: 8
-  m_Name: coms3
+  m_Name: Coms3
   m_TagString: c3
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Smoothing: 0
   m_Mass: 1
   m_LinearDamping: 0.01
-  m_AngularDamping: 1
+  m_AngularDamping: 0.05
   m_InitialLinearVelocity:
     x: 0
     y: 0

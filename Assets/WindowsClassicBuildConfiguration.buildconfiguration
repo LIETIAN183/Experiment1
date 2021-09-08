@@ -13,7 +13,7 @@
             "BuildCurrentScene": false,
             "SceneInfos": [
                 {
-                    "Scene": "GlobalObjectId_V1-1-7d7439f9239cf4e4296dcda44d21bfa0-102900000-0",
+                    "Scene": "GlobalObjectId_V1-1-7dd5ce188cebea944873ffdc5f36dff1-102900000-0",
                     "AutoLoad": true
                 }
             ]
@@ -22,7 +22,7 @@
             "$type": "Unity.Build.Classic.ClassicBuildProfile, Unity.Build.Classic",
             "$version": 1,
             "Platform": "win",
-            "Configuration": 2
+            "Configuration": 3
         }
     ]
 }
