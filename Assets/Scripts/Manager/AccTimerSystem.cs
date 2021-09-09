@@ -1,5 +1,7 @@
+using System;
 using Unity.Entities;
 using UnityEngine;
+using Unity.Mathematics;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class AccTimerSystem : SystemBase
 {
@@ -7,7 +9,8 @@ public class AccTimerSystem : SystemBase
     protected override void OnCreate()
     {
         RequireSingletonForUpdate<AccTimerData>();
-        EntityManager.CreateEntity(typeof(AccTimerData));
+        var entity = EntityManager.CreateEntity(typeof(AccTimerData));
+        EntityManager.SetName(entity, "AccTimer");
         // 设置仿真系统 Update 时间间隔
         var fixedSimulationGroup = World.DefaultGameObjectInjectionWorld?.GetExistingSystem<FixedStepSimulationSystemGroup>();
         fixedSimulationGroup.Timestep = 0.01f;
@@ -23,6 +26,7 @@ public class AccTimerSystem : SystemBase
         ECSUIController.Instance.progress.currentValue = accTimer.timeCount;
         // 更新加速度后，更新时间计量
         accTimer.acc = gmArray[accTimer.timeCount++].acceleration;
+        accTimer.accMagnitude = math.length(accTimer.acc);
         // 更新单例数据
         SetSingleton(accTimer);
 

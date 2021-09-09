@@ -16,9 +16,13 @@ public class RenderConfig : MonoBehaviour
     // To get the Entity in GameObject World
     private EntityManager manager;
 
+    // 使用 bone.003
     public Transform bone;
 
-    public float height;
+    public float height = 0.74f;
+
+    public float degree;
+    public float endMovement;
 
     /// <summary>
     /// Awake is called when the script instance is being loaded.
@@ -46,11 +50,15 @@ public class RenderConfig : MonoBehaviour
         }
 
         // 同步物体的位置和旋转属性
-        LocalToWorld worldCofficient = manager.GetComponentData<LocalToWorld>(renderEntity);
-        transform.position = worldCofficient.Position + positionOffset;
+        LocalToWorld target = manager.GetComponentData<LocalToWorld>(renderEntity);
+        transform.position = target.Position + positionOffset;
+        // Debug.Log(target.Forward);
 
-        Rotation entRot = manager.GetComponentData<Rotation>(renderEntity);
-        transform.rotation = entRot.Value;
+
+        quaternion entRot = manager.GetComponentData<ShakeData>(renderEntity).worldRotation;
+        transform.rotation = target.Rotation;
+        // Rotation entRot = manager.GetComponentData<Rotation>(renderEntity);
+        // transform.rotation = entRot.Value;
     }
 
     /// <summary>
@@ -59,8 +67,23 @@ public class RenderConfig : MonoBehaviour
     void FixedUpdate()
     {
         var data = manager.GetComponentData<ShakeData>(renderEntity);
-        var gradient = -3 * data.endMovement * (math.pow(height, 2) - 2 * data.length * height) / (2 * math.pow(data.length, 3));
-        var degree = math.degrees(math.atan(gradient));
-        bone.rotation = Quaternion.Euler(degree, 0, 0);
+        endMovement = data.endMovement;
+
+        var rotationFlag = 0;
+        if (math.dot(transform.forward, new float3(0, 0, 1)) >= 0)
+        {
+            rotationFlag = 1;
+        }
+        else
+        {
+            rotationFlag = -1;
+        }
+        var gradient = -3 * data.endMovement * (math.pow(height, 2) - 2 * data.length * height) / (2 * math.pow(data.length, 3)) * rotationFlag;
+
+        // var radius = math.atan(gradient);
+        degree = math.degrees(math.atan(gradient));
+        // var degree = math.degrees(math.atan(gradient));
+        // bone.rotation = Quaternion.Euler(degree, 0, 0);
+        bone.localEulerAngles = new Vector3(degree, 0, 0);
     }
 }

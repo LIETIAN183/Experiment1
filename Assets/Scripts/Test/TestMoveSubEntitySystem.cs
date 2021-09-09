@@ -11,10 +11,18 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 // 禁止自动生成
-[DisableAutoCreation]
+// [DisableAutoCreation]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class TestMoveSubEntitySystem : SystemBase
 {
+    protected override void OnCreate()
+    {
+        var x = new float3(0, 0, 1);
+        var y = new float3(0, 0, -1);
+        Debug.Log("dot:" + math.dot(x, y));
+        Debug.Log("distance:" + math.distance(x, y));
+        Debug.Log("distancesq:" + math.distancesq(x, y));
+    }
 
     protected override void OnUpdate()
     {
@@ -23,4 +31,6 @@ public class TestMoveSubEntitySystem : SystemBase
             translation.Value += new float3(1, 0, 0);
         }).ScheduleParallel();
     }
+
+
 }

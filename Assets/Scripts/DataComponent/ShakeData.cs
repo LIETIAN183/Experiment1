@@ -23,4 +23,6 @@ public struct ShakeData : IComponentData
     public bool simplifiedMethod;
 
     public float pastRadius;
+
+    public quaternion worldRotation;
 }

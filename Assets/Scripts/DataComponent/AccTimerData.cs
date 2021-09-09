@@ -7,4 +7,6 @@ public struct AccTimerData : IComponentData
     public int gmIndex;
     public int timeCount;
     public float3 acc;
+
+    public float accMagnitude;
 }

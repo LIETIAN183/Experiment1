@@ -10,5 +10,6 @@ public struct SubShakeData : IComponentData
 
     public float height;
 
+    // 添加刚体后解除物体的父子关系，所以需要手动添加引用
     public Entity parent;
 }
