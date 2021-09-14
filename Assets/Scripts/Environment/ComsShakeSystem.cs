@@ -28,6 +28,7 @@ public class ComsShakeSystem : SystemBase
             data.strength = math.abs(math.dot(acc, ltd.Forward) / math.dot(ltd.Forward, ltd.Forward));
             // 计算终端位移
             data.endMovement = 0.05f * data.strength * math.cos((2 * math.PI / data.shakePeriod) * elapsedTime + 90);
+            // data.endMovement = 0.2f;
 
             // 采用近似算法，整体旋转
             if (data.simplifiedMethod)
@@ -41,15 +42,13 @@ public class ComsShakeSystem : SystemBase
         }).ScheduleParallel();
     }
 
-    /// <summary>
-    /// This function is called when the behaviour becomes disabled or inactive.
-    /// </summary>
-    void OnDisable()
+    protected override void OnStopRunning()
     {
         Entities.WithAll<ShakeData>().ForEach((ref ShakeData data) =>
         {
             data.strength = 0;
             data.endMovement = 0;
         }).ScheduleParallel();
+        base.OnStopRunning();
     }
 }

@@ -11,7 +11,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 // 禁止自动生成
-// [DisableAutoCreation]
+[DisableAutoCreation]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class TestMoveSubEntitySystem : SystemBase
 {

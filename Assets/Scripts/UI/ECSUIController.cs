@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using Michsky.UI.ModernUIPack;
 using UnityEngine.SceneManagement;
 
-// TODO: 添加 CineMachine
-// TODO: UI 可移动或隐藏
 // TODO: Display Acc
 public class ECSUIController : MonoBehaviour
 {

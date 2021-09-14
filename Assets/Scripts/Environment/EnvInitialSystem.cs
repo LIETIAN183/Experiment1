@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
+using Unity.Physics;
 
 public class EnvInitialSystem : SystemBase
 {
@@ -10,6 +11,7 @@ public class EnvInitialSystem : SystemBase
         {
             subBendData.originLocalPosition = translation.Value;
         }).ScheduleParallel();
+
         Enabled = false;
     }
 }

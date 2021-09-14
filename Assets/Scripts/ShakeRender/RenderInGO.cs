@@ -8,8 +8,7 @@ public class RenderInGO : MonoBehaviour, IConvertGameObjectToEntity
     public GameObject renderObject;
     public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
-        // 注意两个系统的物体必须重合首先
-        // TODO: 计算货架弯曲程度
+        // 注意两个系统的物体必须重合才能保证渲染不出错
         RenderConfig config = renderObject.GetComponent<RenderConfig>();
 
         if (config == null)
@@ -18,19 +17,6 @@ public class RenderInGO : MonoBehaviour, IConvertGameObjectToEntity
         }
 
         config.positionOffset = renderObject.transform.position - transform.position;
-        Debug.Log(transform.position);
         config.renderEntity = entity;
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 }

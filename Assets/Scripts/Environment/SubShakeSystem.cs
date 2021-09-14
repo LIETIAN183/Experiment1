@@ -56,15 +56,14 @@ public class SubShakeSystem : SystemBase
         }).ScheduleParallel();
     }
 
-    /// <summary>
-    /// This function is called when the behaviour becomes disabled or inactive.
-    /// </summary>
-    void OnDisable()
+    protected override void OnStopRunning()
     {
         Entities.WithAll<SubShakeData>().ForEach((ref Translation translation, ref Rotation rotation, in SubShakeData data) =>
         {
             //复位
             translation.Value = data.originLocalPosition;
+            rotation.Value = quaternion.Euler(0, 0, 0);
         }).ScheduleParallel();
+        base.OnStopRunning();
     }
 }
