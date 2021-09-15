@@ -1,11 +1,12 @@
-using System.Collections.Generic;
-using UnityEngine;
 using Unity.Entities;
-using Unity.Collections;
+using Unity.Physics;
 using Unity.Mathematics;
 
-// TODO: float 存在精度问题
-public class GroundMotionBlobAssetsConstructor : GameObjectConversionSystem
+using System.Collections.Generic;
+using Unity.Collections;
+using UnityEngine;
+
+public class SetupBlobSystem : SystemBase
 {
     public static List<BlobAssetReference<GroundMotionBlobAsset>> gmBlobRefs;
     public string groundMotionPath = Application.streamingAssetsPath + "/Data/";
@@ -13,18 +14,18 @@ public class GroundMotionBlobAssetsConstructor : GameObjectConversionSystem
     public int skipLine = 3;
     public float gravity = 9.81f;
 
-    // Construct Shared Array For Serveral Entities
-    protected override void OnUpdate()
+    private List<float3> acc;
+
+    protected override void OnStartRunning()
     {
         // 读取数据并存储在 BlobAsset 中
         gmBlobRefs = new List<BlobAssetReference<GroundMotionBlobAsset>>();
         // 获得所有可选 GroundMotion 的名字
         var gms = GmDataReader.GroundMotionFolders(groundMotionPath);
 
+        // 遍历每个文件夹内的文件
         foreach (var item in gms)
         {
-            //FIXME: Debug 运行了两次，表示读取了两次数据？ 可能有问题代码
-            //Debug.Log(item);
             if (!GetData(item))
             {
                 break;
@@ -38,10 +39,9 @@ public class GroundMotionBlobAssetsConstructor : GameObjectConversionSystem
             BlobBuilderArray<GroundMotion> gmArray = blobBuilder.Allocate(ref groundMotionBlobAsset.gmArray, acc.Count);
 
             // 存储加速度数据为 BlobArray
-            // TODO: 也许有新的数据转换方式从 List<Vector3> 到 BlobBuilderArray<GroundMotion>
             for (int i = 0; i < acc.Count; ++i)
             {
-                gmArray[i] = new GroundMotion { acceleration = new float3(acc[i]) };
+                gmArray[i] = new GroundMotion { acceleration = acc[i] };
             }
 
             // 存储相应地震名字为 BlobString
@@ -55,9 +55,14 @@ public class GroundMotionBlobAssetsConstructor : GameObjectConversionSystem
             // 释放 BlobBuilder
             blobBuilder.Dispose();
         }
+
+        ECSUIController.Instance.Setup();
     }
 
-    private List<Vector3> acc;
+    protected override void OnUpdate()
+    {
+    }
+
     bool GetData(string folderName)
     {
         // 读取数据

@@ -4,13 +4,14 @@ using UnityEngine;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Unity.Mathematics;
 
 // TODO: 修改为 Resource 加载数据，优化资源存储方式 修改为 Resource Manger
 public static class GmDataReader
 {
+    public static readonly float3 forward = new float3(0, 0, 1);
 
     // 读取可选的仿真地震选项
-    // TODO: Vector3 to float3
     public static IEnumerable<string> GroundMotionFolders(string directoryPath)
     {
         try
@@ -28,11 +29,13 @@ public static class GmDataReader
     }
 
     // Read Earthquake Data from Specific File
-    public static List<Vector3> ReadFile(string gmPath, int skipLine, float gravity)
+    public static List<float3> ReadFile(string gmPath, int skipLine, float gravity)
     {
         DirectoryInfo folderPath = new DirectoryInfo(gmPath);
         // 获取目录下的所有 txt 文件
         FileInfo[] files;
+
+        // 读取文件夹内的文件
         try
         {
             files = folderPath.GetFiles("*.txt");
@@ -40,7 +43,7 @@ public static class GmDataReader
         catch (System.Exception e)
         {
             Debug.Log($"{e}");
-            throw;
+            return null;
         }
         // 若文件下内无 txt 文件，返回 NULL
         if (files.Count().Equals(0))
@@ -49,30 +52,28 @@ public static class GmDataReader
             return null;
         }
 
-        List<Vector3> acceleration = new List<Vector3>();// 动态数组
+        List<float3> acceleration = new List<float3>();// 动态数组
 
         // 辅助变量
         string line;                    // 存储每一行的字符串
         string[] linedata;              // 存储分割空格后的字符串形式的数据数组
-        Vector3 angle;                  // 存储加速度数据的角度 Vector
+        float3 degree;                  // 存储加速度数据的角度 Vector
         // 读取数据
         foreach (var file in files)
         {
             // 读取txt标题中标注的角度
             // 用于与加速度相乘，得到加速度矢量
-            angle = Vector3.zero;
+            degree = float3.zero;
             // 存储获得的字符串形式的角度
             string degreeStr = file.Name.Substring(file.Name.Length - 7, 3);
             // Debug.Log(degreeStr);
             if (degreeStr.Contains("UP"))
             {
-                angle = Vector3.up;
+                degree = math.up();
             }
             else
             {
-                // Quaternion * Vector3 work, Vector3 * Quaternion not work
-                angle = Quaternion.AngleAxis(int.Parse(degreeStr), Vector3.up) * Vector3.forward;
-                // Debug.Log(angle);
+                degree = math.mul(quaternion.AxisAngle(math.up(), math.radians(int.Parse(degreeStr))), math.forward());
             }
 
             // 读取文件
@@ -83,9 +84,7 @@ public static class GmDataReader
                 do
                 {
                     line = reader.ReadLine();
-                    // Debug.Log(count);
                 } while (count-- > 0);
-                // Debug.Log(count);
 
                 // 读取点的个数，并更新最小值
                 Regex r = new Regex(@"(\d{4})");
@@ -96,10 +95,8 @@ public static class GmDataReader
                     return null;
                 }
                 int number = int.Parse(m.Groups[0].Value);
-                // Debug.Log(number);
 
                 // TODO: use another way to save data, notice the first time List is lack of capacity
-                // Debug.Log(count);
                 count = 0;
                 line = reader.ReadLine();
                 while (line != null)
@@ -112,11 +109,11 @@ public static class GmDataReader
                         if (count >= acceleration.Count)
                         {
 
-                            acceleration.Add(angle * Convert.ToSingle(str));
+                            acceleration.Add(degree * Convert.ToSingle(str));
                         }
                         else
                         {
-                            acceleration[count] += angle * Convert.ToSingle(str);
+                            acceleration[count] += degree * Convert.ToSingle(str);
                         }
                         ++count;
                     }

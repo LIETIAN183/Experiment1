@@ -15,7 +15,7 @@ public class ECSSystemManager : SystemBase
 
     public void Active(int index)
     {
-        // World.DefaultGameObjectInjectionWorld.GetExistingSystem<AccTimerSystem>().Active(index);
+        // SyncSystem、SubShakeSystem 可以选择不启用
         simulation.GetExistingSystem<AccTimerSystem>().Active(index);
         simulation.GetExistingSystem<GlobalGravitySystem>().Enabled = true;
         simulation.GetExistingSystem<ComsMotionSystem>().Enabled = true;

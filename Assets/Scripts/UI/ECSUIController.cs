@@ -35,11 +35,7 @@ public class ECSUIController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Start is called on the frame when a script is enabled just before
-    /// any of the Update methods is called the first time.
-    /// </summary>
-    void Start()
+    public void Setup()
     {
         pauseBtn.GetComponent<CanvasGroup>().interactable = false;
 
@@ -48,23 +44,21 @@ public class ECSUIController : MonoBehaviour
 
         // 关联 HorizontalSelector 数据
         EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
+        // 同步 Progress 最大值
+        EqSelector.selectorEvent.AddListener((int index) => { progress.maxValue = SetupBlobSystem.gmBlobRefs[index].Value.gmArray.Length; });
         EqSelector.SetupSelector();
-        //TODO: 放在 OnCreat() 不生效，不知道为什么
         EqSelector.ForwardClick();
         EqSelector.UpdateUI();
-
 
         // StartBtn 地震开始按钮
         startBtn.clickEvent.AddListener(() =>
             {
                 // 获得选择的地震 Index. 开始仿真
                 World.DefaultGameObjectInjectionWorld.GetExistingSystem<ECSSystemManager>().Active(EqSelector.index);
-                // 设置 Progress 最大值
-                progress.maxValue = GroundMotionBlobAssetsConstructor.gmBlobRefs[EqSelector.index].Value.gmArray.Length;
 
                 // 更新 Button 状态
                 startBtn.GetComponent<CanvasGroup>().interactable = false;
-                EqSelector.Interactable(false);
+                EqSelector.GetComponent<CanvasGroup>().interactable = false;
                 pauseBtn.GetComponent<CanvasGroup>().interactable = true;
 
                 ShowNotification("Start Simulation");
@@ -88,7 +82,6 @@ public class ECSUIController : MonoBehaviour
         });// 关联重置场景按钮
 
         // Exit Button
-        // exitBtn.clickEvent.AddListener(Application.Quit);
         exitBtn.clickEvent.AddListener(System.Diagnostics.Process.GetCurrentProcess().Kill);
     }
 
@@ -120,7 +113,7 @@ public class ECSUIController : MonoBehaviour
     List<HorizontalSelector.Item> GetNameList()
     {
         List<HorizontalSelector.Item> nameList = new List<HorizontalSelector.Item>();
-        foreach (var item in GroundMotionBlobAssetsConstructor.gmBlobRefs)
+        foreach (var item in SetupBlobSystem.gmBlobRefs)
         {
             string name = item.Value.gmName.ToString();
             nameList.Add(new HorizontalSelector.Item(name));

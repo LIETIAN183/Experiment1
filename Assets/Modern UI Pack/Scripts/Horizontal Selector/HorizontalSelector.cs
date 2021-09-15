@@ -359,13 +359,5 @@ namespace Michsky.UI.ModernUIPack
                 }
             }
         }
-
-        // 设置 Horizontal Selector 可交互状态
-        public void Interactable(bool flag)
-        {
-            transform.Find("Prev").gameObject.SetActive(flag);
-            transform.Find("Next").gameObject.SetActive(flag);
-            transform.Find("Indicators").gameObject.SetActive(flag);
-        }
     }
 }

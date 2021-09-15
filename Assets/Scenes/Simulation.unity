@@ -966,6 +966,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &893642537 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3657246222190600908, guid: eac69405b66d0c740b6d9b6afd678b92,
+    type: 3}
+  m_PrefabInstance: {fileID: 1382691773}
+  m_PrefabAsset: {fileID: 0}
+--- !u!225 &893642543
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 893642537}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &983301376 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3868451017734368254, guid: 2483a9bee86b37b4fae5a5d4966a65ae,
@@ -1655,6 +1673,11 @@ PrefabInstance:
       propertyPath: enableIndicators
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3657246222190600898, guid: eac69405b66d0c740b6d9b6afd678b92,
+        type: 3}
+      propertyPath: itemList.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3701172043349330840, guid: eac69405b66d0c740b6d9b6afd678b92,
         type: 3}
       propertyPath: m_IsActive
@@ -1693,7 +1716,7 @@ PrefabInstance:
     - target: {fileID: 7385114955142591728, guid: eac69405b66d0c740b6d9b6afd678b92,
         type: 3}
       propertyPath: m_text
-      value: 'Space : Hide / Show UI'
+      value: 'H : Hide / Show UI'
       objectReference: {fileID: 0}
     - target: {fileID: 8774624923643447047, guid: eac69405b66d0c740b6d9b6afd678b92,
         type: 3}
