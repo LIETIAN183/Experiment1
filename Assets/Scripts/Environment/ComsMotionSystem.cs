@@ -7,11 +7,12 @@ using Unity.Transforms;
 
 // [AlwaysSynchronizeSystem]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-[UpdateAfter(typeof(AccTimerSystem))]
+[UpdateAfter(typeof(GlobalGravitySystem))]
 public class ComsMotionSystem : SystemBase
 {
     public static readonly float staticFriction = 0.5f;
     public static readonly float gravity = -9.81f;
+    public static readonly float threshold = 0.0001f;
     protected override void OnCreate()
     {
         this.Enabled = false;
@@ -27,25 +28,27 @@ public class ComsMotionSystem : SystemBase
         Entities
         .WithAll<ComsTag>()
         .WithName("ComsMove")
-        .ForEach((ref PhysicsVelocity physicsVelocity, in Translation translation, in Rotation rotation, in PhysicsMass physicsMass) =>
+        .ForEach((ref PhysicsVelocity physicsVelocity, ref ComsTag data, in Translation translation, in Rotation rotation, in PhysicsMass physicsMass) =>
         {
             // 垂直惯性力的添加通过修改全局
             // 垂直速度大于 0 时代表物体在空中运动
-            if (math.abs(physicsVelocity.Linear.y) < 0.001)
+            if (math.abs(physicsVelocity.Linear.y) < threshold || translation.Value.y - data.previous_y < threshold)
             {
                 // 当物体静止且水平惯性力小于最大静摩擦力时，直接不添加力，简化计算
                 // 即当物体运动或者水平惯性力大于最大静摩擦力时，才添加水平惯性力到物体上
                 // ma_{h}<μm(g-a_{v}) 表示水平惯性力小于最大静摩擦力
 
-                if (math.length(physicsVelocity.Linear.xz) >= 0.001 || math.length(horiAcc) >= math.abs(staticFriction * (gravity - horiAcc.y)))
+                if (math.length(physicsVelocity.Linear.xz) >= threshold || math.length(horiAcc) >= math.abs(staticFriction * (gravity - vertiAcc)))
                 {
                     physicsVelocity.ApplyLinearImpulse(physicsMass, -horiAcc / physicsMass.InverseMass * time);
                 }
             }
             else
             {
-                // 添加空气阻力
+                // 空气阻力 k = 1/2ρc_{d}A = 0.01f
+                physicsVelocity.ApplyLinearImpulse(physicsMass, -math.normalize(physicsVelocity.Linear) * 0.01f * math.pow(math.length(physicsVelocity.Linear), 2) * time);
             }
+            data.previous_y = translation.Value.y;
         }).ScheduleParallel();
     }
 }

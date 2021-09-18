@@ -20,14 +20,15 @@ public class ComsShakeSystem : SystemBase
 
         // 使用水平地震加速度计算
         acc.y = 0;
-        var elapsedTime = timerData.timeCount * 0.01f;
+        // TODO: 考虑要不要新建立一个变量
+        var elapsedTime = timerData.elapsedTime;
 
         Entities.WithAll<ShakeData>().WithName("ComsBend").ForEach((ref ShakeData data, ref Rotation rotation, in LocalToWorld ltd) =>
         {
             // 计算地震强度
-            data.strength = math.abs(math.dot(acc, ltd.Forward) / math.dot(ltd.Forward, ltd.Forward));
+            data.strength = math.dot(acc, ltd.Forward) / math.dot(ltd.Forward, ltd.Forward);
             // 计算终端位移
-            data.endMovement = 0.05f * data.strength * math.cos((2 * math.PI / data.shakePeriod) * elapsedTime + 90);
+            data.endMovement = 0.05f * math.abs(data.strength) * math.cos((2 * math.PI * data.shakeFrequency) * elapsedTime + 90);
             // data.endMovement = 0.2f;
 
             // 采用近似算法，整体旋转
@@ -49,6 +50,5 @@ public class ComsShakeSystem : SystemBase
             data.strength = 0;
             data.endMovement = 0;
         }).ScheduleParallel();
-        base.OnStopRunning();
     }
 }

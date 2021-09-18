@@ -55,15 +55,4 @@ public class SubShakeSystem : SystemBase
             rotation.Value = quaternion.Euler(radius, 0, 0);
         }).ScheduleParallel();
     }
-
-    protected override void OnStopRunning()
-    {
-        Entities.WithAll<SubShakeData>().ForEach((ref Translation translation, ref Rotation rotation, in SubShakeData data) =>
-        {
-            //复位
-            translation.Value = data.originLocalPosition;
-            rotation.Value = quaternion.Euler(0, 0, 0);
-        }).ScheduleParallel();
-        base.OnStopRunning();
-    }
 }

@@ -15,20 +15,19 @@ public class SyncSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var acc = GetSingleton<AccTimerData>().acc;
-        Entities.ForEach((ref SyncTag sync) =>
-        {
-            sync.acc = acc;
-        }).Schedule();
+        var sync = GetSingleton<SyncTag>();
+        sync.acc = GetSingleton<AccTimerData>().acc;
+        SetSingleton<SyncTag>(sync);
+        // Entities.ForEach((ref SyncTag sync) =>
+        // {
+        //     sync.acc = acc;
+        // }).Schedule();
     }
 
-    // 测试修改 gravity 参数是否影响全局重力加速度，经测试有效
-    // protected override void OnStopRunning()
-    // {
-    //     Entities.ForEach((ref PhysicsStep setting) =>
-    //     {
-    //         setting.Gravity.y = 10;
-    //     }).Schedule();
-    //     base.OnStopRunning();
-    // }
+    protected override void OnStopRunning()
+    {
+        var sync = GetSingleton<SyncTag>();
+        sync.acc = 0;
+        SetSingleton<SyncTag>(sync);
+    }
 }

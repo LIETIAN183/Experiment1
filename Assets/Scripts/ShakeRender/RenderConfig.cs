@@ -80,11 +80,10 @@ public class RenderConfig : MonoBehaviour
                 bone.localEulerAngles = new Vector3(degree, 0, 0);
             }
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
             // System.ArgumentException: A component with type:ShakeData has not been added to the entity.
             // 目标物体没有 ShakeData组件时，不执行摇晃渲染
-            // Debug.Log(e.Message);
         }
     }
 }

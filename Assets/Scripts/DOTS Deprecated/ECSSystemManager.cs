@@ -1,5 +1,6 @@
 using Unity.Entities;
 
+[DisableAutoCreation]
 public class ECSSystemManager : SystemBase
 {
     World simulation;
@@ -15,6 +16,9 @@ public class ECSSystemManager : SystemBase
 
     public void Active(int index)
     {
+        // 启动分析系统
+        simulation.GetExistingSystem<AnalysisSystem>().Enabled = true;
+
         // SyncSystem、SubShakeSystem 可以选择不启用
         simulation.GetExistingSystem<AccTimerSystem>().Active(index);
         simulation.GetExistingSystem<GlobalGravitySystem>().Enabled = true;
@@ -34,6 +38,8 @@ public class ECSSystemManager : SystemBase
         simulation.GetExistingSystem<SubShakeSystem>().Enabled = false;
         simulation.GetExistingSystem<GlobalGravitySystem>().Enabled = false;
         simulation.GetExistingSystem<SyncSystem>().Enabled = false;
+
+        // simulation.GetExistingSystem<AnalysisSystem>().Deactive();
         ECSUIController.Instance.ShowNotification("Simulation End");
     }
 }

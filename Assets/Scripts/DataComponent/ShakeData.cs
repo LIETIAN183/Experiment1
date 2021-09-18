@@ -17,7 +17,7 @@ public struct ShakeData : IComponentData
 
     public float endMovement;
 
-    public float shakePeriod;
+    public float shakeFrequency;
 
     // Simlified Method Configurion
     public bool simplifiedMethod;

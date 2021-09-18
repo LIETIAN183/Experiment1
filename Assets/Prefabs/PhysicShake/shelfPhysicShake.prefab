@@ -125,9 +125,15 @@ MonoBehaviour:
   strength: 0
   length: 2.22
   endMovement: 0
-  shakePeriod: 0.5
+  shakeFrequency: 2
   simplifiedMethod: 0
   pastRadius: 0
+  worldRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
 --- !u!114 &5988433221905389639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,7 +225,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -412,7 +418,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -605,7 +611,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -798,7 +804,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -991,7 +997,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1184,7 +1190,7 @@ MonoBehaviour:
   m_ForceUnique: 1
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1377,7 +1383,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1570,7 +1576,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1763,7 +1769,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1956,7 +1962,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -2148,7 +2154,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -2323,7 +2329,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
