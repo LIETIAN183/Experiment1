@@ -75,8 +75,8 @@ public class RenderConfig : MonoBehaviour
             {
                 // 和当前物体正向相同时为 1，否则为 -1
                 var rotationFlag = math.dot(transform.forward, new float3(0, 0, 1)) >= 0 ? 1 : -1;
-                var gradient = -3 * data.endMovement * (math.pow(height, 2) - 2 * data.length * height) / (2 * math.pow(data.length, 3)) * rotationFlag;
-                degree = math.degrees(math.atan(gradient));
+                var gradient = -3 * data.endMovement * (math.pow(height, 2) - 2 * data.length * height) / (2 * math.pow(data.length, 3));
+                degree = math.degrees(math.atan(gradient)) * 2;
                 bone.localEulerAngles = new Vector3(degree, 0, 0);
             }
         }

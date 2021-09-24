@@ -605,37 +605,103 @@ public partial class DB_Summary : BGEntity
 			_F_PGA[Index] = value;
 		}
 	}
-	public System.Single F_averageDis
+	public System.Single F_averageDis1
 	{
 		get
 		{
-			return _F_averageDis[Index];
+			return _F_averageDis1[Index];
 		}
 		set
 		{
-			_F_averageDis[Index] = value;
+			_F_averageDis1[Index] = value;
 		}
 	}
-	public System.Single F_minDis
+	public System.Single F_minDis1
 	{
 		get
 		{
-			return _F_minDis[Index];
+			return _F_minDis1[Index];
 		}
 		set
 		{
-			_F_minDis[Index] = value;
+			_F_minDis1[Index] = value;
 		}
 	}
-	public System.Single F_maxDis
+	public System.Single F_maxDis1
 	{
 		get
 		{
-			return _F_maxDis[Index];
+			return _F_maxDis1[Index];
 		}
 		set
 		{
-			_F_maxDis[Index] = value;
+			_F_maxDis1[Index] = value;
+		}
+	}
+	public System.Single F_averageDis2
+	{
+		get
+		{
+			return _F_averageDis2[Index];
+		}
+		set
+		{
+			_F_averageDis2[Index] = value;
+		}
+	}
+	public System.Single F_minDis2
+	{
+		get
+		{
+			return _F_minDis2[Index];
+		}
+		set
+		{
+			_F_minDis2[Index] = value;
+		}
+	}
+	public System.Single F_maxDis2
+	{
+		get
+		{
+			return _F_maxDis2[Index];
+		}
+		set
+		{
+			_F_maxDis2[Index] = value;
+		}
+	}
+	public System.Single F_averageDis3
+	{
+		get
+		{
+			return _F_averageDis3[Index];
+		}
+		set
+		{
+			_F_averageDis3[Index] = value;
+		}
+	}
+	public System.Single F_minDis3
+	{
+		get
+		{
+			return _F_minDis3[Index];
+		}
+		set
+		{
+			_F_minDis3[Index] = value;
+		}
+	}
+	public System.Single F_maxDis3
+	{
+		get
+		{
+			return _F_maxDis3[Index];
+		}
+		set
+		{
+			_F_maxDis3[Index] = value;
 		}
 	}
 	public System.Single F_maxDegree
@@ -720,31 +786,85 @@ public partial class DB_Summary : BGEntity
 			return _ufle12jhs77_F_PGA;
 		}
 	}
-	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_averageDis;
-	public static BansheeGz.BGDatabase.BGFieldFloat _F_averageDis
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_averageDis1;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_averageDis1
 	{
 		get
 		{
-			if(_ufle12jhs77_F_averageDis==null || _ufle12jhs77_F_averageDis.IsDeleted) _ufle12jhs77_F_averageDis=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5030861922316001894UL,10834617477471543936UL));
-			return _ufle12jhs77_F_averageDis;
+			if(_ufle12jhs77_F_averageDis1==null || _ufle12jhs77_F_averageDis1.IsDeleted) _ufle12jhs77_F_averageDis1=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5030861922316001894UL,10834617477471543936UL));
+			return _ufle12jhs77_F_averageDis1;
 		}
 	}
-	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_minDis;
-	public static BansheeGz.BGDatabase.BGFieldFloat _F_minDis
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_minDis1;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_minDis1
 	{
 		get
 		{
-			if(_ufle12jhs77_F_minDis==null || _ufle12jhs77_F_minDis.IsDeleted) _ufle12jhs77_F_minDis=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5640176086806532674UL,13325286521270761655UL));
-			return _ufle12jhs77_F_minDis;
+			if(_ufle12jhs77_F_minDis1==null || _ufle12jhs77_F_minDis1.IsDeleted) _ufle12jhs77_F_minDis1=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5640176086806532674UL,13325286521270761655UL));
+			return _ufle12jhs77_F_minDis1;
 		}
 	}
-	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_maxDis;
-	public static BansheeGz.BGDatabase.BGFieldFloat _F_maxDis
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_maxDis1;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_maxDis1
 	{
 		get
 		{
-			if(_ufle12jhs77_F_maxDis==null || _ufle12jhs77_F_maxDis.IsDeleted) _ufle12jhs77_F_maxDis=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5641693565151945252UL,886728134604687551UL));
-			return _ufle12jhs77_F_maxDis;
+			if(_ufle12jhs77_F_maxDis1==null || _ufle12jhs77_F_maxDis1.IsDeleted) _ufle12jhs77_F_maxDis1=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5641693565151945252UL,886728134604687551UL));
+			return _ufle12jhs77_F_maxDis1;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_averageDis2;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_averageDis2
+	{
+		get
+		{
+			if(_ufle12jhs77_F_averageDis2==null || _ufle12jhs77_F_averageDis2.IsDeleted) _ufle12jhs77_F_averageDis2=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4950645727836387020UL,4626600156475254927UL));
+			return _ufle12jhs77_F_averageDis2;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_minDis2;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_minDis2
+	{
+		get
+		{
+			if(_ufle12jhs77_F_minDis2==null || _ufle12jhs77_F_minDis2.IsDeleted) _ufle12jhs77_F_minDis2=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4751993218554502218UL,2575835551086589106UL));
+			return _ufle12jhs77_F_minDis2;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_maxDis2;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_maxDis2
+	{
+		get
+		{
+			if(_ufle12jhs77_F_maxDis2==null || _ufle12jhs77_F_maxDis2.IsDeleted) _ufle12jhs77_F_maxDis2=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4654208408867422549UL,14859844992510906033UL));
+			return _ufle12jhs77_F_maxDis2;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_averageDis3;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_averageDis3
+	{
+		get
+		{
+			if(_ufle12jhs77_F_averageDis3==null || _ufle12jhs77_F_averageDis3.IsDeleted) _ufle12jhs77_F_averageDis3=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4903438851876383629UL,16764016683133070774UL));
+			return _ufle12jhs77_F_averageDis3;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_minDis3;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_minDis3
+	{
+		get
+		{
+			if(_ufle12jhs77_F_minDis3==null || _ufle12jhs77_F_minDis3.IsDeleted) _ufle12jhs77_F_minDis3=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5283751164556770595UL,3218849294905069492UL));
+			return _ufle12jhs77_F_minDis3;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_maxDis3;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_maxDis3
+	{
+		get
+		{
+			if(_ufle12jhs77_F_maxDis3==null || _ufle12jhs77_F_maxDis3.IsDeleted) _ufle12jhs77_F_maxDis3=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4784361551600624352UL,6232214770065635717UL));
+			return _ufle12jhs77_F_maxDis3;
 		}
 	}
 	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_maxDegree;

@@ -11,6 +11,11 @@ public struct ComsTag : IComponentData
     // 用于判断掉落状态和最终位移
     public float3 originPosition;
 
+    // 只用于 ShakeIllustration 场景下物品的重置
+    public quaternion originRotation;
+
     // 用于区分组别
     public int groupID;
+
+    public float a, v;
 }

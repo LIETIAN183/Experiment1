@@ -31,7 +31,7 @@ public class ComsMotionSystem : SystemBase
         .ForEach((ref PhysicsVelocity physicsVelocity, ref ComsTag data, in Translation translation, in Rotation rotation, in PhysicsMass physicsMass) =>
         {
             // 垂直惯性力的添加通过修改全局
-            // 垂直速度大于 0 时代表物体在空中运动
+            // 垂直速度或位移小于阈值时代表物体不在空中
             if (math.abs(physicsVelocity.Linear.y) < threshold || translation.Value.y - data.previous_y < threshold)
             {
                 // 当物体静止且水平惯性力小于最大静摩擦力时，直接不添加力，简化计算
@@ -45,10 +45,22 @@ public class ComsMotionSystem : SystemBase
             }
             else
             {
-                // 空气阻力 k = 1/2ρc_{d}A = 0.01f
+                // 空气阻力 k = 1/2ρc_{d}A = 0.01f ρ = 1.29 c_{d} = 0.8 A = 0.02
                 physicsVelocity.ApplyLinearImpulse(physicsMass, -math.normalize(physicsVelocity.Linear) * 0.01f * math.pow(math.length(physicsVelocity.Linear), 2) * time);
             }
             data.previous_y = translation.Value.y;
+        }).ScheduleParallel();
+
+        Entities.ForEach((ref AimTag aim, in Translation translation) =>
+        {
+            aim.delta = translation.Value - aim.lastPosition;
+            aim.lastPosition = translation.Value;
+        }).Run();
+
+        var temp = GetSingleton<AimTag>().delta;
+        Entities.WithAll<FollowTag>().ForEach((ref Translation translation) =>
+        {
+            translation.Value += temp;
         }).ScheduleParallel();
     }
 }

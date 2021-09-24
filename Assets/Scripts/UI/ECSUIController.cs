@@ -40,9 +40,6 @@ public class ECSUIController : MonoBehaviour
     {
         pauseBtn.GetComponent<CanvasGroup>().interactable = false;
 
-        // TODO： 修复 Reload 卡顿
-        reloadBtn.GetComponent<CanvasGroup>().interactable = false;
-
         // 关联 HorizontalSelector 数据
         EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
         // 同步 Progress 最大值
@@ -73,13 +70,13 @@ public class ECSUIController : MonoBehaviour
         // 场景相应的 Lighting Setting 设置 Auto Generate, 否则 Reload 后光照存在问题
         reloadBtn.clickEvent.AddListener(() =>
         {
-            // 关闭 System
-            World.DefaultGameObjectInjectionWorld.GetExistingSystem<GroundMotionSystem>().Enabled = false;
-            // 重置场景
-            var entityManager = Unity.Entities.World.DefaultGameObjectInjectionWorld.EntityManager;
-            entityManager.DestroyEntity(entityManager.UniversalQuery);
-            // 不能使用 SceneManager.GetActiveScene().name 此方法返回 SubScene 的名字，而不是主场景的名字
-            SceneManager.LoadScene("EqSimulation", LoadSceneMode.Single);
+            // 这段代码对混合世界不能完全正常运行，Reload后 UI 无反应，同时可能导致渲染的entity和gameobkect失去关联，还会导致每次重置系统后需要重新读取地震数据
+            // var entityManager = Unity.Entities.World.DefaultGameObjectInjectionWorld.EntityManager;
+            // entityManager.DestroyEntity(entityManager.UniversalQuery);
+            // // 不能使用 SceneManager.GetActiveScene().name 此方法返回 SubScene 的名字，而不是主场景的名字
+            // SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+
+            // 只用于 ShakeIllustration 场景
         });// 关联重置场景按钮
 
         // Exit Button
@@ -152,6 +149,12 @@ public class ECSUIController : MonoBehaviour
                     break;
                 case "ExitBtn":
                     exitBtn = button;
+                    break;
+                case "AnalysisBtn":
+                    analysisBtn = button;
+                    break;
+                case "ExportBtn":
+                    exportBtn = button;
                     break;
                 default:
                     break;

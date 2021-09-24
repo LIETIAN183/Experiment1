@@ -34,7 +34,7 @@ public class AccTimerSystem : SystemBase
         if (accTimer.timeCount >= gmArray.Length)
         {
             // 关闭其他系统
-            ControlSystem(false);
+            // ControlSystem(false);
             // 分析系统
             ECSUIController.Instance.ShowNotification("Simulation End");
             // 废弃 ECSSystemManager 系统，因为分离会导致运行时间存在差异，导致 Analysis NativeContainer 内存泄露，所以只能由 AccTimerSystem 直接控制其他系统的停止

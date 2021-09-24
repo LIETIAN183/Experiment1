@@ -29,7 +29,7 @@ public class GOSyncSetting : MonoBehaviour
     void LateUpdate()
     {
         Vector3 temp = vel;
-        transform.position += temp * Time.deltaTime;
+        transform.position += temp * 0.01f;
     }
 
     void FixedUpdate()
@@ -40,6 +40,6 @@ public class GOSyncSetting : MonoBehaviour
             return;
         }
         SyncTag target = manager.GetComponentData<SyncTag>(dataInEntity);
-        vel -= target.acc * Time.deltaTime;
+        vel -= target.acc * 0.01f;
     }
 }
