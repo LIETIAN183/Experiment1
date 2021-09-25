@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 1431964668234504233}
   - component: {fileID: 7219104921799883423}
   - component: {fileID: 1942362009184285099}
+  - component: {fileID: 8939521983246814488}
   m_Layer: 0
   m_Name: Shelf
   m_TagString: Shelf
@@ -103,6 +104,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  previous_y: 0
+  originPosition:
+    x: 0
+    y: 0
+    z: 0
+  originRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
+  groupID: 0
 --- !u!114 &-5730240480669232056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,15 +131,9 @@ MonoBehaviour:
   strength: 0
   length: 2.22
   endMovement: 0
-  shakePeriod: 0.5
-  simplifiedMethod: 1
-  pastRadius: 0
-  worldRotation:
-    value:
-      x: 0
-      y: 0
-      z: 0
-      w: 0
+  velocity: 0
+  _acc: 0
+  shakeFrequency: 0
 --- !u!114 &1774824937443675514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -173,7 +180,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -316,7 +323,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -459,7 +466,7 @@ MonoBehaviour:
   m_ForceUnique: 1
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -745,7 +752,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -888,7 +895,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1031,7 +1038,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1178,3 +1185,29 @@ MonoBehaviour:
     Tag05: 0
     Tag06: 0
     Tag07: 0
+--- !u!114 &8939521983246814488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6445781704428220609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 152d0e1e7de8b1648995696b0916fbc4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lastPosition:
+    x: 0
+    y: 0
+    z: 0
+  delta:
+    x: 0
+    y: 0
+    z: 0
+  rotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0

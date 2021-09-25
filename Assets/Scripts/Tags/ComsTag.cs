@@ -16,6 +16,4 @@ public struct ComsTag : IComponentData
 
     // 用于区分组别
     public int groupID;
-
-    public float a, v;
 }

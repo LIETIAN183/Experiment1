@@ -153,6 +153,17 @@ public partial class DB_Detail : BGEntity
 			_F_AccOsc[Index] = value;
 		}
 	}
+	public System.Single F_displacement
+	{
+		get
+		{
+			return _F_displacement[Index];
+		}
+		set
+		{
+			_F_displacement[Index] = value;
+		}
+	}
 	public System.Single F_degree
 	{
 		get
@@ -276,6 +287,15 @@ public partial class DB_Detail : BGEntity
 		{
 			if(_ufle12jhs77_F_AccOsc==null || _ufle12jhs77_F_AccOsc.IsDeleted) _ufle12jhs77_F_AccOsc=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5237285427372509788UL,6775373224382436003UL));
 			return _ufle12jhs77_F_AccOsc;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_displacement;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_displacement
+	{
+		get
+		{
+			if(_ufle12jhs77_F_displacement==null || _ufle12jhs77_F_displacement.IsDeleted) _ufle12jhs77_F_displacement=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5659581505100383143UL,574413171191179451UL));
+			return _ufle12jhs77_F_displacement;
 		}
 	}
 	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_degree;
@@ -704,6 +724,17 @@ public partial class DB_Summary : BGEntity
 			_F_maxDis3[Index] = value;
 		}
 	}
+	public System.Single F_maxDisplacement
+	{
+		get
+		{
+			return _F_maxDisplacement[Index];
+		}
+		set
+		{
+			_F_maxDisplacement[Index] = value;
+		}
+	}
 	public System.Single F_maxDegree
 	{
 		get
@@ -865,6 +896,15 @@ public partial class DB_Summary : BGEntity
 		{
 			if(_ufle12jhs77_F_maxDis3==null || _ufle12jhs77_F_maxDis3.IsDeleted) _ufle12jhs77_F_maxDis3=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4784361551600624352UL,6232214770065635717UL));
 			return _ufle12jhs77_F_maxDis3;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_maxDisplacement;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_maxDisplacement
+	{
+		get
+		{
+			if(_ufle12jhs77_F_maxDisplacement==null || _ufle12jhs77_F_maxDisplacement.IsDeleted) _ufle12jhs77_F_maxDisplacement=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5423234891451418108UL,16710904880077496721UL));
+			return _ufle12jhs77_F_maxDisplacement;
 		}
 	}
 	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_maxDegree;

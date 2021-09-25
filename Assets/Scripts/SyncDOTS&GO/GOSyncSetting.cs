@@ -29,7 +29,7 @@ public class GOSyncSetting : MonoBehaviour
     void LateUpdate()
     {
         Vector3 temp = vel;
-        transform.position += temp * 0.01f;
+        transform.position += temp * 0.01f * 5;
     }
 
     void FixedUpdate()

@@ -77,6 +77,7 @@ public class ECSUIController : MonoBehaviour
             // SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
 
             // 只用于 ShakeIllustration 场景
+            World.DefaultGameObjectInjectionWorld.GetExistingSystem<ReloadSystem>().Enabled = true;
         });// 关联重置场景按钮
 
         // Exit Button

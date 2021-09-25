@@ -3,6 +3,7 @@ using Unity.Jobs;
 using Unity.Physics;
 
 // [UpdateAfter(typeof(InitializeSystem))]
+[DisableAutoCreation]
 public class AgentSystem : SystemBase
 {
     protected override void OnUpdate()

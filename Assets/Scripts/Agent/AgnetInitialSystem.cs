@@ -3,6 +3,7 @@ using Unity.Jobs;
 using Unity.Physics;
 using Unity.Mathematics;
 
+[DisableAutoCreation]
 public class AgnetInitialSystem : SystemBase
 {
     protected override void OnUpdate()

@@ -34,7 +34,7 @@ public class AccTimerSystem : SystemBase
         if (accTimer.timeCount >= gmArray.Length)
         {
             // 关闭其他系统
-            // ControlSystem(false);
+            ControlSystem(false);
             // 分析系统
             ECSUIController.Instance.ShowNotification("Simulation End");
             // 废弃 ECSSystemManager 系统，因为分离会导致运行时间存在差异，导致 Analysis NativeContainer 内存泄露，所以只能由 AccTimerSystem 直接控制其他系统的停止
@@ -63,9 +63,9 @@ public class AccTimerSystem : SystemBase
     public void Active(int index)
     {
         //-----------------------------------数据分析 填写地震Index和地震名字-----------------------------------------------------
-        DB_Eq newData = DB_Eq.NewEntity();
-        newData.F_eqIndex = index;
-        newData.F_eqName = SetupBlobSystem.gmBlobRefs[index].Value.gmName.ToString();
+        // DB_Eq newData = DB_Eq.NewEntity();
+        // newData.F_eqIndex = index;
+        // newData.F_eqName = SetupBlobSystem.gmBlobRefs[index].Value.gmName.ToString();
         // ------------------------------------- Analysis END -------------------------------------------------------------------
 
         // 初始化单例数据
@@ -79,6 +79,13 @@ public class AccTimerSystem : SystemBase
         ControlSystem(true);
     }
 
+    protected override void OnStartRunning()
+    {
+        var accTimer = GetSingleton<AccTimerData>();
+        accTimer.acc = 0;
+        SetSingleton(accTimer);
+    }
+
     public void ControlSystem(bool status)
     {
         simulation.GetExistingSystem<GlobalGravitySystem>().Enabled = status;
@@ -90,6 +97,6 @@ public class AccTimerSystem : SystemBase
         simulation.GetExistingSystem<SyncSystem>().Enabled = status;
 
         // 分析
-        simulation.GetExistingSystem<AnalysisSystem>().Enabled = status;
+        // simulation.GetExistingSystem<AnalysisSystem>().Enabled = status;
     }
 }
