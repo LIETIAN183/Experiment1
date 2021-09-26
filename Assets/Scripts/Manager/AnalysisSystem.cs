@@ -8,7 +8,6 @@ using Unity.Collections;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateAfter(typeof(ComsMotionSystem))]
 [UpdateAfter(typeof(SubShakeSystem))]
-[DisableAutoCreation]
 public class AnalysisSystem : SystemBase
 {
     // Summary when simulation End
@@ -165,5 +164,9 @@ public class AnalysisSystem : SystemBase
         summary.F_itemCount = (int)bridge[9];
 
         bridge.Dispose();
+
+        maxDegree = 0;
+        maxDisplacement = 0;
+        pga = 0;
     }
 }

@@ -84,6 +84,7 @@ public class ECSUIController : MonoBehaviour
         exitBtn.clickEvent.AddListener(System.Diagnostics.Process.GetCurrentProcess().Kill);
 
         // Analysis Button
+        analysisBtn.clickEvent.AddListener(World.DefaultGameObjectInjectionWorld.GetExistingSystem<FullAnalysisSystem>().StartFullAnalysis);
 
 
         // Export Button

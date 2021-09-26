@@ -180,6 +180,7 @@ Material:
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _CoatMask: 0
+    - _ComputeMeshIndex: 0
     - _Cull: 2
     - _CullMode: 2
     - _CullModeForward: 2
@@ -245,6 +246,7 @@ Material:
     - _ReceivesSSR: 1
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
+    - _SkinMatrixIndex: 0
     - _Smoothness: 0
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
@@ -289,6 +291,7 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 1
     m_Colors:
+    - Color_90a04807157d40d78e9041b853bb4061: {r: 0.8, g: 0.8, b: 0.8, a: 0}
     - _BaseColor: {r: 0.8000555, g: 0.8000555, b: 0.8000555, a: 1}
     - _BaseColorMap_MipInfo: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0.8000555, g: 0.8000555, b: 0.8000555, a: 1}

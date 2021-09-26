@@ -274,11 +274,11 @@
       "url": "https://packages.unity.cn"
     },
     "com.unity.rendering.hybrid": {
-      "version": "0.11.0-preview.42",
+      "version": "0.11.0-preview.44",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.entities": "0.17.0-preview.41"
+        "com.unity.entities": "0.17.0-preview.42"
       },
       "url": "https://packages.unity.cn"
     },
@@ -573,12 +573,6 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.unitywebrequest": "1.0.0"
       }
-    },
-    "com.unity.modules.wind": {
-      "version": "1.0.0",
-      "depth": 0,
-      "source": "builtin",
-      "dependencies": {}
     }
   }
 }

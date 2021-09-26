@@ -1,8 +1,8 @@
 using Unity.Entities;
 using Unity.Physics;
+using Unity.Transforms;
 using Unity.Mathematics;
-
-
+using Unity.Animation;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateAfter(typeof(AccTimerSystem))]
 public class SyncSystem : SystemBase
@@ -10,7 +10,6 @@ public class SyncSystem : SystemBase
 
     protected override void OnCreate()
     {
-        this.Enabled = false;
     }
 
     protected override void OnUpdate()
@@ -18,10 +17,6 @@ public class SyncSystem : SystemBase
         var sync = GetSingleton<SyncTag>();
         sync.acc = GetSingleton<AccTimerData>().acc;
         SetSingleton<SyncTag>(sync);
-        // Entities.ForEach((ref SyncTag sync) =>
-        // {
-        //     sync.acc = acc;
-        // }).Schedule();
     }
 
     protected override void OnStopRunning()
