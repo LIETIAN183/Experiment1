@@ -62,7 +62,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 964817596778541566}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -125,15 +125,16 @@ MonoBehaviour:
   strength: 0
   length: 2.22
   endMovement: 0
-  shakeFrequency: 2
-  simplifiedMethod: 0
-  pastRadius: 0
-  worldRotation:
-    value:
-      x: 0
-      y: 0
-      z: 0
-      w: 0
+  velocity: 0
+  _acc: 0
+  _x: 0
+  k: 160
+  c: 2
+  deltaMove:
+    x: 0
+    y: 0
+    z: 0
+  constrainDirection: 0
 --- !u!114 &5988433221905389639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -532,7 +533,7 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 1.48
-  parent: {fileID: 0}
+  parent: {fileID: 964817596778541566}
 --- !u!1 &1422179928657532254
 GameObject:
   m_ObjectHideFlags: 0
@@ -725,7 +726,7 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 0.74
-  parent: {fileID: 0}
+  parent: {fileID: 964817596778541566}
 --- !u!1 &1422179928667404894
 GameObject:
   m_ObjectHideFlags: 0
@@ -1111,7 +1112,7 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 0.37
-  parent: {fileID: 0}
+  parent: {fileID: 964817596778541566}
 --- !u!1 &1422179929215442492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1304,7 +1305,7 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 1.85
-  parent: {fileID: 0}
+  parent: {fileID: 964817596778541566}
 --- !u!1 &1422179929325453583
 GameObject:
   m_ObjectHideFlags: 0
@@ -1936,7 +1937,7 @@ MonoBehaviour:
   m_PrimitiveSize:
     x: 1.52
     y: 0.42
-    z: 0.04
+    z: 0.05
   m_PrimitiveOrientation:
     Value:
       x: 0
@@ -2443,4 +2444,4 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 1.11
-  parent: {fileID: 0}
+  parent: {fileID: 964817596778541566}

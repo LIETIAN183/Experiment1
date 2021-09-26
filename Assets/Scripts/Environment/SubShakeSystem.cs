@@ -8,7 +8,6 @@ using Unity.Transforms;
 [UpdateAfter(typeof(ComsShakeSystem))]
 public class SubShakeSystem : SystemBase
 {
-    static readonly float3 forward = new float3(0, 0, 1);
     protected override void OnCreate()
     {
         this.Enabled = false;
@@ -28,7 +27,7 @@ public class SubShakeSystem : SystemBase
 
             // var curmovement = math.pow(curData.height, 2) * (3 * parentData.length - curData.height) * parentData.endMovement / (2 * math.pow(parentData.length, 3));
             var curmovement = k * hSquare * (3 * parentData.length - curData.height);
-            translation.Value = curData.originLocalPosition + forward * curmovement;
+            translation.Value += curData.originLocalPosition + math.forward() * curmovement - translation.Value;
 
             // w'(h)= Δx(6Lh-3h^2)/2L^3=tanθ
             // var gradient = -3 * parentData.endMovement * (math.pow(curData.height, 2) - 2 * parentData.length * curData.height) / (2 * math.pow(parentData.length, 3));
@@ -43,12 +42,15 @@ public class SubShakeSystem : SystemBase
         Entities.WithAll<SubShakeData>().WithName("SubBendWithoutParent").ForEach((ref SubShakeData curData, ref Translation translation, ref Rotation rotation) =>
         {
             ShakeData parentData = GetComponentDataFromEntity<ShakeData>(true)[curData.parent];
+            curData.originLocalPosition += parentData.deltaMove;
+            // var dir = GetComponentDataFromEntity<LocalToWorld>(true)[curData.parent];
+
             var k = parentData.endMovement / (2 * math.pow(parentData.length, 3));
             var hSquare = curData.height * curData.height;
             var curmovement = k * hSquare * (3 * parentData.length - curData.height);
             // LocalToWorld ltd = GetComponentDataFromEntity<LocalToWorld>(true)[curData.parent];
             // 这里因为物体添加 PhysicsBody,子物体独立，所以 forward 变成世界方向，进而导致演示的时候两个物体摇晃方向不出错
-            translation.Value = curData.originLocalPosition + forward * curmovement;
+            translation.Value += curData.originLocalPosition + math.forward() * curmovement - translation.Value;
             // translation.Value = curData.originLocalPosition + ltd.Forward * curmovement;
             var gradient = k * (6 * parentData.length * curData.height - 3 * hSquare);
             var radius = math.atan(gradient);

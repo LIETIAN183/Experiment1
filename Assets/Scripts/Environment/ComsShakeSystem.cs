@@ -30,21 +30,33 @@ public class ComsShakeSystem : SystemBase
             // // 计算终端位移
             // data.endMovement = 0.05f * math.abs(data.strength) * math.cos((2 * math.PI * data.shakeFrequency) * elapsedTime + 90);
             // data.endMovement = 0.2f;
-            data.endMovement += data.velocity * 0.01f;
+            // x计算真实位移，endmovement需要调整后再输出
+            data._x += data.velocity * 0.01f;
             data.velocity += data._acc * 0.01f;
             data.strength = math.dot(acc, ltd.Forward) / math.dot(ltd.Forward, ltd.Forward);
-            data._acc = -160 * data.endMovement - 2 * data.velocity + data.strength;
+            // if (math.dot(ltd.Forward, math.forward()) < 0) data.strength *= -1;
+            data._acc = -data.k * data._x - data.c * data.velocity + data.strength;
+
+            if (data.constrainDirection == 2 && data._x < 0)
+            {
+                data.endMovement = 0;
+            }
+            else
+            {
+                data.endMovement = data._x;
+            }
+            // if (math.dot(ltd.Forward, math.forward()) < 0) data.endMovement *= -1;
 
 
             // 采用近似算法，整体旋转
-            if (data.simplifiedMethod)
-            {
-                data.worldRotation = ltd.Rotation;
-                var gradient = -3 * data.endMovement * (math.pow(0.37f, 2) - 2 * data.length * 0.37f) / (2 * math.pow(data.length, 3));
-                var radius = math.atan(gradient);
-                rotation.Value = math.mul(rotation.Value, quaternion.RotateX(radius - data.pastRadius));
-                data.pastRadius = radius;
-            }
+            // if (data.simplifiedMethod)
+            // {
+            //     data.worldRotation = ltd.Rotation;
+            //     var gradient = -3 * data.endMovement * (math.pow(0.37f, 2) - 2 * data.length * 0.37f) / (2 * math.pow(data.length, 3));
+            //     var radius = math.atan(gradient);
+            //     rotation.Value = math.mul(rotation.Value, quaternion.RotateX(radius - data.pastRadius));
+            //     data.pastRadius = radius;
+            // }
         }).ScheduleParallel();
     }
 

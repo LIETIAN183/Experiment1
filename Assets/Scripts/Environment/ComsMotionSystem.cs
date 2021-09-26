@@ -50,17 +50,5 @@ public class ComsMotionSystem : SystemBase
             }
             data.previous_y = translation.Value.y;
         }).ScheduleParallel();
-
-        Entities.ForEach((ref AimTag aim, in Translation translation) =>
-        {
-            aim.delta = translation.Value - aim.lastPosition;
-            aim.lastPosition = translation.Value;
-        }).Run();
-
-        var temp = GetSingleton<AimTag>().delta;
-        Entities.WithAll<FollowTag>().ForEach((ref Translation translation) =>
-        {
-            translation.Value += temp;
-        }).ScheduleParallel();
     }
 }

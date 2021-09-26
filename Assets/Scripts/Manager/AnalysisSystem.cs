@@ -8,11 +8,12 @@ using Unity.Collections;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateAfter(typeof(ComsMotionSystem))]
 [UpdateAfter(typeof(SubShakeSystem))]
+[DisableAutoCreation]
 public class AnalysisSystem : SystemBase
 {
     // Summary when simulation End
     public float pga;
-    public float maxDegree;
+    public float maxDegree, maxDisplacement;
 
     protected override void OnCreate()
     {
@@ -26,12 +27,13 @@ public class AnalysisSystem : SystemBase
 
         // 0 存储角度 1,2,3 存储 掉落数量
         // 已知只有 NativeContainer 能从 Foreach 中读取数据，临时变量，引用变量均不行
-        NativeArray<float> bridge = new NativeArray<float>(5, Allocator.TempJob);
-        // bridge[0]:degree;bridge[1]:dropCount1;brighe[2]:dropCount2;bridge[3]:dropCount3;bridge[4]:AccOsc
+        NativeArray<float> bridge = new NativeArray<float>(6, Allocator.TempJob);
+        // bridge[0]:degree;bridge[1]:dropCount1;brighe[2]:dropCount2;bridge[3]:dropCount3;bridge[4]:AccOsc;bridge[5]:displacement
         Entities.WithAll<AnalysisTag>().ForEach((in ShakeData data) =>
         {
             bridge[0] = math.atan(data.endMovement / data.length);
             bridge[4] = data.strength;
+            bridge[5] = data.endMovement;
         }).Run();
 
         // 写数据前所有前一次操作要全部完成
@@ -77,12 +79,14 @@ public class AnalysisSystem : SystemBase
         detail.F_horiAcc = direction * math.length(data.acc.xz);
         detail.F_Acc = direction * temp;
         detail.F_AccOsc = bridge[4];
+        detail.F_displacement = bridge[5];
         detail.F_degree = bridge[0];
         detail.F_dropCount1 = (int)bridge[1];
         detail.F_dropCount2 = (int)bridge[2];
         detail.F_dropCount3 = (int)bridge[3];
 
         pga = temp > pga ? temp : pga;
+        maxDisplacement = bridge[5] > maxDisplacement ? bridge[5] : maxDisplacement;
         maxDegree = bridge[0] > maxDegree ? bridge[0] : maxDegree;
 
         // 需要手动释放空间，不然会内存泄漏
@@ -150,6 +154,7 @@ public class AnalysisSystem : SystemBase
         summary.F_maxDis2 = bridge[5];
         summary.F_maxDis3 = bridge[8];
 
+        summary.F_maxDisplacement = maxDisplacement;
         summary.F_maxDegree = maxDegree;
 
         var lastRow = DB_Detail.GetEntity(data.timeCount - 1);
@@ -160,5 +165,9 @@ public class AnalysisSystem : SystemBase
         summary.F_itemCount = (int)bridge[9];
 
         bridge.Dispose();
+
+        maxDegree = 0;
+        maxDisplacement = 0;
+        pga = 0;
     }
 }
