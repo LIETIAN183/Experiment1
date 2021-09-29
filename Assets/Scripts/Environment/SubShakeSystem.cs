@@ -39,11 +39,9 @@ public class SubShakeSystem : SystemBase
         }).ScheduleParallel();
 
         // For SubShake without parent
-        Entities.WithAll<SubShakeData>().WithName("SubBendWithoutParent").ForEach((ref SubShakeData curData, ref Translation translation, ref Rotation rotation) =>
+        Entities.WithAll<SubShakeData>().WithNone<Parent>().WithName("SubBendWithoutParent").ForEach((ref SubShakeData curData, ref Translation translation, ref Rotation rotation) =>
         {
             ShakeData parentData = GetComponentDataFromEntity<ShakeData>(true)[curData.parent];
-            curData.originLocalPosition += parentData.deltaMove;
-            // var dir = GetComponentDataFromEntity<LocalToWorld>(true)[curData.parent];
 
             var k = parentData.endMovement / (2 * math.pow(parentData.length, 3));
             var hSquare = curData.height * curData.height;

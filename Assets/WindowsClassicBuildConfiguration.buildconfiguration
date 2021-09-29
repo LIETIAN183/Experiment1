@@ -3,7 +3,7 @@
     "Components": [
         {
             "$type": "Unity.Build.Common.GeneralSettings, Unity.Build",
-            "ProductName": "Simulation",
+            "ProductName": "Oscillustration",
             "CompanyName": "Company Name",
             "Version": "1.0.0"
         },
@@ -22,7 +22,7 @@
             "$type": "Unity.Build.Classic.ClassicBuildProfile, Unity.Build.Classic",
             "$version": 1,
             "Platform": "win",
-            "Configuration": 3
+            "Configuration": 1
         }
     ]
 }

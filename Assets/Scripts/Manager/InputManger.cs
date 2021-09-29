@@ -8,13 +8,10 @@ using UnityEngine;
 using Michsky.UI.ModernUIPack;
 
 
-// FIXME: Build 后 Right Bar 无反应，可能和该脚本有关
-// 无法正常读取地震数据 
 public class InputManger : MonoBehaviour
 {
     public GameObject UIInterface;
-
-    private ButtonManager pauseBtn;
+    public ButtonManager pauseBtn;
 
     private bool pauseInteractivable;
 
@@ -24,13 +21,6 @@ public class InputManger : MonoBehaviour
     /// </summary>
     void Start()
     {
-        foreach (var button in UIInterface.GetComponentsInChildren<ButtonManager>())
-        {
-            if (button.name.Equals("PauseBtn"))
-            {
-                pauseBtn = button;
-            }
-        }
     }
 
     /// <summary>
@@ -45,11 +35,14 @@ public class InputManger : MonoBehaviour
         }
 
         // 当 PauseBtn 激活时，按 Space 暂停仿真
-        pauseInteractivable = pauseBtn.GetComponent<CanvasGroup>().interactable;
-
-        if (pauseInteractivable && Input.GetKeyUp(KeyCode.Space))
-        {   // TODO: 判断 PauseBtn 状态
+        if (pauseBtn.GetComponent<CanvasGroup>().interactable && Input.GetKeyUp(KeyCode.Space))
+        {
             pauseBtn.clickEvent.Invoke();
+        }
+
+        if (Input.GetKeyUp(KeyCode.K))
+        {
+            World.DefaultGameObjectInjectionWorld.GetExistingSystem<EnvInitialSystem>().Active(0);
         }
     }
 }

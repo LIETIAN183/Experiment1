@@ -4,7 +4,6 @@ using Unity.Entities;
 using System.Collections.Generic;
 using Michsky.UI.ModernUIPack;
 using UnityEngine.SceneManagement;
-using BansheeGz.BGDatabase;
 
 // TODO: Display Acc
 public class ECSUIController : MonoBehaviour
@@ -12,7 +11,7 @@ public class ECSUIController : MonoBehaviour
     public static ECSUIController Instance { get; private set; }
     public HorizontalSelector EqSelector;
     // StatusBtn 实现 Pause/Continue 功能
-    public ButtonManager startBtn, pauseBtn, reloadBtn, exitBtn, analysisBtn, exportBtn;
+    public ButtonManager startBtn, pauseBtn, reloadBtn, exitBtn;
     // 判断 PauseBtn 应该显示 Pause 还是 Continue
     bool pauseBtnFlag = false;
     public ProgressBar progress;
@@ -82,12 +81,6 @@ public class ECSUIController : MonoBehaviour
 
         // Exit Button
         exitBtn.clickEvent.AddListener(System.Diagnostics.Process.GetCurrentProcess().Kill);
-
-        // Analysis Button
-
-
-        // Export Button
-        exportBtn.clickEvent.AddListener(BGExcelImportGo.Instance.Export);
     }
 
     // 修改 Pause Button
@@ -150,12 +143,6 @@ public class ECSUIController : MonoBehaviour
                     break;
                 case "ExitBtn":
                     exitBtn = button;
-                    break;
-                case "AnalysisBtn":
-                    analysisBtn = button;
-                    break;
-                case "ExportBtn":
-                    exportBtn = button;
                     break;
                 default:
                     break;

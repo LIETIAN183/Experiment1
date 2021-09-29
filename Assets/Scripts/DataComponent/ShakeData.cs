@@ -21,15 +21,10 @@ public struct ShakeData : IComponentData
 
     public float _acc;
 
-    public float _x;
-
     public float k, c;
 
-    // 用于独立子碰撞体跟随
-    public float3 deltaMove;
-
-    // 0 不限制运动， 1 限制正向晃动， 2 限制反向晃动
-    public int constrainDirection;
+    // true 时限制 SingleShelf 单向晃动
+    public bool directionConstrain;
 
     // Simlified Method Configurion
     // public bool simplifiedMethod;

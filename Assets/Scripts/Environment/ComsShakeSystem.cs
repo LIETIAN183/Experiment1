@@ -15,13 +15,7 @@ public class ComsShakeSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var timerData = GetSingleton<AccTimerData>();
-        var acc = timerData.acc;
-
-        // 使用水平地震加速度计算
-        acc.y = 0;
-        // TODO: 考虑要不要新建立一个变量
-        var elapsedTime = timerData.elapsedTime;
+        var acc = GetSingleton<AccTimerData>().acc;
 
         Entities.WithAll<ShakeData>().WithName("ComsBend").ForEach((ref ShakeData data, ref Rotation rotation, in LocalToWorld ltd) =>
         {
@@ -31,22 +25,18 @@ public class ComsShakeSystem : SystemBase
             // data.endMovement = 0.05f * math.abs(data.strength) * math.cos((2 * math.PI * data.shakeFrequency) * elapsedTime + 90);
             // data.endMovement = 0.2f;
             // x计算真实位移，endmovement需要调整后再输出
-            data._x += data.velocity * 0.01f;
-            data.velocity += data._acc * 0.01f;
-            data.strength = math.dot(acc, ltd.Forward) / math.dot(ltd.Forward, ltd.Forward);
-            // if (math.dot(ltd.Forward, math.forward()) < 0) data.strength *= -1;
-            data._acc = -data.k * data._x - data.c * data.velocity + data.strength;
-
-            if (data.constrainDirection == 2 && data._x < 0)
+            data.endMovement += data.velocity * 0.01f;
+            // 单边限制
+            if (data.directionConstrain && data.endMovement < 0 && data.velocity < 0)
             {
-                data.endMovement = 0;
+                data.velocity *= -0.3f;
             }
             else
             {
-                data.endMovement = data._x;
+                data.velocity += data._acc * 0.01f;
             }
-            // if (math.dot(ltd.Forward, math.forward()) < 0) data.endMovement *= -1;
-
+            data.strength = math.dot(-acc, ltd.Forward) / math.dot(ltd.Forward, ltd.Forward);
+            data._acc = -data.k * data.endMovement - data.c * data.velocity + data.strength;
 
             // 采用近似算法，整体旋转
             // if (data.simplifiedMethod)
@@ -66,6 +56,8 @@ public class ComsShakeSystem : SystemBase
         {
             data.strength = 0;
             data.endMovement = 0;
+            data.velocity = 0;
+            data._acc = 0;
         }).ScheduleParallel();
     }
 }
