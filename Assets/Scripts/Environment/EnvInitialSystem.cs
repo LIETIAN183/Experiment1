@@ -15,15 +15,7 @@ public class EnvInitialSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        // 初始化数据，不能一开始系统就仿真，因为这样子可能还没开始物理计算，物体初始位置还在空中，没有落到实处
-        Random x = new Random();
-        x.InitState();
-        Entities.WithAll<ShakeData>().ForEach((ref ShakeData data) =>
-        {
-            data.k += x.NextFloat(-5, 5);
-            data.c += x.NextFloat(-0.1f, 0.1f);
-        }).ScheduleParallel();
-
+        // 初始化数据，不能一开始系统就仿真，因为这样子可能还没开始物理计算，物体初始位置还在空中，没有落到实处，无法用于后续的重置
         Entities.WithAll<SubShakeData>().ForEach((ref SubShakeData subShakeData, in Rotation rotation, in Translation translation) =>
         {
             subShakeData.originLocalPosition = translation.Value;

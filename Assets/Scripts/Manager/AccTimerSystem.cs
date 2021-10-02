@@ -36,8 +36,6 @@ public class AccTimerSystem : SystemBase
             // 关闭其他系统
             ControlSystem(false);
             // 分析系统
-            ECSUIController.Instance.ShowNotification("Simulation End");
-            // 废弃 ECSSystemManager 系统，因为分离会导致运行时间存在差异，导致 Analysis NativeContainer 内存泄露，所以只能由 AccTimerSystem 直接控制其他系统的停止
             this.Enabled = false;
 
             // 结束场景后自动重置，执行下一轮仿真
@@ -45,20 +43,19 @@ public class AccTimerSystem : SystemBase
             setting.task = AnalysisTasks.Reload;
             SetSingleton<AnalysisTypeData>(setting);
         }
+        else
+        {
+            // 更新时间进度条
+            ECSUIController.Instance.progress.currentValue = accTimer.timeCount;
 
+            // 在这里计算是为了保证数据分析获取的时间正确
+            accTimer.elapsedTime = accTimer.timeCount * 0.01f;
+            // 更新加速度后，更新时间计量
+            accTimer.acc = gmArray[accTimer.timeCount++].acceleration;
 
-
-        // 更新时间进度条
-        ECSUIController.Instance.progress.currentValue = accTimer.timeCount;// 这里还不需要减一
-        // 计算当前已经过去的时间
-        accTimer.elapsedTime = accTimer.timeCount * 0.01f;
-        // 更新加速度后，更新时间计量
-        accTimer.acc = gmArray[accTimer.timeCount++].acceleration;
-
-        accTimer.accMagnitude = math.length(accTimer.acc);
-        // 更新单例数据
-        SetSingleton(accTimer);
-
+            // 更新单例数据
+            SetSingleton(accTimer);
+        }
 
         // Debug Acc
         // var temp = GetSingleton<AccTimerData>().acc;
@@ -84,7 +81,7 @@ public class AccTimerSystem : SystemBase
         ControlSystem(true);
     }
 
-    protected override void OnStartRunning()
+    protected override void OnStopRunning()
     {
         var accTimer = GetSingleton<AccTimerData>();
         accTimer.acc = 0;

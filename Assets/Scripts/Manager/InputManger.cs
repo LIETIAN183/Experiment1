@@ -11,9 +11,6 @@ using Michsky.UI.ModernUIPack;
 public class InputManger : MonoBehaviour
 {
     public GameObject UIInterface;
-    public ButtonManager pauseBtn;
-
-    private bool pauseInteractivable;
 
     /// <summary>
     /// Start is called on the frame when a script is enabled just before
@@ -34,10 +31,14 @@ public class InputManger : MonoBehaviour
             UIInterface.SetActive(!UIInterface.activeInHierarchy);
         }
 
-        // 当 PauseBtn 激活时，按 Space 暂停仿真
-        if (pauseBtn.GetComponent<CanvasGroup>().interactable && Input.GetKeyUp(KeyCode.Space))
+        if (Input.GetKeyUp(KeyCode.Space))
         {
-            pauseBtn.clickEvent.Invoke();
+            Time.timeScale = Time.timeScale == 0 ? 1 : 0;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
     }
 }

@@ -2,8 +2,9 @@ using Unity.Entities;
 using Unity.Physics;
 using Unity.Mathematics;
 using BansheeGz.BGDatabase;
+using Unity.Transforms;
 
-[UpdateInGroup(typeof(LateSimulationSystemGroup))]
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class FullAnalysisSystem : SystemBase
 {
     private int delayTime;
@@ -11,8 +12,8 @@ public class FullAnalysisSystem : SystemBase
 
     protected override void OnCreate()
     {
-        //延迟30帧
-        delayTime = 30;
+        //延迟100帧 = 1s
+        delayTime = 100;
     }
 
     protected override void OnUpdate()
@@ -39,18 +40,14 @@ public class FullAnalysisSystem : SystemBase
                 if (setting.index == setting.eqCount)
                 {
                     BGExcelImportGo.Instance.Export();
+                    ECSUIController.Instance.eqName.text = "Simulation End";
                 }
                 else
                 {
                     //激活仿真
-
-                    ECSUIController.Instance.EqSelector.index = setting.index;
-                    ECSUIController.Instance.EqSelector.selectorEvent.Invoke(setting.index++);
-                    ECSUIController.Instance.EqSelector.UpdateUI();
-                    ECSUIController.Instance.startBtn.clickEvent.Invoke();
-                    // World.DefaultGameObjectInjectionWorld.GetExistingSystem<EnvInitialSystem>().Active(setting.index++);
+                    ECSUIController.Instance.UpdateEqDisplay(setting.index);
+                    World.DefaultGameObjectInjectionWorld.GetExistingSystem<EnvInitialSystem>().Active(setting.index++);
                 }
-
             }
         }
 
@@ -74,8 +71,32 @@ public class FullAnalysisSystem : SystemBase
 
     public void StartFullAnalysis()
     {
+        ProjectInit();
         var setting = GetSingleton<AnalysisTypeData>();
         setting.task = AnalysisTasks.Start;
         SetSingleton<AnalysisTypeData>(setting);
+    }
+
+    void ProjectInit()
+    {
+        Entities
+       .WithAll<ComsTag>()
+       .ForEach((ref ComsTag data, in LocalToWorld worldPosition) =>
+       {
+           if (worldPosition.Position.x > 3.5f)
+           {
+               data.groupID = 3;
+           }
+           else if (worldPosition.Position.x < 0.5f)
+           {
+               data.groupID = 1;
+           }
+           else
+           {
+               data.groupID = 2;
+           }
+       }).ScheduleParallel();
+
+        // 直接修改物体质量 inversemass 会出错，不可行
     }
 }
