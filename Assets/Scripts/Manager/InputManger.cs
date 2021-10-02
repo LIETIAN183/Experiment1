@@ -1,26 +1,25 @@
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
-using Michsky.UI.ModernUIPack;
 
 
 public class InputManger : MonoBehaviour
 {
-    public GameObject UIInterface;
-    public ButtonManager pauseBtn;
+    public static InputManger Instance { get; private set; }
 
-    private bool pauseInteractivable;
+    public bool simlationStatus = false;
 
-    /// <summary>
-    /// Start is called on the frame when a script is enabled just before
-    /// any of the Update methods is called the first time.
-    /// </summary>
-    void Start()
+    void Awake()
     {
+        // 单例模式判断
+        if (Instance == null)
+        {
+            Instance = this;
+            // DontDestroyOnLoad(gameObject); // 切换场景时不销毁
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     /// <summary>
@@ -28,21 +27,25 @@ public class InputManger : MonoBehaviour
     /// </summary>
     void Update()
     {
-        // 按 H 键隐藏UI界面
-        if (Input.GetKeyUp(KeyCode.H))
-        {
-            UIInterface.SetActive(!UIInterface.activeInHierarchy);
-        }
-
-        // 当 PauseBtn 激活时，按 Space 暂停仿真
-        if (pauseBtn.GetComponent<CanvasGroup>().interactable && Input.GetKeyUp(KeyCode.Space))
-        {
-            pauseBtn.clickEvent.Invoke();
-        }
-
-        if (Input.GetKeyUp(KeyCode.K))
+        if (Input.GetKeyUp(KeyCode.P) && !simlationStatus)
         {
             World.DefaultGameObjectInjectionWorld.GetExistingSystem<EnvInitialSystem>().Active(0);
+            simlationStatus = true;
+        }
+
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            Time.timeScale = Time.timeScale == 0 ? 1 : 0;
+        }
+
+        if (Input.GetKeyUp(KeyCode.R))
+        {
+            World.DefaultGameObjectInjectionWorld.GetExistingSystem<ReloadSystem>().Enabled = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
     }
 }

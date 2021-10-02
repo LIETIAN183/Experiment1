@@ -3,8 +3,8 @@
     "Components": [
         {
             "$type": "Unity.Build.Common.GeneralSettings, Unity.Build",
-            "ProductName": "Oscillustration",
-            "CompanyName": "Company Name",
+            "ProductName": "SceneCompare",
+            "CompanyName": "Zhenxing Technology",
             "Version": "1.0.0"
         },
         {

@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Unity.Entities;
 using Unity.Physics;
 using Unity.Physics.Extensions;
@@ -45,7 +44,7 @@ public class ComsMotionSystem : SystemBase
             }
             else
             {
-                // 空气阻力 k = 1/2ρc_{d}A = 0.01f ρ = 1.29 c_{d} = 0.8 A = 0.02
+                // 空气阻力 k = 1/2ρc_{d}A = 0.01f;  ρ = 1.29 c_{d} = 0.8; A = 0.02
                 physicsVelocity.ApplyLinearImpulse(physicsMass, -math.normalize(physicsVelocity.Linear) * 0.01f * math.pow(math.length(physicsVelocity.Linear), 2) * time);
             }
             data.previous_y = translation.Value.y;

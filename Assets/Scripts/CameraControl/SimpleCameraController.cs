@@ -5,7 +5,6 @@ using System.Diagnostics;
     using UnityEngine.InputSystem.Controls;
 #endif
 
-// TODO: 看懂这个脚本的原理
 using UnityEngine;
 using Cinemachine;
 
@@ -32,7 +31,6 @@ namespace UnityTemplateProjects
                 z = t.position.z;
             }
 
-            // TODO: 只旋转y轴，不旋转x和z轴
             public void Translate(Vector3 translation, Collider bounds = null)
             {
                 // 旋转世界坐标系方向到局部坐标系 同时旋转三个轴

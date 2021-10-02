@@ -1,7 +1,6 @@
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
-using Unity.Physics;
 using Unity.Mathematics;
 // using UnityEngine;
 
@@ -20,8 +19,8 @@ public class EnvInitialSystem : SystemBase
         x.InitState();
         Entities.WithAll<ShakeData>().ForEach((ref ShakeData data) =>
         {
-            data.k += x.NextFloat(-5, 5);
-            data.c += x.NextFloat(-0.1f, 0.1f);
+            data.k += x.NextFloat(-7, 7);
+            data.c += x.NextFloat(-0.2f, 0.2f);
         }).ScheduleParallel();
 
         Entities.WithAll<SubShakeData>().ForEach((ref SubShakeData subShakeData, in Rotation rotation, in Translation translation) =>

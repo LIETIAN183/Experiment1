@@ -1,11 +1,10 @@
-using System;
 using Unity.Entities;
-using UnityEngine;
 using Unity.Mathematics;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class AccTimerSystem : SystemBase
 {
     World simulation;
+    private int increase;
 
     protected override void OnCreate()
     {
@@ -17,7 +16,8 @@ public class AccTimerSystem : SystemBase
         // EntityManager.SetName(entity, "AccTimer");
         // 设置仿真系统 Update 时间间隔
         var fixedSimulationGroup = World.DefaultGameObjectInjectionWorld?.GetExistingSystem<FixedStepSimulationSystemGroup>();
-        fixedSimulationGroup.Timestep = 0.01f;
+        fixedSimulationGroup.Timestep = 0.02f;
+        increase = (int)(fixedSimulationGroup.Timestep / 0.01f);
         this.Enabled = false;
     }
 
@@ -33,23 +33,15 @@ public class AccTimerSystem : SystemBase
         // 放在这里可以保留最后一秒的仿真数据
         if (accTimer.timeCount >= gmArray.Length)
         {
-            // 关闭其他系统
-            ControlSystem(false);
-            // 分析系统
-            ECSUIController.Instance.ShowNotification("Simulation End");
-            // 废弃 ECSSystemManager 系统，因为分离会导致运行时间存在差异，导致 Analysis NativeContainer 内存泄露，所以只能由 AccTimerSystem 直接控制其他系统的停止
+            // 关闭系统
+            simulation.GetExistingSystem<ComsMotionSystem>().Enabled = false;
             this.Enabled = false;
         }
         else
         {
-            // 更新时间进度条
-            ECSUIController.Instance.progress.currentValue = accTimer.timeCount;// 这里还不需要减一
-                                                                                // 计算当前已经过去的时间
-            accTimer.elapsedTime = accTimer.timeCount * 0.01f;
             // 更新加速度后，更新时间计量
-            accTimer.acc = gmArray[accTimer.timeCount++].acceleration;
-
-            accTimer.accMagnitude = math.length(accTimer.acc);
+            accTimer.acc = gmArray[accTimer.timeCount].acceleration;
+            accTimer.timeCount += increase;
             // 更新单例数据
             SetSingleton(accTimer);
         }
@@ -65,7 +57,7 @@ public class AccTimerSystem : SystemBase
         SetSingleton(accTimer);
         this.Enabled = true;
 
-        ControlSystem(true);
+        simulation.GetExistingSystem<ComsMotionSystem>().Enabled = true;
         simulation.GetExistingSystem<ComsShakeSystem>().Enabled = true;
         simulation.GetExistingSystem<SubShakeSystem>().Enabled = true;
     }
@@ -75,10 +67,5 @@ public class AccTimerSystem : SystemBase
         var accTimer = GetSingleton<AccTimerData>();
         accTimer.acc = float3.zero;
         SetSingleton(accTimer);
-    }
-
-    public void ControlSystem(bool status)
-    {
-        simulation.GetExistingSystem<ComsMotionSystem>().Enabled = status;
     }
 }

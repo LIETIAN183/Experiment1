@@ -1,6 +1,4 @@
 using Unity.Entities;
-using Unity.Physics;
-using Unity.Mathematics;
 
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]

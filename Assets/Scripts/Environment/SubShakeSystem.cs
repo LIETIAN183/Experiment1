@@ -37,22 +37,5 @@ public class SubShakeSystem : SystemBase
             // https://docs.unity3d.com/Packages/com.unity.mathematics@1.2/api/Unity.Mathematics.quaternion.html?q=quaternion#Unity_Mathematics_quaternion_Euler_System_Single_System_Single_System_Single_Unity_Mathematics_math_RotationOrder_
             rotation.Value = quaternion.Euler(radius, 0, 0);
         }).ScheduleParallel();
-
-        // For SubShake without parent
-        Entities.WithAll<SubShakeData>().WithNone<Parent>().WithName("SubBendWithoutParent").ForEach((ref SubShakeData curData, ref Translation translation, ref Rotation rotation) =>
-        {
-            ShakeData parentData = GetComponentDataFromEntity<ShakeData>(true)[curData.parent];
-
-            var k = parentData.endMovement / (2 * math.pow(parentData.length, 3));
-            var hSquare = curData.height * curData.height;
-            var curmovement = k * hSquare * (3 * parentData.length - curData.height);
-            // LocalToWorld ltd = GetComponentDataFromEntity<LocalToWorld>(true)[curData.parent];
-            // 这里因为物体添加 PhysicsBody,子物体独立，所以 forward 变成世界方向，进而导致演示的时候两个物体摇晃方向不出错
-            translation.Value += curData.originLocalPosition + math.forward() * curmovement - translation.Value;
-            // translation.Value = curData.originLocalPosition + ltd.Forward * curmovement;
-            var gradient = k * (6 * parentData.length * curData.height - 3 * hSquare);
-            var radius = math.atan(gradient);
-            rotation.Value = quaternion.Euler(radius, 0, 0);
-        }).ScheduleParallel();
     }
 }

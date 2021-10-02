@@ -1,7 +1,5 @@
 using Unity.Entities;
-using Unity.Physics;
 using Unity.Mathematics;
-
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
@@ -56,7 +54,7 @@ public class SetupBlobSystem : SystemBase
             blobBuilder.Dispose();
         }
 
-        ECSUIController.Instance.Setup();
+        // ECSUIController.Instance.Setup();
     }
 
     protected override void OnUpdate()
