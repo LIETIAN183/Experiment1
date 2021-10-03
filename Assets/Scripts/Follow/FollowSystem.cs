@@ -20,9 +20,13 @@ public class FollowSystem : SystemBase
 
         var deltaMove = GetSingleton<TargetTag>().deltaMove;
         deltaMove.y = 0;
-        Entities.WithAll<FollowTag>().ForEach((ref Translation translation) =>
+        Entities.WithAll<FollowTag>().ForEach((ref Translation translation, in ComsTag data) =>
         {
-            translation.Value += deltaMove * x.NextFloat(0.2f, 1);
+            if (data.originPosition.y - translation.Value.y < 0.1)
+            {
+                translation.Value += deltaMove * x.NextFloat(0.2f, 1);
+            }
+
         }).Run();
     }
 }
