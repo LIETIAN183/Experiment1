@@ -28,10 +28,10 @@ namespace Michsky.UI.ModernUIPack
 
         void Update()
         {
-            if (progressBar.currentValue >= transitionAfter)
+            if (progressBar.currentTime >= transitionAfter)
                 barAnimatior.Play("Radial PB Filled");
 
-            if (progressBar.currentValue <= transitionAfter)
+            if (progressBar.currentTime <= transitionAfter)
                 barAnimatior.Play("Radial PB Empty");
 
             maxLabel.text = minLabel.text;

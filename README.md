@@ -123,6 +123,15 @@
 - 场景结果参数分析-完成 Detail 表
 - Todo： 路径算法、代码重置场景、完成 Summary 表
 
+#### 2021.9.24
+
+- 确定摇晃主要方程，参数待定
+- 摇晃加入主场景
+
+#### 2021.10.3
+
+- 开始路径算法部分实验
+
 ---
 
 # Unity 插件
@@ -131,8 +140,8 @@
 - ~~Advanced People Pack 2~~
 - ~~POLYGON Starter Pack - Low Poly 3D Art by Synty~~
 - Modern UI Pack
-- Odin - Inspector and Serializer
-- Editor Console Pro
+- ~~Odin - Inspector and Serializer~~
+- ~~Editor Console Pro~~
 - ~~Play Mode Saver~~
 - ~~Sensor Toolkit~~
 - ~~Peek~~

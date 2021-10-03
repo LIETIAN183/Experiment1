@@ -43,7 +43,7 @@ public class ECSUIController : MonoBehaviour
         // 关联 HorizontalSelector 数据
         EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
         // 同步 Progress 最大值
-        EqSelector.selectorEvent.AddListener((int index) => { progress.maxValue = SetupBlobSystem.gmBlobRefs[index].Value.gmArray.Length; });
+        EqSelector.selectorEvent.AddListener((int index) => { progress.maxTime = SetupBlobSystem.gmBlobRefs[index].Value.gmArray.Length * SetupBlobSystem.gmBlobRefs[index].Value.deltaTime; });
         EqSelector.SetupSelector();
         EqSelector.ForwardClick();
         EqSelector.UpdateUI();
@@ -77,6 +77,7 @@ public class ECSUIController : MonoBehaviour
             // SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
 
             // 只用于 ShakeIllustration 场景
+            World.DefaultGameObjectInjectionWorld.GetExistingSystem<ReloadSystem>().Enabled = true;
         });// 关联重置场景按钮
 
         // Exit Button
@@ -161,8 +162,8 @@ public class ECSUIController : MonoBehaviour
             }
         }
         progress = GetComponentInChildren<ProgressBar>();
-        progress.currentValue = 0;
-        progress.maxValue = 0;
+        progress.currentTime = 0;
+        progress.maxTime = 0;
         pauseBtn.GetComponent<CanvasGroup>().interactable = false;
         notification = GetComponentInChildren<NotificationManager>();
     }
