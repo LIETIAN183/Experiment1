@@ -12,4 +12,6 @@ public struct AnalysisTypeData : IComponentData
     public int index;
 
     public int eqCount;
+
+    public float cofficient;
 }

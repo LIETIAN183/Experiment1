@@ -3,6 +3,9 @@ using Unity.Mathematics;
 using BansheeGz.BGDatabase;
 using Unity.Transforms;
 using Unity.Collections;
+using System;
+using UnityEngine;
+
 // 分析系统
 [AlwaysSynchronizeSystem]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
@@ -14,14 +17,15 @@ public class AnalysisSystem : SystemBase
     public float pga;
     public float maxDegree, maxDisplacement;
 
+    private int addDataLineCount;
+
     protected override void OnCreate()
     {
-        maxDegree = float.MinValue;
-        pga = float.MinValue;
         this.Enabled = false;
     }
     protected override void OnUpdate()
     {
+
         var data = GetSingleton<AccTimerData>();
 
         // 0 存储角度 1,2,3 存储 掉落数量
@@ -70,7 +74,10 @@ public class AnalysisSystem : SystemBase
         // Add row to Detial Table EachStep
         var temp = math.length(data.acc);
         DB_Detail detail = DB_Detail.NewEntity();
-        detail.F_eqIndex = data.gmIndex;
+        // detail.F_eqIndex = data.gmIndex;
+        var setting = GetSingleton<AnalysisTypeData>();
+        // Debug.Log(setting.cofficient);
+        detail.F_eqIndex = Convert.ToInt32(setting.cofficient * 100);
         detail.F_time = data.elapsedTime;
         detail.F_xAcc = data.acc.x;
         detail.F_zAcc = data.acc.z;
@@ -90,12 +97,21 @@ public class AnalysisSystem : SystemBase
 
         // 需要手动释放空间，不然会内存泄漏
         bridge.Dispose();
+        // 记录插入数据的行数
+        ++addDataLineCount;
     }
 
+    protected override void OnStartRunning()
+    {
+        maxDegree = float.MinValue;
+        pga = float.MinValue;
+        addDataLineCount = 0;
+    }
 
     // 分析 导出数据
     protected override void OnStopRunning()
     {
+        var setting = GetSingleton<AnalysisTypeData>();
         var data = GetSingleton<AccTimerData>();
 
         NativeArray<float> bridge = new NativeArray<float>(10, Allocator.TempJob);
@@ -106,7 +122,6 @@ public class AnalysisSystem : SystemBase
         bridge[0] = bridge[3] = bridge[6] = bridge[9] = 0;
         bridge[1] = bridge[4] = bridge[7] = float.MaxValue;
         bridge[2] = bridge[5] = bridge[8] = float.MinValue;
-        // BGExcelImportGo.Instance.Export();
         Entities.WithAll<ComsTag>().ForEach((in Translation translation, in ComsTag data) =>
         {
             // 统计的是水平位移
@@ -138,7 +153,9 @@ public class AnalysisSystem : SystemBase
         this.CompleteDependency();
 
         DB_Summary summary = DB_Summary.NewEntity();
-        summary.F_eqIndex = data.gmIndex;
+        // summary.F_eqIndex = data.gmIndex;
+
+        summary.F_eqIndex = Convert.ToInt32(setting.cofficient * 100);
         summary.F_PGA = pga;
 
         summary.F_averageDis1 = bridge[0] / bridge[9];
@@ -156,7 +173,7 @@ public class AnalysisSystem : SystemBase
         summary.F_maxDisplacement = maxDisplacement;
         summary.F_maxDegree = maxDegree;
 
-        var lastRow = DB_Detail.GetEntity(data.timeCount - 1);
+        var lastRow = DB_Detail.GetEntity(addDataLineCount - 1);
         summary.F_finalDrop1 = lastRow.F_dropCount1;
         summary.F_finalDrop2 = lastRow.F_dropCount2;
         summary.F_finaldrop3 = lastRow.F_dropCount3;
@@ -168,5 +185,13 @@ public class AnalysisSystem : SystemBase
         maxDegree = 0;
         maxDisplacement = 0;
         pga = 0;
+
+        // 每一次地震导出一次
+        BGExcelImportGo.Instance.Export();
+
+        // 重置数据库
+        DB_Detail.MetaDefault.ClearEntities();
+        DB_Eq.MetaDefault.ClearEntities();
+        DB_Summary.MetaDefault.ClearEntities();
     }
 }

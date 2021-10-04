@@ -63,13 +63,13 @@ public class ECSUIController : MonoBehaviour
             }
         }
         progress = GetComponentInChildren<ProgressBar>();
-        progress.currentValue = 0;
-        progress.maxValue = 0;
+        progress.currentTime = 0;
+        progress.maxTime = 0;
     }
 
     public void UpdateEqDisplay(int index)
     {
         eqName.text = SetupBlobSystem.gmBlobRefs[index].Value.gmName.ToString();
-        progress.maxValue = SetupBlobSystem.gmBlobRefs[index].Value.gmArray.Length;
+        progress.maxTime = SetupBlobSystem.gmBlobRefs[index].Value.gmArray.Length * SetupBlobSystem.gmBlobRefs[index].Value.deltaTime;
     }
 }

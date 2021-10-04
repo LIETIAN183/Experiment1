@@ -2,6 +2,7 @@ using System;
 using Unity.Entities;
 using UnityEngine;
 using Unity.Mathematics;
+using BansheeGz.BGDatabase;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class AccTimerSystem : SystemBase
 {
@@ -35,7 +36,8 @@ public class AccTimerSystem : SystemBase
         {
             // 关闭其他系统
             ControlSystem(false);
-            // 分析系统
+
+            // 分析系统 应该在下一帧结束
             this.Enabled = false;
 
             // 结束场景后自动重置，执行下一轮仿真
@@ -45,16 +47,16 @@ public class AccTimerSystem : SystemBase
         }
         else
         {
+            var setting = GetSingleton<AnalysisTypeData>();
             // 更新时间进度条
-            ECSUIController.Instance.progress.currentValue = accTimer.timeCount;
-
-            // 在这里计算是为了保证数据分析获取的时间正确
-            accTimer.elapsedTime = accTimer.timeCount * 0.01f;
+            accTimer.elapsedTime = accTimer.timeCount * accTimer.dataDeltaTime;
+            ECSUIController.Instance.progress.currentTime = accTimer.elapsedTime;
             // 更新加速度后，更新时间计量
-            accTimer.acc = gmArray[accTimer.timeCount++].acceleration;
+            accTimer.acc = gmArray[accTimer.timeCount].acceleration * setting.cofficient;
+            accTimer.timeCount += accTimer.increaseNumber;
 
             // 更新单例数据
-            SetSingleton(accTimer);
+            SetSingleton<AccTimerData>(accTimer);
         }
 
         // Debug Acc
@@ -65,9 +67,9 @@ public class AccTimerSystem : SystemBase
     public void Active(int index)
     {
         //-----------------------------------数据分析 填写地震Index和地震名字-----------------------------------------------------
-        DB_Eq newData = DB_Eq.NewEntity();
-        newData.F_eqIndex = index;
-        newData.F_eqName = SetupBlobSystem.gmBlobRefs[index].Value.gmName.ToString();
+        // 不知道为什么，这里读取 analysisTypeData 存在误差
+
+
         // ------------------------------------- Analysis END -------------------------------------------------------------------
 
         // 初始化单例数据
@@ -75,7 +77,9 @@ public class AccTimerSystem : SystemBase
         accTimer.gmIndex = index;
         accTimer.acc = 0;
         accTimer.timeCount = 0;
-        SetSingleton(accTimer);
+        accTimer.dataDeltaTime = SetupBlobSystem.gmBlobRefs[index].Value.deltaTime;
+        accTimer.increaseNumber = (int)(0.01f / accTimer.dataDeltaTime);
+        SetSingleton<AccTimerData>(accTimer);
         this.Enabled = true;
 
         ControlSystem(true);
@@ -85,7 +89,7 @@ public class AccTimerSystem : SystemBase
     {
         var accTimer = GetSingleton<AccTimerData>();
         accTimer.acc = 0;
-        SetSingleton(accTimer);
+        SetSingleton<AccTimerData>(accTimer);
     }
 
     public void ControlSystem(bool status)

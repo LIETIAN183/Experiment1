@@ -66,15 +66,15 @@ namespace Michsky.UI.ModernUIPack
                     GUILayout.BeginHorizontal(EditorStyles.helpBox);
 
                     EditorGUILayout.LabelField(new GUIContent("Current Value"), customSkin.FindStyle("Text"), GUILayout.Width(120));
-                    pbTarget.currentValue = EditorGUILayout.Slider(pbTarget.currentValue, 0, pbTarget.maxValue);
+                    pbTarget.currentTime = EditorGUILayout.Slider(pbTarget.currentTime, 0, pbTarget.maxTime);
 
                     GUILayout.EndHorizontal();
 
                     if (pbTarget.loadingBar != null && pbTarget.text != null)
                     {
-                        pbTarget.loadingBar.fillAmount = pbTarget.currentValue / pbTarget.maxValue;
+                        pbTarget.loadingBar.fillAmount = pbTarget.currentTime / pbTarget.maxTime;
 
-                        pbTarget.text.text = ((int)pbTarget.currentValue).ToString("F0");
+                        pbTarget.text.text = ((int)pbTarget.currentTime).ToString("F0");
                     }
 
                     else

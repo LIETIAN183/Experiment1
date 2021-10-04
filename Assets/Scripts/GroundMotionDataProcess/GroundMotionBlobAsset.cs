@@ -10,4 +10,5 @@ public struct GroundMotionBlobAsset
 {
     public BlobArray<GroundMotion> gmArray;
     public BlobString gmName;
+    public float deltaTime;
 }

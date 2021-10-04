@@ -29,26 +29,29 @@ public static class GmDataReader
     }
 
     // Read Earthquake Data from Specific File
-    public static List<float3> ReadFile(string gmPath, int skipLine, float gravity)
+    public static List<float3> ReadFile(string gmPath, int skipLine, float gravity, out float deltaTime)
     {
         DirectoryInfo folderPath = new DirectoryInfo(gmPath);
         // 获取目录下的所有 txt 文件
         FileInfo[] files;
+        float dt = 0;
 
         // 读取文件夹内的文件
         try
         {
-            files = folderPath.GetFiles("*.txt");
+            files = folderPath.GetFiles("*.AT2");
         }
         catch (System.Exception e)
         {
             Debug.Log($"{e}");
+            deltaTime = dt;
             return null;
         }
         // 若文件下内无 txt 文件，返回 NULL
         if (files.Count().Equals(0))
         {
             Debug.Log("No TXT File In Current Directory!!!");
+            deltaTime = dt;
             return null;
         }
 
@@ -71,6 +74,10 @@ public static class GmDataReader
             {
                 degree = math.up();
             }
+            else if (degreeStr.Contains("DWN"))
+            {
+                degree = math.down();
+            }
             else
             {
                 degree = math.mul(quaternion.AxisAngle(math.up(), math.radians(int.Parse(degreeStr))), math.forward());
@@ -87,14 +94,18 @@ public static class GmDataReader
                 } while (count-- > 0);
 
                 // 读取点的个数，并更新最小值
-                Regex r = new Regex(@"(\d{4})");
-                Match m = r.Match(line);
-                if (string.IsNullOrEmpty(m.Groups[0].Value))
+                Regex r = new Regex(@"[0-9.]+");
+                MatchCollection ms = r.Matches(line);
+
+                if (string.IsNullOrEmpty(ms[0].Groups[0].Value))
                 {
                     Debug.Log("Please check the skipLine!!!");
+                    deltaTime = dt;
                     return null;
                 }
-                int number = int.Parse(m.Groups[0].Value);
+                // ms0 存储点个数， ms1 存储时间间隔
+                int number = int.Parse(ms[0].Groups[0].Value);
+                dt = float.Parse(ms[1].Groups[0].Value);
 
                 // TODO: use another way to save data, notice the first time List is lack of capacity
                 count = 0;
@@ -123,6 +134,7 @@ public static class GmDataReader
             }
         }
 
+        deltaTime = dt;
         // 转换单位 从 g 转换为 m/s2 乘以重力加速度大小
         return acceleration.Select(a => a * gravity).ToList();
     }
