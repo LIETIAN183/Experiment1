@@ -12,23 +12,17 @@ public class GridDebug : MonoBehaviour
     [SerializeField] private FlowFieldDisplayType _curDisplayType;
     [SerializeField] private bool _displayGrid;
 
-    private FlowFieldSettingData _flowFieldData;
-    public FlowFieldSettingData FlowFieldData
-    {
-        get => _flowFieldData;
-        set => _flowFieldData = value;
-    }
+    public FlowFieldSettingData debugFlowFieldSetting { set; get; }
 
     private List<CellData> _gridCellData;
 
-    private List<GameObject> _directionDisplay;
 
-    private Vector2Int _gridSize;
-    private float _cellRadius;
+    // Direction Display
+    [SerializeField] private Transform directionDisplayParent;
+    private List<GameObject> _directionDisplay;
 
     public float3 drawOffset;
     private Sprite[] ffIcons;
-    private Vector3 displayScale = new Vector3(0.25f, 0.25f, 0.25f);
 
     private void Awake()
     {
@@ -46,10 +40,7 @@ public class GridDebug : MonoBehaviour
     {
         if (_displayGrid)
         {
-            _gridSize = new Vector2Int { x = _flowFieldData.gridSize.x, y = _flowFieldData.gridSize.y };
-            _cellRadius = _flowFieldData.cellRadius;
-
-            DrawGrid(_gridSize, (_gridCellData == null || _gridCellData.Count == 0) ? Color.yellow : Color.green, _cellRadius);
+            DrawGridOnRuntime();
         }
 
         if (_gridCellData == null || _gridCellData.Count == 0) { return; }
@@ -57,21 +48,22 @@ public class GridDebug : MonoBehaviour
         while (_directionDisplay.Count < _gridCellData.Count)
         {
             GameObject iconGO = new GameObject();
-            iconGO.transform.localScale = displayScale;
+            iconGO.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
             iconGO.AddComponent<SpriteRenderer>();
-            iconGO.transform.parent = transform;
+            iconGO.transform.parent = directionDisplayParent;
             _directionDisplay.Add(iconGO);
         }
 
+        directionDisplayParent.gameObject.SetActive(false);
         GUIStyle style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
-
+        Vector3 cubeSize = Vector3.one * debugFlowFieldSetting.cellRadius * 2;
         switch (_curDisplayType)
         {
             case FlowFieldDisplayType.CostField:
 
                 foreach (CellData curCell in _gridCellData)
                 {
-                    Handles.Label(curCell.worldPos, curCell.cost.ToString(), style);
+                    Handles.Label(curCell.worldPos + drawOffset, curCell.cost.ToString(), style);
                 }
                 break;
 
@@ -79,49 +71,50 @@ public class GridDebug : MonoBehaviour
 
                 foreach (CellData curCell in _gridCellData)
                 {
-                    Handles.Label(curCell.worldPos, curCell.bestCost.ToString(), style);
-                }
-                break;
-
-            case FlowFieldDisplayType.CostHeatMap:
-                foreach (CellData curCell in _gridCellData)
-                {
-                    float costHeat = curCell.cost / 255f;
-                    Gizmos.color = new Color(costHeat, costHeat, costHeat);
-                    Vector3 center = new Vector3(_cellRadius * 2 * curCell.gridIndex.x + _cellRadius, 0, _cellRadius * 2 * curCell.gridIndex.y + _cellRadius);
-                    Vector3 size = Vector3.one * _cellRadius * 2;
-                    Gizmos.DrawCube(center, size);
+                    Handles.Label(curCell.worldPos + drawOffset, curCell.bestCost.ToString(), style);
                 }
                 break;
 
             case FlowFieldDisplayType.FlowField:
-                foreach (CellData curCell in _gridCellData)
+                directionDisplayParent.gameObject.SetActive(true);
+                for (int i = 0; i < _gridCellData.Count; i++)
                 {
-                    // Handles.Label(curCell.worldPos, curCell.bestDirection.ToString(), style);
-                    DisplayDiretion(curCell, FlowFieldHelper.ToFlatIndex(curCell.gridIndex, _gridSize.y));
+                    DisplayDiretion(_gridCellData[i], i);
                 }
                 break;
 
-            case FlowFieldDisplayType.None:
+            // TODO: 颜色变化太少
+            case FlowFieldDisplayType.CostHeatMap:
+
+                foreach (CellData curCell in _gridCellData)
+                {
+                    float costHeat = curCell.cost / 255f;
+                    Gizmos.color = new Color(0, 0, 1 - costHeat);
+                    Gizmos.DrawCube(curCell.worldPos + drawOffset, cubeSize);
+                }
+                break;
+
+            case FlowFieldDisplayType.IntegrationHeatMap:
+                foreach (CellData curCell in _gridCellData)
+                {
+                    var intHeat = curCell.bestCost / (float)ushort.MaxValue;
+                    Gizmos.color = new Color(0, 0, 1 - intHeat);
+                    Gizmos.DrawCube(curCell.worldPos + drawOffset, cubeSize);
+                }
                 break;
 
             default:
-                Debug.LogWarning("Warning: Invalid Grid Debug Display Type", gameObject);
                 break;
         }
     }
 
-    private static void DrawGrid(Vector2Int drawGridSize, Color drawColor, float drawCellRadius)
+    private void DrawGridOnRuntime()
     {
-        Gizmos.color = drawColor;
-        for (int x = 0; x < drawGridSize.x; x++)
+        Gizmos.color = Color.green;
+        Vector3 size = Vector3.one * debugFlowFieldSetting.cellRadius * 2;
+        foreach (var cell in _gridCellData)
         {
-            for (int y = 0; y < drawGridSize.y; y++)
-            {
-                Vector3 center = new Vector3(drawCellRadius * 2 * x + drawCellRadius, 0, drawCellRadius * 2 * y + drawCellRadius);
-                Vector3 size = Vector3.one * drawCellRadius * 2;
-                Gizmos.DrawWireCube(center, size);
-            }
+            Gizmos.DrawWireCube(cell.worldPos + drawOffset, size);
         }
     }
 
@@ -129,9 +122,9 @@ public class GridDebug : MonoBehaviour
 
     public void AddToList(CellData cellToAdd) => _gridCellData.Add(cellToAdd);
 
-    private void DisplayDiretion(CellData cell, int flatIndex)
+    private void DisplayDiretion(CellData cell, int index)
     {
-        var iconGO = _directionDisplay[flatIndex];
+        var iconGO = _directionDisplay[index];
         var iconSR = iconGO.GetComponent<SpriteRenderer>();
         iconGO.transform.position = cell.worldPos + drawOffset;
 

@@ -10,51 +10,36 @@ using UnityEngine;
 [UpdateInGroup(typeof(FlowFieldSimulationSystemGroup))]
 public class CalculateFlowFieldSystem : SystemBase
 {
-    private EntityCommandBufferSystem _ecbSystem;
     private BuildPhysicsWorld buildPhysicsWorld;
 
     public static readonly float3 one = new float3(1, 1, 1);
 
-    private Camera _mainCamera;
-
     protected override void OnCreate()
     {
-        _ecbSystem = World.GetOrCreateSystem<EntityCommandBufferSystem>();
         buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
-    }
-
-    protected override void OnStartRunning()
-    {
-        _mainCamera = Camera.main;
     }
 
     protected override void OnUpdate()
     {
-        // 通过鼠标设置目标点
-        if (Input.GetMouseButtonDown(0))
-        {
-            var settingComponent = GetSingleton<FlowFieldSettingData>();
-            Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
-            Vector3 worldMousePos = _mainCamera.ScreenToWorldPoint(mousePos);
-            settingComponent.destination = worldMousePos;
-            SetSingleton<FlowFieldSettingData>(settingComponent);
-        }
-
-        var commandBuffer = _ecbSystem.CreateCommandBuffer();
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
 
-        Entities.WithAll<CalculateFlowFieldTag>().ForEach((Entity entity, ref DynamicBuffer<EntityBufferElement> buffer, ref FlowFieldSettingData flowFieldSettingData) =>
+        Entities.WithAll<GridFinishTag>().ForEach((Entity entity, ref DynamicBuffer<CellBufferElement> buffer, ref FlowFieldSettingData flowFieldSettingData) =>
         {
-            DynamicBuffer<Entity> entityBuffer = buffer.Reinterpret<Entity>();
-            NativeArray<CellData> cellDataContainer = new NativeArray<CellData>(entityBuffer.Length, Allocator.TempJob);
-            NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.TempJob);
-
-            int2 gridSize = flowFieldSettingData.gridSize;
-
-            // cost Field
-            for (int i = 0; i < entityBuffer.Length; i++)
+            // 通过鼠标设置目标点
+            if (Input.GetMouseButtonDown(0))
             {
-                CellData curCellData = GetComponentDataFromEntity<CellData>()[entityBuffer[i]];
+                Vector3 mousePos = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10);
+                Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mousePos);
+                flowFieldSettingData.destination = worldMousePos;
+            }
+
+            // Cost Field
+            DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
+            NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.TempJob);
+            int2 gridSize = flowFieldSettingData.gridSize;
+            for (int i = 0; i < cellBuffer.Length; i++)
+            {
+                CellData curCellData = cellBuffer[i];
 
                 // 计算网格内障碍物
                 outHits.Clear();
@@ -77,38 +62,35 @@ public class CalculateFlowFieldSystem : SystemBase
 
                 // 计算 Integration Field 前重置 bestCost
                 curCellData.bestCost = ushort.MaxValue;
-                cellDataContainer[i] = curCellData;
+                cellBuffer[i] = curCellData;
             }
 
             outHits.Dispose();
 
             // Calculate DestinationIndex
-            flowFieldSettingData.destinationIndex = FlowFieldHelper.GetCellIndexFromWorldPos(flowFieldSettingData.destination, gridSize, flowFieldSettingData.cellRadius * 2);
+            flowFieldSettingData.destinationIndex = FlowFieldHelper.GetCellIndexFromWorldPos(flowFieldSettingData.originPoint, flowFieldSettingData.destination, gridSize, flowFieldSettingData.cellRadius * 2);
             // Update Destination Cell's cost and bestCost
             int flatDestinationIndex = FlowFieldHelper.ToFlatIndex(flowFieldSettingData.destinationIndex, gridSize.y);
-            CellData destinationCell = cellDataContainer[flatDestinationIndex];
+            CellData destinationCell = cellBuffer[flatDestinationIndex];
             destinationCell.cost = 0;
             destinationCell.bestCost = 0;
-            cellDataContainer[flatDestinationIndex] = destinationCell;
-
-            // Prepare for Integration Field Calculate
-            NativeQueue<int2> indicesToCheck = new NativeQueue<int2>(Allocator.TempJob);
-            NativeList<int2> neighborIndices = new NativeList<int2>(Allocator.TempJob);
-
-            indicesToCheck.Enqueue(flowFieldSettingData.destinationIndex);
+            cellBuffer[flatDestinationIndex] = destinationCell;
 
             // Integration Field
+            NativeQueue<int2> indicesToCheck = new NativeQueue<int2>(Allocator.TempJob);
+            NativeList<int2> neighborIndices = new NativeList<int2>(Allocator.TempJob);
+            indicesToCheck.Enqueue(flowFieldSettingData.destinationIndex);
             while (indicesToCheck.Count > 0)
             {
                 int2 cellIndex = indicesToCheck.Dequeue();
                 int cellFlatIndex = FlowFieldHelper.ToFlatIndex(cellIndex, gridSize.y);
-                CellData curCellData = cellDataContainer[cellFlatIndex];
+                CellData curCellData = cellBuffer[cellFlatIndex];
                 neighborIndices.Clear();
-                FlowFieldHelper.GetNeighborIndices(cellIndex, GridDirection.CardinalAndIntercardinalDirections, gridSize, ref neighborIndices);
+                FlowFieldHelper.GetNeighborIndices(cellIndex, gridSize, ref neighborIndices);
                 foreach (int2 neighborIndex in neighborIndices)
                 {
                     int flatNeighborIndex = FlowFieldHelper.ToFlatIndex(neighborIndex, gridSize.y);
-                    CellData neighborCellData = cellDataContainer[flatNeighborIndex];
+                    CellData neighborCellData = cellBuffer[flatNeighborIndex];
                     if (neighborCellData.cost == byte.MaxValue)
                     {
                         continue;
@@ -117,7 +99,7 @@ public class CalculateFlowFieldSystem : SystemBase
                     if (neighborCellData.cost + curCellData.bestCost < neighborCellData.bestCost)
                     {
                         neighborCellData.bestCost = (ushort)(neighborCellData.cost + curCellData.bestCost);
-                        cellDataContainer[flatNeighborIndex] = neighborCellData;
+                        cellBuffer[flatNeighborIndex] = neighborCellData;
                         indicesToCheck.Enqueue(neighborIndex);
                     }
                 }
@@ -125,17 +107,17 @@ public class CalculateFlowFieldSystem : SystemBase
 
             // // Flow Field
             // // TODO: Combine with Integration Field
-            for (int i = 0; i < cellDataContainer.Length; i++)
+            for (int i = 0; i < cellBuffer.Length; i++)
             {
-                CellData curCellData = cellDataContainer[i];
+                CellData curCellData = cellBuffer[i];
                 neighborIndices.Clear();
-                FlowFieldHelper.GetNeighborIndices(curCellData.gridIndex, GridDirection.CardinalAndIntercardinalDirections, gridSize, ref neighborIndices);
+                FlowFieldHelper.GetNeighborIndices(curCellData.gridIndex, gridSize, ref neighborIndices);
                 ushort bestCost = curCellData.bestCost;
                 int2 bestDirection = int2.zero;
                 foreach (int2 neighborIndex in neighborIndices)
                 {
                     int flatNeighborIndex = FlowFieldHelper.ToFlatIndex(neighborIndex, gridSize.y);
-                    CellData neighborCellData = cellDataContainer[flatNeighborIndex];
+                    CellData neighborCellData = cellBuffer[flatNeighborIndex];
                     if (neighborCellData.bestCost < bestCost)
                     {
                         bestCost = neighborCellData.bestCost;
@@ -143,19 +125,12 @@ public class CalculateFlowFieldSystem : SystemBase
                     }
                 }
                 curCellData.bestDirection = bestDirection;
-                cellDataContainer[i] = curCellData;
+                cellBuffer[i] = curCellData;
             }
 
-            for (int i = 0; i < entityBuffer.Length; i++)
-            {
-                commandBuffer.SetComponent(entityBuffer[i], cellDataContainer[i]);
-            }
-
+            // Release Native Container
             neighborIndices.Dispose();
-            cellDataContainer.Dispose();
             indicesToCheck.Dispose();
         }).Run();
-
-
     }
 }

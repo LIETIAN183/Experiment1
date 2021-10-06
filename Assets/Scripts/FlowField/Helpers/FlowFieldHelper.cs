@@ -4,9 +4,9 @@ using Unity.Mathematics;
 
 public static class FlowFieldHelper
 {
-    public static void GetNeighborIndices(int2 originIndex, IEnumerable<GridDirection> directions, int2 gridSize, ref NativeList<int2> results)
+    public static void GetNeighborIndices(int2 originIndex, int2 gridSize, ref NativeList<int2> results)//IEnumerable<GridDirection> directions
     {
-        foreach (int2 curDirection in directions)
+        foreach (int2 curDirection in GridDirection.CardinalAndIntercardinalDirections)
         {
             int2 neighborIndex = GetIndexAtRelativePosition(originIndex, curDirection, gridSize);
 
@@ -36,10 +36,10 @@ public static class FlowFieldHelper
         return height * index2D.x + index2D.y;
     }
 
-    public static int2 GetCellIndexFromWorldPos(float3 worldPos, int2 gridSize, float cellDiameter)
+    public static int2 GetCellIndexFromWorldPos(float3 originPoint, float3 worldPos, int2 gridSize, float cellDiameter)
     {
-        float percentX = worldPos.x / (gridSize.x * cellDiameter);
-        float percentY = worldPos.z / (gridSize.y * cellDiameter);
+        float percentX = (worldPos.x - originPoint.x) / (gridSize.x * cellDiameter);
+        float percentY = (worldPos.z - originPoint.z) / (gridSize.y * cellDiameter);
 
         percentX = math.clamp(percentX, 0f, 1f);
         percentY = math.clamp(percentY, 0f, 1f);

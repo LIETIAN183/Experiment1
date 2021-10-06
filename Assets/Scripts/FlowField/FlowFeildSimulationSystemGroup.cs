@@ -17,7 +17,7 @@ namespace Unity.Entities
         [Preserve]
         public FlowFieldSimulationSystemGroup()
         {
-            FixedRateManager = new FixedRateUtils.FixedRateCatchUpManager(0.2f);
+            FixedRateManager = new FixedRateUtils.FixedRateCatchUpManager(0.5f);
         }
     }
 }
