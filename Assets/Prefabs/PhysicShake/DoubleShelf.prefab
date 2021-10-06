@@ -143,7 +143,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -257,7 +257,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 0.74
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771432205122520
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -549,7 +548,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -663,7 +662,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 1.48
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771432319501740
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -873,7 +871,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1261,7 +1259,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1375,7 +1373,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 1.11
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771432863363235
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1829,7 +1826,7 @@ MonoBehaviour:
   m_ForceUnique: 1
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1943,7 +1940,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 1.85
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771433651499153
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2235,7 +2231,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -2349,7 +2345,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 0.37
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771434066592443
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2562,7 +2557,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -2676,7 +2671,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 0.185
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &9140041556979525562
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2808,7 +2802,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -2922,7 +2916,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 0.925
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &4347177983936564675
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3054,7 +3047,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -3168,7 +3161,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 2.035
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &5877998201558924023
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3300,7 +3292,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -3414,7 +3406,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 0.555
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &3236767780677362562
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3546,7 +3537,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -3660,7 +3651,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 1.295
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &2556011652540026124
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3792,7 +3782,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -3906,7 +3896,6 @@ MonoBehaviour:
     y: 0
     z: 0
   height: 1.665
-  parent: {fileID: 4639422600978535706}
 --- !u!33 &7490786694037969979
 MeshFilter:
   m_ObjectHideFlags: 0

@@ -145,7 +145,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -288,7 +288,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -431,7 +431,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -574,7 +574,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -717,7 +717,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -860,7 +860,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1003,7 +1003,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1146,7 +1146,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1289,7 +1289,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1432,7 +1432,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1648,7 +1648,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1791,7 +1791,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0

@@ -530,7 +530,7 @@ MonoBehaviour:
   m_ForceUnique: 1
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -830,7 +830,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -1434,6 +1434,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1339545507}
     m_Modifications:
+    - target: {fileID: 4302110416082362680, guid: 76653fbc3338bc341b78864c6d861e5d,
+        type: 3}
+      propertyPath: m_Material.m_Template
+      value: 
+      objectReference: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f,
+        type: 2}
     - target: {fileID: 5000293817050217998, guid: 76653fbc3338bc341b78864c6d861e5d,
         type: 3}
       propertyPath: m_RootOrder
@@ -3608,7 +3614,7 @@ MonoBehaviour:
   m_ForceUnique: 1
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -3994,7 +4000,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -7223,7 +7229,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -10482,7 +10488,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -13501,7 +13507,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -16615,7 +16621,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 0}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -23085,20 +23091,20 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 0}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
     m_Friction:
       m_Override: 0
       m_Value:
-        Value: 0.5
-        CombineMode: 0
+        Value: 0.37
+        CombineMode: 1
     m_Restitution:
       m_Override: 0
       m_Value:
-        Value: 0
-        CombineMode: 2
+        Value: 0.3
+        CombineMode: 1
     m_BelongsToCategories:
       m_Override: 0
       m_Value:

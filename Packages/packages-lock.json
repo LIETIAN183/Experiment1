@@ -15,6 +15,12 @@
       },
       "url": "https://packages.unity.cn"
     },
+    "com.unity.2d.sprite": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
+    },
     "com.unity.animation": {
       "version": "0.9.0-preview.6",
       "depth": 0,

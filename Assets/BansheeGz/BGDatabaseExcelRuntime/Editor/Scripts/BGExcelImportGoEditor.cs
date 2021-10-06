@@ -17,7 +17,7 @@ namespace BansheeGz.BGDatabase.Editor
 
         protected virtual void OnEnable()
         {
-            importer = (BGExcelImportGo) this.target;
+            importer = (BGExcelImportGo)this.target;
         }
 
 
@@ -31,17 +31,17 @@ namespace BansheeGz.BGDatabase.Editor
                 if (BGEditorUtility.Button("Export settings")) BGExcelMergeSettingsWindow.Open(importer.ExportSettings, serializedObject, "ExportSettingsAsString");
                 if (BGEditorUtility.Button("Import settings")) BGExcelMergeSettingsWindow.Open(importer.ImportSettings, serializedObject, "ImportSettingsAsString");
             });
-            
+
             //names map config
             BGEditorUtility.Horizontal(() =>
             {
                 EditorGUILayout.PrefixLabel("Names map config");
                 if (!BGEditorUtility.Button("Edit")) return;
-                
+
                 var nameMapEditor = new BGSyncNameMapConfigEditor(false);
                 nameMapEditor.OnChange += () =>
                 {
-                    Change("Name Map Config Changed", () => 
+                    Change("Name Map Config Changed", () =>
                         serializedObject.FindProperty("NameMapConfigAsString").stringValue = Convert.ToBase64String(importer.NameMapConfig.ConfigToBytes()));
                 };
                 var scrollView = new BGScrollView.DefaultScrollView(() =>
@@ -56,17 +56,17 @@ namespace BansheeGz.BGDatabase.Editor
                     scrollView.Gui();
                 });
             });
-            
+
             //rows mapping settings
             BGEditorUtility.Horizontal(() =>
             {
                 EditorGUILayout.PrefixLabel("Rows mapping config");
                 if (!BGEditorUtility.Button("Edit")) return;
-                
+
                 var idConfigEditor = new BGSyncIdConfigEditor(false);
                 idConfigEditor.OnChange += () =>
                 {
-                    Change("Rows Map Config Changed", () => 
+                    Change("Rows Map Config Changed", () =>
                         serializedObject.FindProperty("RowsMappingConfigAsString").stringValue = Convert.ToBase64String(importer.RowsMappingConfig.ConfigToBytes()));
                 };
                 var scrollView = new BGScrollView.DefaultScrollView(() =>
