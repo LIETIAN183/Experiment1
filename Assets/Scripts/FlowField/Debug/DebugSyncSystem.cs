@@ -2,7 +2,7 @@
 
 // [DisableAutoCreation]
 [UpdateInGroup(typeof(FlowFieldSimulationSystemGroup))]
-[UpdateAfter(typeof(CalculateFlowFieldSystem))]
+[UpdateAfter(typeof(CalculateIntFieldSystem))]
 public class DebugSyncSystem : SystemBase
 {
     protected override void OnUpdate()
@@ -14,9 +14,9 @@ public class DebugSyncSystem : SystemBase
         DynamicBuffer<CellBufferElement> buffer = GetBuffer<CellBufferElement>(GetSingletonEntity<FlowFieldSettingData>());
         DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
 
-        for (int i = 0; i < cellBuffer.Length; i++)
+        foreach (var cell in cellBuffer)
         {
-            GridDebug.instance.AddToList(cellBuffer[i]);
+            GridDebug.instance.AddToList(cell);
         }
     }
 }

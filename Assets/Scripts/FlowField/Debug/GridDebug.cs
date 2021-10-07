@@ -38,13 +38,14 @@ public class GridDebug : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if (_gridCellData == null || _gridCellData.Count == 0) { return; }
+#if UNITY_EDITOR
         if (_displayGrid)
         {
             DrawGridOnRuntime();
         }
-
-        if (_gridCellData == null || _gridCellData.Count == 0) { return; }
-
+#endif
+        // Direction Display
         while (_directionDisplay.Count < _gridCellData.Count)
         {
             GameObject iconGO = new GameObject();
@@ -56,9 +57,10 @@ public class GridDebug : MonoBehaviour
 
         directionDisplayParent.gameObject.SetActive(false);
         GUIStyle style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
-        Vector3 cubeSize = Vector3.one * debugFlowFieldSetting.cellRadius * 2;
+        Vector3 cubeSize = debugFlowFieldSetting.cellRadius * 2;
         switch (_curDisplayType)
         {
+#if UNITY_EDITOR
             case FlowFieldDisplayType.CostField:
 
                 foreach (CellData curCell in _gridCellData)
@@ -72,14 +74,6 @@ public class GridDebug : MonoBehaviour
                 foreach (CellData curCell in _gridCellData)
                 {
                     Handles.Label(curCell.worldPos + drawOffset, curCell.bestCost.ToString(), style);
-                }
-                break;
-
-            case FlowFieldDisplayType.FlowField:
-                directionDisplayParent.gameObject.SetActive(true);
-                for (int i = 0; i < _gridCellData.Count; i++)
-                {
-                    DisplayDiretion(_gridCellData[i], i);
                 }
                 break;
 
@@ -100,6 +94,14 @@ public class GridDebug : MonoBehaviour
                     var intHeat = curCell.bestCost / (float)ushort.MaxValue;
                     Gizmos.color = new Color(0, 0, 1 - intHeat);
                     Gizmos.DrawCube(curCell.worldPos + drawOffset, cubeSize);
+                }
+                break;
+#endif
+            case FlowFieldDisplayType.FlowField:
+                directionDisplayParent.gameObject.SetActive(true);
+                for (int i = 0; i < _gridCellData.Count; i++)
+                {
+                    DisplayDiretion(_gridCellData[i], i);
                 }
                 break;
 
@@ -134,6 +136,7 @@ public class GridDebug : MonoBehaviour
             iconSR.sprite = ffIcons[3];
             Quaternion newRot = Quaternion.Euler(90, 0, 0);
             iconGO.transform.rotation = newRot;
+            return;
         }
         // else if (cell.cost == byte.MaxValue)
         else if (cell.bestDirection.Equals(GridDirection.None))

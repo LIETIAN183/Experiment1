@@ -19,7 +19,7 @@ public class AccTimerSystem : SystemBase
         var entity = EntityManager.CreateEntity(typeof(AccTimerData));
         // EntityManager.SetName(entity, "AccTimer");
         // 设置仿真系统 Update 时间间隔
-        var fixedSimulationGroup = World.DefaultGameObjectInjectionWorld?.GetExistingSystem<FixedStepSimulationSystemGroup>();
+        var fixedSimulationGroup = simulation?.GetExistingSystem<FixedStepSimulationSystemGroup>();
         fixedSimulationGroup.Timestep = timeStep;
 
         this.Enabled = false;

@@ -10,10 +10,8 @@ public class GridInitiializeSystem : SystemBase
         var settingEntity = GetSingletonEntity<FlowFieldSettingData>();
         var settingComponent = GetSingleton<FlowFieldSettingData>();
 
-#if UNITY_EDITOR
         // Sync SettingData to DisplayDebug
         GridDebug.instance.debugFlowFieldSetting = settingComponent;
-#endif
 
         // DynamicBuffer
         DynamicBuffer<CellBufferElement> buffer = GetBuffer<CellBufferElement>(settingEntity);
@@ -21,14 +19,13 @@ public class GridInitiializeSystem : SystemBase
 
         int2 gridSize = settingComponent.gridSize;
         float3 originPoint = settingComponent.originPoint;
-        float cellRadius = settingComponent.cellRadius;
-        float cellDiameter = cellRadius * 2;
+        float3 cellRadius = settingComponent.cellRadius;
         // Create Grid
         for (int x = 0; x < gridSize.x; x++)
         {
             for (int y = 0; y < gridSize.y; y++)
             {
-                float3 cellWorldPos = new float3(originPoint.x + cellDiameter * x + cellRadius, originPoint.y, originPoint.z + cellDiameter * y + cellRadius);
+                float3 cellWorldPos = new float3(originPoint.x + (2 * x + 1) * cellRadius.x, originPoint.y, originPoint.z + (2 * y + 1) * cellRadius.z);
                 // int2 gridIndex = new int2(x, y);
                 CellData newCellData = new CellData
                 {
@@ -42,8 +39,6 @@ public class GridInitiializeSystem : SystemBase
                 cellBuffer.Add(newCellData);
             }
         }
-
-        EntityManager.AddComponent<GridFinishTag>(settingEntity);
 
         this.Enabled = false;
     }

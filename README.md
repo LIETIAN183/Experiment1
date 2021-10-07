@@ -135,6 +135,7 @@
 #### 2021.10.6
 
 - FlowField v1.0
+- FlowField v2.0
 
 ---
 

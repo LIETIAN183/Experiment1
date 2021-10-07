@@ -36,10 +36,10 @@ public static class FlowFieldHelper
         return height * index2D.x + index2D.y;
     }
 
-    public static int2 GetCellIndexFromWorldPos(float3 originPoint, float3 worldPos, int2 gridSize, float cellDiameter)
+    public static int2 GetCellIndexFromWorldPos(float3 originPoint, float3 worldPos, int2 gridSize, float3 cellDiameter)
     {
-        float percentX = (worldPos.x - originPoint.x) / (gridSize.x * cellDiameter);
-        float percentY = (worldPos.z - originPoint.z) / (gridSize.y * cellDiameter);
+        float percentX = (worldPos.x - originPoint.x) / (gridSize.x * cellDiameter.x);
+        float percentY = (worldPos.z - originPoint.z) / (gridSize.y * cellDiameter.z);
 
         percentX = math.clamp(percentX, 0f, 1f);
         percentY = math.clamp(percentY, 0f, 1f);
