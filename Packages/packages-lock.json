@@ -183,7 +183,7 @@
     },
     "com.unity.physics": {
       "version": "0.6.0-preview.3",
-      "depth": 1,
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.burst": "1.4.1",

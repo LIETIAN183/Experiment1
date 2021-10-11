@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 using Unity.Mathematics;
+using System.Linq;
 
 public enum FlowFieldDisplayType { None, CostField, IntegrationField, FlowField, CostHeatMap, IntegrationHeatMap };
 
@@ -10,12 +11,10 @@ public class GridDebug : MonoBehaviour
     public static GridDebug instance;
 
     [SerializeField] private FlowFieldDisplayType _curDisplayType;
-    [SerializeField] private bool _displayGrid;
 
     public FlowFieldSettingData debugFlowFieldSetting { set; get; }
 
     private List<CellData> _gridCellData;
-
 
     // Direction Display
     [SerializeField] private Transform directionDisplayParent;
@@ -39,12 +38,7 @@ public class GridDebug : MonoBehaviour
     private void OnDrawGizmos()
     {
         if (_gridCellData == null || _gridCellData.Count == 0) { return; }
-#if UNITY_EDITOR
-        if (_displayGrid)
-        {
-            DrawGridOnRuntime();
-        }
-#endif
+
         // Direction Display
         while (_directionDisplay.Count < _gridCellData.Count)
         {
@@ -58,10 +52,12 @@ public class GridDebug : MonoBehaviour
         directionDisplayParent.gameObject.SetActive(false);
         GUIStyle style = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter };
         Vector3 cubeSize = debugFlowFieldSetting.cellRadius * 2;
+        cubeSize.y = 0f;
         switch (_curDisplayType)
         {
 #if UNITY_EDITOR
             case FlowFieldDisplayType.CostField:
+                DrawGridOnRuntime();
 
                 foreach (CellData curCell in _gridCellData)
                 {
@@ -70,6 +66,7 @@ public class GridDebug : MonoBehaviour
                 break;
 
             case FlowFieldDisplayType.IntegrationField:
+                DrawGridOnRuntime();
 
                 foreach (CellData curCell in _gridCellData)
                 {
@@ -77,28 +74,63 @@ public class GridDebug : MonoBehaviour
                 }
                 break;
 
-            // TODO: 颜色变化太少
             case FlowFieldDisplayType.CostHeatMap:
+                //https://stackoverflow.com/questions/10901085/range-values-to-pseudocolor
+
+                // float maxCost = 0;
+                // foreach (CellData curCell in _gridCellData)
+                // {
+                //     if (curCell.cost == 255)
+                //     {
+                //         continue;
+                //     }
+
+                //     if (curCell.cost > maxCost)
+                //     {
+                //         maxCost = curCell.cost;
+                //     }
+                // }
+                float maxCost = _gridCellData.Where(i => i.cost != 255).Max(i => i.cost);
 
                 foreach (CellData curCell in _gridCellData)
                 {
-                    float costHeat = curCell.cost / 255f;
-                    Gizmos.color = new Color(0, 0, 1 - costHeat);
+                    float costHeat = (maxCost - curCell.cost) / maxCost;
+                    Gizmos.color = Color.HSVToRGB(costHeat / 3, 1, 1);
+                    if (curCell.cost == 255) Gizmos.color = Color.black;
                     Gizmos.DrawCube(curCell.worldPos + drawOffset, cubeSize);
                 }
                 break;
 
             case FlowFieldDisplayType.IntegrationHeatMap:
+                // float maxBestCost = 0;
+
+                // foreach (CellData curCell in _gridCellData)
+                // {
+                //     if (curCell.bestCost == ushort.MaxValue)
+                //     {
+                //         continue;
+                //     }
+
+                //     if (curCell.bestCost > maxBestCost)
+                //     {
+                //         maxBestCost = curCell.bestCost;
+                //     }
+                // }
+
+                float maxBestCost = _gridCellData.Where(i => i.bestCost != ushort.MaxValue).Max(i => i.bestCost);
+
                 foreach (CellData curCell in _gridCellData)
                 {
-                    var intHeat = curCell.bestCost / (float)ushort.MaxValue;
-                    Gizmos.color = new Color(0, 0, 1 - intHeat);
+                    var intHeat = (maxBestCost - curCell.bestCost) / maxBestCost;
+                    Gizmos.color = Color.HSVToRGB(intHeat / 3, 1, 1);
+                    if (curCell.bestCost == ushort.MaxValue) Gizmos.color = Color.black;
                     Gizmos.DrawCube(curCell.worldPos + drawOffset, cubeSize);
                 }
                 break;
 #endif
             case FlowFieldDisplayType.FlowField:
                 directionDisplayParent.gameObject.SetActive(true);
+
                 for (int i = 0; i < _gridCellData.Count; i++)
                 {
                     DisplayDiretion(_gridCellData[i], i);
@@ -130,74 +162,80 @@ public class GridDebug : MonoBehaviour
         var iconSR = iconGO.GetComponent<SpriteRenderer>();
         iconGO.transform.position = cell.worldPos + drawOffset;
 
+        Quaternion newRot;
         // 目标点
         if (cell.cost == 0)
         {
             iconSR.sprite = ffIcons[3];
-            Quaternion newRot = Quaternion.Euler(90, 0, 0);
-            iconGO.transform.rotation = newRot;
-            return;
+            newRot = Quaternion.Euler(90, 0, 0);
         }
-        // else if (cell.cost == byte.MaxValue)
+        // 不可行点
         else if (cell.bestDirection.Equals(GridDirection.None))
         {
             iconSR.sprite = ffIcons[2];
-            Quaternion newRot = Quaternion.Euler(90, 0, 0);
-            iconGO.transform.rotation = newRot;
+            newRot = Quaternion.Euler(90, 0, 0);
         }
-        else if (cell.bestDirection.Equals(GridDirection.North))
+        // else if (cell.bestDirection.Equals(GridDirection.North))
+        // {
+        //     iconSR.sprite = ffIcons[0];
+        //     Quaternion newRot = Quaternion.Euler(90, 0, 0);
+        //     iconGO.transform.rotation = newRot;
+        // }
+        // else if (cell.bestDirection.Equals(GridDirection.South))
+        // {
+        //     iconSR.sprite = ffIcons[0];
+        //     Quaternion newRot = Quaternion.Euler(90, 180, 0);
+        //     iconGO.transform.rotation = newRot;
+        // }
+        // else if (cell.bestDirection.Equals(GridDirection.East))
+        // {
+        //     iconSR.sprite = ffIcons[0];
+        //     Quaternion newRot = Quaternion.Euler(90, 90, 0);
+        //     iconGO.transform.rotation = newRot;
+        // }
+        // else if (cell.bestDirection.Equals(GridDirection.West))
+        // {
+        //     iconSR.sprite = ffIcons[0];
+        //     Quaternion newRot = Quaternion.Euler(90, 270, 0);
+        //     iconGO.transform.rotation = newRot;
+        // }
+        else// if (cell.bestDirection.x == 0 || cell.bestDirection.y == 0)//显示上下左右四个方向
         {
             iconSR.sprite = ffIcons[0];
-            Quaternion newRot = Quaternion.Euler(90, 0, 0);
-            iconGO.transform.rotation = newRot;
+            // newRot = Quaternion.Euler(90, (cell.bestDirection.y * cell.bestDirection.y - cell.bestDirection.y + cell.bestDirection.x) * 90, 0);
+            newRot = Quaternion.Euler(90, 90 - math.degrees(math.atan2(cell.bestDirection.y, cell.bestDirection.x)), 0);
         }
-        else if (cell.bestDirection.Equals(GridDirection.South))
-        {
-            iconSR.sprite = ffIcons[0];
-            Quaternion newRot = Quaternion.Euler(90, 180, 0);
-            iconGO.transform.rotation = newRot;
-        }
-        else if (cell.bestDirection.Equals(GridDirection.East))
-        {
-            iconSR.sprite = ffIcons[0];
-            Quaternion newRot = Quaternion.Euler(90, 90, 0);
-            iconGO.transform.rotation = newRot;
-        }
-        else if (cell.bestDirection.Equals(GridDirection.West))
-        {
-            iconSR.sprite = ffIcons[0];
-            Quaternion newRot = Quaternion.Euler(90, 270, 0);
-            iconGO.transform.rotation = newRot;
-        }
-        else if (cell.bestDirection.Equals(GridDirection.NorthEast))
-        {
-            iconSR.sprite = ffIcons[1];
-            Quaternion newRot = Quaternion.Euler(90, 0, 0);
-            iconGO.transform.rotation = newRot;
-        }
-        else if (cell.bestDirection.Equals(GridDirection.NorthWest))
-        {
-            iconSR.sprite = ffIcons[1];
-            Quaternion newRot = Quaternion.Euler(90, 270, 0);
-            iconGO.transform.rotation = newRot;
-        }
-        else if (cell.bestDirection.Equals(GridDirection.SouthEast))
-        {
-            iconSR.sprite = ffIcons[1];
-            Quaternion newRot = Quaternion.Euler(90, 90, 0);
-            iconGO.transform.rotation = newRot;
-        }
-        else if (cell.bestDirection.Equals(GridDirection.SouthWest))
-        {
-            iconSR.sprite = ffIcons[1];
-            Quaternion newRot = Quaternion.Euler(90, 180, 0);
-            iconGO.transform.rotation = newRot;
-        }
-        else
-        {
-            iconSR.sprite = ffIcons[2];
-            Quaternion newRot = Quaternion.Euler(90, 0, 0);
-            iconGO.transform.rotation = newRot;
-        }
+        // else if (cell.bestDirection.Equals(GridDirection.NorthEast))
+        // {
+        //     iconSR.sprite = ffIcons[1];
+        //     newRot = Quaternion.Euler(90, 0, 0);
+        // }
+        // else if (cell.bestDirection.Equals(GridDirection.NorthWest))
+        // {
+        //     iconSR.sprite = ffIcons[1];
+        //     newRot = Quaternion.Euler(90, 270, 0);
+        // }
+        // else if (cell.bestDirection.Equals(GridDirection.SouthEast))
+        // {
+        //     iconSR.sprite = ffIcons[1];
+        //     newRot = Quaternion.Euler(90, 90, 0);
+        // }
+        // else if (cell.bestDirection.Equals(GridDirection.SouthWest))
+        // {
+        //     iconSR.sprite = ffIcons[1];
+        //     newRot = Quaternion.Euler(90, 180, 0);
+        // }
+        // else
+        // {
+        //     iconSR.sprite = ffIcons[2];
+        //     newRot = Quaternion.Euler(90, 0, 0);
+        // }
+        // else
+        // {
+        //     iconSR.sprite = ffIcons[1];
+        //     newRot = Quaternion.Euler(90, (cell.bestDirection.y * cell.bestDirection.y - cell.bestDirection.y + cell.bestDirection.x) * 90, 0);
+        // }
+
+        iconGO.transform.rotation = newRot;
     }
 }

@@ -54,14 +54,21 @@ public class CalculateIntFieldSystem : SystemBase
             {
                 int flatNeighborIndex = FlowFieldHelper.ToFlatIndex(neighborIndex, gridSize.y);
                 CellData neighborCellData = cellBuffer[flatNeighborIndex];
+                // 更新第一层障碍物的最佳方向
                 if (neighborCellData.cost == byte.MaxValue)
                 {
+                    if (neighborCellData.bestDirection.Equals(GridDirection.None))
+                    {
+                        neighborCellData.bestDirection = cellIndex - neighborIndex;
+                        cellBuffer[flatNeighborIndex] = neighborCellData;
+                    }
                     continue;
                 }
-
+                // 更新 bestCost 和 最佳方向
                 if (neighborCellData.cost + curCellData.bestCost < neighborCellData.bestCost)
                 {
                     neighborCellData.bestCost = (ushort)(neighborCellData.cost + curCellData.bestCost);
+                    neighborCellData.bestDirection = cellIndex - neighborIndex;
                     cellBuffer[flatNeighborIndex] = neighborCellData;
                     indicesToCheck.Enqueue(neighborIndex);
                 }
@@ -70,26 +77,26 @@ public class CalculateIntFieldSystem : SystemBase
 
         // // Flow Field
         // // TODO: Combine with Integration Field
-        for (int i = 0; i < cellBuffer.Length; i++)
-        {
-            CellData curCellData = cellBuffer[i];
-            neighborIndices.Clear();
-            FlowFieldHelper.GetNeighborIndices(curCellData.gridIndex, gridSize, ref neighborIndices);
-            ushort bestCost = curCellData.bestCost;
-            int2 bestDirection = int2.zero;
-            foreach (int2 neighborIndex in neighborIndices)
-            {
-                int flatNeighborIndex = FlowFieldHelper.ToFlatIndex(neighborIndex, gridSize.y);
-                CellData neighborCellData = cellBuffer[flatNeighborIndex];
-                if (neighborCellData.bestCost < bestCost)
-                {
-                    bestCost = neighborCellData.bestCost;
-                    bestDirection = neighborCellData.gridIndex - curCellData.gridIndex;
-                }
-            }
-            curCellData.bestDirection = bestDirection;
-            cellBuffer[i] = curCellData;
-        }
+        // for (int i = 0; i < cellBuffer.Length; i++)
+        // {
+        //     CellData curCellData = cellBuffer[i];
+        //     neighborIndices.Clear();
+        //     FlowFieldHelper.GetNeighborIndices(curCellData.gridIndex, gridSize, ref neighborIndices);
+        //     ushort bestCost = curCellData.bestCost;
+        //     int2 bestDirection = int2.zero;
+        //     foreach (int2 neighborIndex in neighborIndices)
+        //     {
+        //         int flatNeighborIndex = FlowFieldHelper.ToFlatIndex(neighborIndex, gridSize.y);
+        //         CellData neighborCellData = cellBuffer[flatNeighborIndex];
+        //         if (neighborCellData.bestCost <= bestCost)
+        //         {
+        //             bestCost = neighborCellData.bestCost;
+        //             bestDirection = neighborCellData.gridIndex - curCellData.gridIndex;
+        //         }
+        //     }
+        //     curCellData.bestDirection = bestDirection;
+        //     cellBuffer[i] = curCellData;
+        // }
 
         // Release Native Container
         neighborIndices.Dispose();

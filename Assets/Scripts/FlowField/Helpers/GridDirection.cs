@@ -16,10 +16,10 @@ public class GridDirection
         return direction.Vector;
     }
 
-    public static GridDirection GetDirectionFromV2I(int2 vector)
-    {
-        return CardinalAndIntercardinalDirections.DefaultIfEmpty(None).FirstOrDefault(direction => Equals(direction, vector));
-    }
+    // public static GridDirection GetDirectionFromV2I(int2 vector)
+    // {
+    //     return CardinalAndIntercardinalDirections.DefaultIfEmpty(None).FirstOrDefault(direction => Equals(direction, vector));
+    // }
 
     public static readonly GridDirection None = new GridDirection(0, 0);
     public static readonly GridDirection North = new GridDirection(0, 1);
@@ -31,36 +31,44 @@ public class GridDirection
     public static readonly GridDirection SouthEast = new GridDirection(1, -1);
     public static readonly GridDirection SouthWest = new GridDirection(-1, -1);
 
-    public static readonly List<GridDirection> CardinalDirections = new List<GridDirection>
-        {
-            North,
-            East,
-            South,
-            West
-        };
+    // public static readonly List<GridDirection> CardinalDirections = new List<GridDirection>
+    //     {
+    //         North,
+    //         East,
+    //         South,
+    //         West
+    //     };
 
     public static readonly List<GridDirection> CardinalAndIntercardinalDirections = new List<GridDirection>
         {
             North,
-            NorthEast,
             East,
-            SouthEast,
             South,
-            SouthWest,
             West,
-            NorthWest
+            NorthEast,
+            SouthEast,
+            NorthWest,
+            SouthWest
+            // North,
+            // NorthEast,
+            // East,
+            // SouthEast,
+            // South,
+            // SouthWest,
+            // West,
+            // NorthWest
         };
 
-    public static readonly List<GridDirection> AllDirections = new List<GridDirection>
-        {
-            None,
-            North,
-            NorthEast,
-            East,
-            SouthEast,
-            South,
-            SouthWest,
-            West,
-            NorthWest
-        };
+    // public static readonly List<GridDirection> AllDirections = new List<GridDirection>
+    //     {
+    //         None,
+    //         North,
+    //         NorthEast,
+    //         East,
+    //         SouthEast,
+    //         South,
+    //         SouthWest,
+    //         West,
+    //         NorthWest
+    //     };
 }

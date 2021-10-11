@@ -137,6 +137,14 @@
 - FlowField v1.0
 - FlowField v2.0
 
+#### 2021.10.7
+
+- Add Agent Movement
+
+#### 2021.10.11
+
+- Improve Flow Field Algorithm
+
 ---
 
 # Unity 插件
