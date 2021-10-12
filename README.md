@@ -145,6 +145,10 @@
 
 - Improve Flow Field Algorithm
 
+#### 2021.10.12
+
+- Agent Walk over the obstacles
+
 ---
 
 # Unity 插件

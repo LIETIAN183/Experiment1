@@ -3,8 +3,6 @@ using Unity.Entities;
 [GenerateAuthoringComponent, InternalBufferCapacity(250)]
 public struct CellBufferElement : IBufferElementData
 {
-    // public Entity entity;
-
     public CellData cell;
 
     public static implicit operator CellData(CellBufferElement entityBufferElement)

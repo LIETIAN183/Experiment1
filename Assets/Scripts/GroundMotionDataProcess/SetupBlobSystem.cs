@@ -102,7 +102,6 @@ public class SetupBlobSystem : SystemBase
     }
 
     // AT2 数据文件分类到对应的文件夹
-    // TODO: build 后无法正确分类
     void ClassifyFile()
     {
         DirectoryInfo path = new DirectoryInfo(groundMotionPath);
@@ -112,8 +111,11 @@ public class SetupBlobSystem : SystemBase
         {
             string[] temp = f.Name.Split('_');
             var desDirectory = Directory.CreateDirectory(groundMotionPath + temp[0] + "_" + temp[1]);
-            // 移动 meta 文件
-            // File.Move(f.Directory.FullName + "/" + f.Name + ".meta", desDirectory.FullName + "/" + temp[temp.Length - 1] + ".meta");
+
+#if UNITY_EDITOR
+            // 移动 meta 文件 Build 后没有 meta 文件
+            File.Move(f.Directory.FullName + "/" + f.Name + ".meta", desDirectory.FullName + "/" + temp[temp.Length - 1] + ".meta");
+#endif
             // 移动原文件
             f.MoveTo(desDirectory.FullName + "/" + temp[temp.Length - 1]);
         }

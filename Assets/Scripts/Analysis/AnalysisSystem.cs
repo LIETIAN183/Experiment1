@@ -4,6 +4,7 @@ using BansheeGz.BGDatabase;
 using Unity.Transforms;
 using Unity.Collections;
 // 分析系统
+[DisableAutoCreation]
 [AlwaysSynchronizeSystem]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateAfter(typeof(ComsMotionSystem))]

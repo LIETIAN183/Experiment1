@@ -6,15 +6,12 @@ using Michsky.UI.ModernUIPack;
 using UnityEngine.SceneManagement;
 using BansheeGz.BGDatabase;
 
-// TODO: Display Acc
 public class ECSUIController : MonoBehaviour
 {
     public static ECSUIController Instance { get; private set; }
     public HorizontalSelector EqSelector;
     // StatusBtn 实现 Pause/Continue 功能
-    public ButtonManager startBtn, pauseBtn, reloadBtn, exitBtn, analysisBtn, exportBtn;
-    // 判断 PauseBtn 应该显示 Pause 还是 Continue
-    bool pauseBtnFlag = false;
+    public ButtonManager startBtn, exitBtn, analysisBtn, exportBtn;
     public ProgressBar progress;
 
     public NotificationManager notification;
@@ -38,8 +35,6 @@ public class ECSUIController : MonoBehaviour
 
     public void Setup()
     {
-        pauseBtn.GetComponent<CanvasGroup>().interactable = false;
-
         // 关联 HorizontalSelector 数据
         EqSelector.itemList = GetNameList();//获取可选的地震，转换 IEnumerable<string> 为 List<Dropdown.OptionData>
         // 同步 Progress 最大值
@@ -57,28 +52,9 @@ public class ECSUIController : MonoBehaviour
                 // 更新 Button 状态
                 startBtn.GetComponent<CanvasGroup>().interactable = false;
                 EqSelector.GetComponent<CanvasGroup>().interactable = false;
-                pauseBtn.GetComponent<CanvasGroup>().interactable = true;
 
                 ShowNotification("Start Simulation");
             });// 关联地震开始按钮
-
-        // PauseBtn 暂停/继续按钮
-        pauseBtn.clickEvent.AddListener(ChangeStatus);
-
-        // ReloadBtn 重新载入场景按钮
-        // FIXME
-        // 场景相应的 Lighting Setting 设置 Auto Generate, 否则 Reload 后光照存在问题
-        reloadBtn.clickEvent.AddListener(() =>
-        {
-            // 这段代码对混合世界不能完全正常运行，Reload后 UI 无反应，同时可能导致渲染的entity和gameobkect失去关联，还会导致每次重置系统后需要重新读取地震数据
-            // var entityManager = Unity.Entities.World.DefaultGameObjectInjectionWorld.EntityManager;
-            // entityManager.DestroyEntity(entityManager.UniversalQuery);
-            // // 不能使用 SceneManager.GetActiveScene().name 此方法返回 SubScene 的名字，而不是主场景的名字
-            // SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
-
-            // 只用于 ShakeIllustration 场景
-            World.DefaultGameObjectInjectionWorld.GetExistingSystem<ReloadSystem>().Enabled = true;
-        });// 关联重置场景按钮
 
         // Exit Button
         exitBtn.clickEvent.AddListener(System.Diagnostics.Process.GetCurrentProcess().Kill);
@@ -88,30 +64,6 @@ public class ECSUIController : MonoBehaviour
 
         // Export Button
         exportBtn.clickEvent.AddListener(BGExcelImportGo.Instance.Export);
-    }
-
-    // 修改 Pause Button
-    // PauseBtnFlag false 时显示 Pause, true 时显示 Continue
-    // TODO: 暂停导致 PauseButton 按钮动画播放不完全
-    // TODO: TImeScale 方法在 ECS 场景中是否适用存疑
-    void ChangeStatus()
-    {
-        switch (pauseBtnFlag)
-        {
-            case false: // 从显示 Pause 转到显示 Continue
-                pauseBtn.buttonText = "Continue";
-                Time.timeScale = 0;// 暂停状态
-                break;
-            case true: // 从显示 Continue 转到显示 Pause
-                pauseBtn.buttonText = "Pause";
-                Time.timeScale = 1;// 继续状态
-                break;
-        }
-        // 更新 ButtonManger, 否则修改 Text 不生效，因为该 ButtonManger 存在两个 Text
-        pauseBtn.UpdateUI();
-        pauseBtnFlag = !pauseBtnFlag;
-        // pauseBtn.buttonText = "Continue";
-        // Debug.Log(pauseBtn.buttonText);
     }
 
     // 从 BlobAsset 中获得所有地震的名字列表
@@ -142,12 +94,6 @@ public class ECSUIController : MonoBehaviour
                 case "StartBtn":
                     startBtn = button;
                     break;
-                case "PauseBtn":
-                    pauseBtn = button;
-                    break;
-                case "ReloadBtn":
-                    reloadBtn = button;
-                    break;
                 case "ExitBtn":
                     exitBtn = button;
                     break;
@@ -164,7 +110,6 @@ public class ECSUIController : MonoBehaviour
         progress = GetComponentInChildren<ProgressBar>();
         progress.currentTime = 0;
         progress.maxTime = 0;
-        pauseBtn.GetComponent<CanvasGroup>().interactable = false;
         notification = GetComponentInChildren<NotificationManager>();
     }
 

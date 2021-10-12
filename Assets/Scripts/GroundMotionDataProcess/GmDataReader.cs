@@ -6,7 +6,6 @@ using System.Linq;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-// TODO: 修改为 Resource 加载数据，优化资源存储方式 修改为 Resource Manger
 public static class GmDataReader
 {
     public static readonly float3 forward = new float3(0, 0, 1);

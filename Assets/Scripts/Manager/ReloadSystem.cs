@@ -45,7 +45,6 @@ public class ReloadSystem : SystemBase
 
         ECSUIController.Instance.startBtn.GetComponent<CanvasGroup>().interactable = true;
         ECSUIController.Instance.EqSelector.GetComponent<CanvasGroup>().interactable = true;
-        ECSUIController.Instance.pauseBtn.GetComponent<CanvasGroup>().interactable = false;
         this.Enabled = false;
     }
 }

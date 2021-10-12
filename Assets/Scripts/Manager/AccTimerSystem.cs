@@ -64,9 +64,9 @@ public class AccTimerSystem : SystemBase
     public void Active(int index)
     {
         //-----------------------------------数据分析 填写地震Index和地震名字-----------------------------------------------------
-        DB_Eq newData = DB_Eq.NewEntity();
-        newData.F_eqIndex = index;
-        newData.F_eqName = SetupBlobSystem.gmBlobRefs[index].Value.gmName.ToString();
+        // DB_Eq newData = DB_Eq.NewEntity();
+        // newData.F_eqIndex = index;
+        // newData.F_eqName = SetupBlobSystem.gmBlobRefs[index].Value.gmName.ToString();
         // ------------------------------------- Analysis END -------------------------------------------------------------------
 
         // 初始化单例数据
@@ -95,12 +95,8 @@ public class AccTimerSystem : SystemBase
     {
         simulation.GetExistingSystem<GlobalGravitySystem>().Enabled = status;
         simulation.GetExistingSystem<ComsMotionSystem>().Enabled = status;
-        // simulation.GetExistingSystem<ComsShakeSystem>().Enabled = status;
-
-        // 全局仿真时 SyncSystem、SubShakeSystem 可以选择不启用
-        // simulation.GetExistingSystem<SubShakeSystem>().Enabled = status;
 
         // 分析
-        simulation.GetExistingSystem<AnalysisSystem>().Enabled = status;
+        // simulation.GetExistingSystem<AnalysisSystem>().Enabled = status;
     }
 }

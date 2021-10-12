@@ -77,19 +77,6 @@ public class GridDebug : MonoBehaviour
             case FlowFieldDisplayType.CostHeatMap:
                 //https://stackoverflow.com/questions/10901085/range-values-to-pseudocolor
 
-                // float maxCost = 0;
-                // foreach (CellData curCell in _gridCellData)
-                // {
-                //     if (curCell.cost == 255)
-                //     {
-                //         continue;
-                //     }
-
-                //     if (curCell.cost > maxCost)
-                //     {
-                //         maxCost = curCell.cost;
-                //     }
-                // }
                 float maxCost = _gridCellData.Where(i => i.cost != 255).Max(i => i.cost);
 
                 foreach (CellData curCell in _gridCellData)
@@ -102,20 +89,6 @@ public class GridDebug : MonoBehaviour
                 break;
 
             case FlowFieldDisplayType.IntegrationHeatMap:
-                // float maxBestCost = 0;
-
-                // foreach (CellData curCell in _gridCellData)
-                // {
-                //     if (curCell.bestCost == ushort.MaxValue)
-                //     {
-                //         continue;
-                //     }
-
-                //     if (curCell.bestCost > maxBestCost)
-                //     {
-                //         maxBestCost = curCell.bestCost;
-                //     }
-                // }
 
                 float maxBestCost = _gridCellData.Where(i => i.bestCost != ushort.MaxValue).Max(i => i.bestCost);
 
@@ -175,66 +148,11 @@ public class GridDebug : MonoBehaviour
             iconSR.sprite = ffIcons[2];
             newRot = Quaternion.Euler(90, 0, 0);
         }
-        // else if (cell.bestDirection.Equals(GridDirection.North))
-        // {
-        //     iconSR.sprite = ffIcons[0];
-        //     Quaternion newRot = Quaternion.Euler(90, 0, 0);
-        //     iconGO.transform.rotation = newRot;
-        // }
-        // else if (cell.bestDirection.Equals(GridDirection.South))
-        // {
-        //     iconSR.sprite = ffIcons[0];
-        //     Quaternion newRot = Quaternion.Euler(90, 180, 0);
-        //     iconGO.transform.rotation = newRot;
-        // }
-        // else if (cell.bestDirection.Equals(GridDirection.East))
-        // {
-        //     iconSR.sprite = ffIcons[0];
-        //     Quaternion newRot = Quaternion.Euler(90, 90, 0);
-        //     iconGO.transform.rotation = newRot;
-        // }
-        // else if (cell.bestDirection.Equals(GridDirection.West))
-        // {
-        //     iconSR.sprite = ffIcons[0];
-        //     Quaternion newRot = Quaternion.Euler(90, 270, 0);
-        //     iconGO.transform.rotation = newRot;
-        // }
-        else// if (cell.bestDirection.x == 0 || cell.bestDirection.y == 0)//显示上下左右四个方向
+        else
         {
             iconSR.sprite = ffIcons[0];
-            // newRot = Quaternion.Euler(90, (cell.bestDirection.y * cell.bestDirection.y - cell.bestDirection.y + cell.bestDirection.x) * 90, 0);
             newRot = Quaternion.Euler(90, 90 - math.degrees(math.atan2(cell.bestDirection.y, cell.bestDirection.x)), 0);
         }
-        // else if (cell.bestDirection.Equals(GridDirection.NorthEast))
-        // {
-        //     iconSR.sprite = ffIcons[1];
-        //     newRot = Quaternion.Euler(90, 0, 0);
-        // }
-        // else if (cell.bestDirection.Equals(GridDirection.NorthWest))
-        // {
-        //     iconSR.sprite = ffIcons[1];
-        //     newRot = Quaternion.Euler(90, 270, 0);
-        // }
-        // else if (cell.bestDirection.Equals(GridDirection.SouthEast))
-        // {
-        //     iconSR.sprite = ffIcons[1];
-        //     newRot = Quaternion.Euler(90, 90, 0);
-        // }
-        // else if (cell.bestDirection.Equals(GridDirection.SouthWest))
-        // {
-        //     iconSR.sprite = ffIcons[1];
-        //     newRot = Quaternion.Euler(90, 180, 0);
-        // }
-        // else
-        // {
-        //     iconSR.sprite = ffIcons[2];
-        //     newRot = Quaternion.Euler(90, 0, 0);
-        // }
-        // else
-        // {
-        //     iconSR.sprite = ffIcons[1];
-        //     newRot = Quaternion.Euler(90, (cell.bestDirection.y * cell.bestDirection.y - cell.bestDirection.y + cell.bestDirection.x) * 90, 0);
-        // }
 
         iconGO.transform.rotation = newRot;
     }

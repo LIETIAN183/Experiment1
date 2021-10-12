@@ -70,6 +70,6 @@ public class CalculateCostFieldSystem : SystemBase
             outHits.Dispose();
         }).Run();
 
-        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CalculateIntFieldSystem>().Enabled = true;
+        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CalculateFlowFieldSystem>().Enabled = true;
     }
 }

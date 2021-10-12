@@ -14,16 +14,11 @@ namespace Michsky.UI.ModernUIPack
         // Resources
         public Image loadingBar;
         public TextMeshProUGUI text;
-        void Start()
-        {
-            loadingBar.fillAmount = currentTime / maxTime;
-            text.text = currentTime.ToString("f2") + "s/" + Convert.ToString(maxTime) + "s";
-        }
 
         void Update()
         {
             loadingBar.fillAmount = currentTime / maxTime;
-            text.text = currentTime.ToString("f2") + "s/" + Convert.ToString(maxTime) + "s";
+            text.text = currentTime.ToString("f2") + "s/" + maxTime.ToString("f2") + "s";
         }
     }
 }

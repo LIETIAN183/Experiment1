@@ -2,7 +2,7 @@
 
 // [DisableAutoCreation]
 [UpdateInGroup(typeof(FlowFieldSimulationSystemGroup))]
-[UpdateAfter(typeof(CalculateIntFieldSystem))]
+[UpdateAfter(typeof(CalculateFlowFieldSystem))]
 public class DebugSyncSystem : SystemBase
 {
     protected override void OnUpdate()

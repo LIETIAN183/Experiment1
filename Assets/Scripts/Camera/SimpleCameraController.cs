@@ -5,9 +5,7 @@ using System.Diagnostics;
     using UnityEngine.InputSystem.Controls;
 #endif
 
-// TODO: 看懂这个脚本的原理
 using UnityEngine;
-using Cinemachine;
 
 namespace UnityTemplateProjects
 {
@@ -32,22 +30,10 @@ namespace UnityTemplateProjects
                 z = t.position.z;
             }
 
-            // TODO: 只旋转y轴，不旋转x和z轴
-            public void Translate(Vector3 translation, Collider bounds = null)
+            public void Translate(Vector3 translation)
             {
-                // 旋转世界坐标系方向到局部坐标系 同时旋转三个轴
-                // Vector3 rotatedTranslation = Quaternion.Euler(pitch, yaw, roll) * translation;
                 // 只旋转 y 轴
                 Vector3 rotatedTranslation = Quaternion.Euler(0, yaw, 0) * translation;
-
-                if (bounds != null)
-                {
-                    Vector3 p = new Vector3(x, y, z) + rotatedTranslation;
-                    if (!bounds.bounds.Contains(p))
-                    {
-                        rotatedTranslation = Vector3.zero;
-                    }
-                }
 
                 x += rotatedTranslation.x;
                 y += rotatedTranslation.y;
@@ -74,12 +60,8 @@ namespace UnityTemplateProjects
 
         CameraState m_TargetCameraState = new CameraState();
         CameraState m_InterpolatingCameraState = new CameraState();
-        CinemachineConfiner confiner;
-        Collider bounds;
 
         [Header("Movement Settings")]
-        [Tooltip("Exponential boost factor on translation, controllable by mouse wheel.")]
-        public bool rightClickToLook = true;
 
         [Tooltip("Exponential boost factor on translation, controllable by mouse wheel.")]
         public float boost = 3.5f;
@@ -94,70 +76,17 @@ namespace UnityTemplateProjects
         [Tooltip("Time it takes to interpolate camera rotation 99% of the way to the target."), Range(0.001f, 1f)]
         public float rotationLerpTime = 0.01f;
 
-        [Tooltip("Whether or not to invert our Y axis for mouse input to rotation.")]
-        public bool invertY = false;
-
-
-
-        void Start()
-        {
-            confiner = GetComponent<CinemachineConfiner>();
-            if (confiner != null)
-                bounds = confiner.m_BoundingVolume;
-        }
-
         void OnEnable()
         {
             m_TargetCameraState.SetFromTransform(transform);
             m_InterpolatingCameraState.SetFromTransform(transform);
         }
 
-        Vector3 GetInputTranslationDirection()
-        {
-            Vector3 direction = new Vector3();
-            if (Input.GetKey(KeyCode.W))
-            {
-                direction += Vector3.forward;
-            }
-            if (Input.GetKey(KeyCode.S))
-            {
-                direction += Vector3.back;
-            }
-            if (Input.GetKey(KeyCode.A))
-            {
-                direction += Vector3.left;
-            }
-            if (Input.GetKey(KeyCode.D))
-            {
-                direction += Vector3.right;
-            }
-            if (Input.GetKey(KeyCode.Q))
-            {
-                direction += Vector3.down;
-            }
-            if (Input.GetKey(KeyCode.E))
-            {
-                direction += Vector3.up;
-            }
-            return direction;
-        }
-
         void Update()
         {
-            Vector3 translation = Vector3.zero;
-
-            // Exit Sample
-            if (Input.GetKey(KeyCode.Escape))
+            if (Input.GetMouseButton(1))
             {
-                Application.Quit();
-#if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-#endif
-            }
-
-            if (Input.GetMouseButton(1) || !rightClickToLook || (Input.GetKey(KeyCode.LeftAlt) && Input.GetMouseButton(0)))
-            {
-                var mouseMovement = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y") * (invertY ? 1 : -1));
+                var mouseMovement = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y") * -1);
 
                 var mouseSensitivityFactor = mouseSensitivityCurve.Evaluate(mouseMovement.magnitude);
 
@@ -165,14 +94,9 @@ namespace UnityTemplateProjects
                 m_TargetCameraState.pitch += mouseMovement.y * mouseSensitivityFactor;
             }
 
-            // Translation
-            translation = GetInputTranslationDirection() * Time.unscaledDeltaTime;
-
-
-            // Modify movement by a boost factor (defined in Inspector)
-            translation *= Mathf.Pow(2.0f, boost);
-
-            m_TargetCameraState.Translate(translation, bounds);
+            // Translation, Modify movement by a boost factor (defined in Inspector)
+            Vector3 translation = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("UpDown"), Input.GetAxis("Vertical")) * Time.unscaledDeltaTime * Mathf.Pow(2.0f, boost);
+            m_TargetCameraState.Translate(translation);
 
             // Framerate-independent interpolation
             // Calculate the lerp amount, such that we get 99% of the way to our target in the specified time
@@ -183,5 +107,4 @@ namespace UnityTemplateProjects
             m_InterpolatingCameraState.UpdateTransform(transform);
         }
     }
-
 }
