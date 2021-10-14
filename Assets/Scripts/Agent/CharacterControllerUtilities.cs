@@ -4,8 +4,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Extensions;
-using Unity.Physics.Stateful;
 using UnityEngine.Assertions;
+using UnityEngine;
 
 // Stores the impulse to be applied by the character controller body
 public struct DeferredCharacterControllerImpulse
@@ -36,14 +36,12 @@ public static class CharacterControllerUtilities
         public float DeltaTime;
         public float3 Gravity;
         public float3 Up;
-        public int MaxIterations;
         public float Tau;
         public float Damping;
         public float SkinWidth;
         public float ContactTolerance;
         public float MaxSlope;
         public int RigidBodyIndex;
-        public float3 CurrentVelocity;
         public float MaxMovementSpeed;
     }
 
@@ -61,8 +59,7 @@ public static class CharacterControllerUtilities
 
         private PhysicsWorld m_world;
 
-        public CharacterControllerAllHitsCollector(int rbIndex, float maxFraction, ref NativeList<T> allHits, PhysicsWorld world,
-                                                   NativeList<T> triggerHits = default)
+        public CharacterControllerAllHitsCollector(int rbIndex, float maxFraction, ref NativeList<T> allHits, PhysicsWorld world, NativeList<T> triggerHits = default)
         {
             MaxFraction = maxFraction;
             AllHits = allHits;
@@ -161,8 +158,7 @@ public static class CharacterControllerUtilities
 
     public static unsafe void CheckSupport(
         ref PhysicsWorld world, ref PhysicsCollider collider, CharacterControllerStepInput stepInput, RigidTransform transform,
-        out CharacterSupportState characterState, out float3 surfaceNormal, out float3 surfaceVelocity,
-        NativeList<StatefulCollisionEvent> collisionEvents = default)
+        out CharacterSupportState characterState, out float3 surfaceNormal, out float3 surfaceVelocity)
     {
         surfaceNormal = float3.zero;
         surfaceVelocity = float3.zero;
@@ -227,16 +223,6 @@ public static class CharacterControllerUtilities
                     numSupportingPlanes++;
                     surfaceNormal += constraint.Plane.Normal;
                     surfaceVelocity += constraint.Velocity;
-
-                    // Add supporting planes to collision events
-                    if (collisionEvents.IsCreated)
-                    {
-                        var collisionEvent = new StatefulCollisionEvent(stepInput.World.Bodies[stepInput.RigidBodyIndex].Entity,
-                            stepInput.World.Bodies[constraint.RigidBodyIndex].Entity, stepInput.RigidBodyIndex, constraint.RigidBodyIndex,
-                            ColliderKey.Empty, constraint.ColliderKey, constraint.Plane.Normal);
-                        collisionEvent.CollisionDetails = new StatefulCollisionEvent.Details(1, 0, constraint.HitPosition);
-                        collisionEvents.Add(collisionEvent);
-                    }
                 }
             }
 
@@ -287,8 +273,7 @@ public static class CharacterControllerUtilities
 
     public static unsafe void CollideAndIntegrate(
         CharacterControllerStepInput stepInput, float characterMass, bool affectBodies, Unity.Physics.Collider* collider,
-        ref RigidTransform transform, ref float3 linearVelocity, ref NativeStream.Writer deferredImpulseWriter,
-        NativeList<StatefulCollisionEvent> collisionEvents = default, NativeList<StatefulTriggerEvent> triggerEvents = default)
+        ref RigidTransform transform, ref float3 linearVelocity, ref NativeStream.Writer deferredImpulseWriter)
     {
         // Copy parameters
         float deltaTime = stepInput.DeltaTime;
@@ -304,21 +289,17 @@ public static class CharacterControllerUtilities
         float maxSlopeCos = math.cos(stepInput.MaxSlope);
 
         const float timeEpsilon = 0.000001f;
-        for (int i = 0; i < stepInput.MaxIterations && remainingTime > timeEpsilon; i++)
+        for (int i = 0; i < 10 && remainingTime > timeEpsilon; i++)
         {
             NativeList<SurfaceConstraintInfo> constraints = new NativeList<SurfaceConstraintInfo>(k_DefaultConstraintsCapacity, Allocator.Temp);
 
             // Do a collider cast
             {
                 float3 displacement = newVelocity * remainingTime;
-                NativeList<ColliderCastHit> triggerHits = default;
-                if (triggerEvents.IsCreated)
-                {
-                    triggerHits = new NativeList<ColliderCastHit>(k_DefaultQueryHitsCapacity / 4, Allocator.Temp);
-                }
+
                 NativeList<ColliderCastHit> castHits = new NativeList<ColliderCastHit>(k_DefaultQueryHitsCapacity, Allocator.Temp);
                 CharacterControllerAllHitsCollector<ColliderCastHit> collector = new CharacterControllerAllHitsCollector<ColliderCastHit>(
-                    stepInput.RigidBodyIndex, 1.0f, ref castHits, world, triggerHits);
+                    stepInput.RigidBodyIndex, 1.0f, ref castHits, world);
                 ColliderCastInput input = new ColliderCastInput()
                 {
                     Collider = collider,
@@ -335,12 +316,6 @@ public static class CharacterControllerUtilities
                     CreateConstraint(stepInput.World, stepInput.Up,
                         hit.RigidBodyIndex, hit.ColliderKey, hit.Position, hit.SurfaceNormal, math.dot(-hit.SurfaceNormal, hit.Fraction * displacement),
                         stepInput.SkinWidth, maxSlopeCos, ref constraints);
-                }
-
-                // Update trigger events
-                if (triggerEvents.IsCreated)
-                {
-                    UpdateTriggersSeen(stepInput, triggerHits, triggerEvents, collector.MinHitFraction);
                 }
             }
 
@@ -421,10 +396,10 @@ public static class CharacterControllerUtilities
             SimplexSolver.Solve(remainingTime, minDeltaTime, up, stepInput.MaxMovementSpeed, constraints, ref newPosition, ref newVelocity, out float integratedTime);
 
             // Apply impulses to hit bodies and store collision events
-            if (affectBodies || collisionEvents.IsCreated)
+            if (affectBodies)
             {
                 CalculateAndStoreDeferredImpulsesAndCollisionEvents(stepInput, affectBodies, characterMass,
-                    prevVelocity, constraints, ref deferredImpulseWriter, collisionEvents);
+                    prevVelocity, constraints, ref deferredImpulseWriter);
             }
 
             // Calculate new displacement
@@ -556,8 +531,7 @@ public static class CharacterControllerUtilities
 
     private static unsafe void CalculateAndStoreDeferredImpulsesAndCollisionEvents(
         CharacterControllerStepInput stepInput, bool affectBodies, float characterMass,
-        float3 linearVelocity, NativeList<SurfaceConstraintInfo> constraints, ref NativeStream.Writer deferredImpulseWriter,
-        NativeList<StatefulCollisionEvent> collisionEvents)
+        float3 linearVelocity, NativeList<SurfaceConstraintInfo> constraints, ref NativeStream.Writer deferredImpulseWriter)
     {
         PhysicsWorld world = stepInput.World;
         for (int i = 0; i < constraints.Length; i++)
@@ -635,66 +609,6 @@ public static class CharacterControllerUtilities
                         Impulse = impulse,
                         Point = constraint.HitPosition
                     });
-            }
-
-            if (collisionEvents.IsCreated && constraint.Touched && !constraint.IsMaxSlope)
-            {
-                var collisionEvent = new StatefulCollisionEvent(world.Bodies[stepInput.RigidBodyIndex].Entity,
-                    world.Bodies[rigidBodyIndex].Entity, stepInput.RigidBodyIndex, rigidBodyIndex, ColliderKey.Empty,
-                    constraint.ColliderKey, constraint.Plane.Normal);
-                collisionEvent.CollisionDetails = new StatefulCollisionEvent.Details(
-                    1, math.dot(impulse, collisionEvent.Normal), constraint.HitPosition);
-
-                // check if collision event exists for the same bodyID and colliderKey
-                // although this is a nested for, number of solved constraints shouldn't be high
-                // if the same constraint (same entities, rigidbody indices and collider keys)
-                // is solved in multiple solver iterations, pick the one from latest iteration
-                bool newEvent = true;
-                for (int j = 0; j < collisionEvents.Length; j++)
-                {
-                    if (collisionEvents[j].CompareTo(collisionEvent) == 0)
-                    {
-                        collisionEvents[j] = collisionEvent;
-                        newEvent = false;
-                        break;
-                    }
-                }
-                if (newEvent)
-                {
-                    collisionEvents.Add(collisionEvent);
-                }
-            }
-        }
-    }
-
-    private static void UpdateTriggersSeen<T>(CharacterControllerStepInput stepInput, NativeList<T> triggerHits,
-        NativeList<StatefulTriggerEvent> currentFrameTriggerEvents, float maxFraction) where T : struct, IQueryResult
-    {
-        var world = stepInput.World;
-        for (int i = 0; i < triggerHits.Length; i++)
-        {
-            var hit = triggerHits[i];
-
-            if (hit.Fraction > maxFraction)
-            {
-                continue;
-            }
-
-            var found = false;
-            for (int j = 0; j < currentFrameTriggerEvents.Length; j++)
-            {
-                var triggerEvent = currentFrameTriggerEvents[j];
-                if ((triggerEvent.EntityB == hit.Entity) &&
-                    (triggerEvent.ColliderKeyB.Value == hit.ColliderKey.Value))
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-            {
-                currentFrameTriggerEvents.Add(new StatefulTriggerEvent(world.Bodies[stepInput.RigidBodyIndex].Entity, hit.Entity,
-                    stepInput.RigidBodyIndex, hit.RigidBodyIndex, ColliderKey.Empty, hit.ColliderKey));
             }
         }
     }

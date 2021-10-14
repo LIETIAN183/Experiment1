@@ -6,6 +6,7 @@ public static class FlowFieldHelper
 {
     public static void GetNeighborIndices(int2 originIndex, int2 gridSize, ref NativeList<int2> results)//IEnumerable<GridDirection> directions
     {
+        results.Clear();
         foreach (int2 curDirection in GridDirection.CardinalAndIntercardinalDirections)
         {
             int2 neighborIndex = GetIndexAtRelativePosition(originIndex, curDirection, gridSize);

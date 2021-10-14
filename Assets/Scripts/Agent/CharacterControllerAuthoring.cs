@@ -7,7 +7,6 @@ using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Extensions;
 using Unity.Physics.GraphicsIntegration;
-using Unity.Physics.Stateful;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 using UnityEngine;
@@ -22,22 +21,17 @@ public struct CharacterControllerComponentData : IComponentData
     public float MovementSpeed;
     public float MaxMovementSpeed;
     public float RotationSpeed;
-    public float JumpUpwardsSpeed;
     public float MaxSlope; // radians
-    public int MaxIterations;
     public float CharacterMass;
     public float SkinWidth;
     public float ContactTolerance;
     public byte AffectsPhysicsBodies;
-    public byte RaiseCollisionEvents;
-    public byte RaiseTriggerEvents;
 }
 
 public struct CharacterControllerInput : IComponentData
 {
     public float2 Movement;
     public float2 Looking;
-    public int Jumped;
 }
 
 [WriteGroup(typeof(PhysicsGraphicalInterpolationBuffer))]
@@ -49,7 +43,6 @@ public struct CharacterControllerInternalData : IComponentData
     public float3 UnsupportedVelocity;
     public PhysicsVelocity Velocity;
     public Entity Entity;
-    public bool IsJumping;
     public CharacterControllerInput Input;
 }
 
@@ -68,14 +61,8 @@ public class CharacterControllerAuthoring : MonoBehaviour, IConvertGameObjectToE
     // Speed of rotation initiated by user input
     public float RotationSpeed = 2.5f;
 
-    // Speed of upwards jump initiated by user input
-    public float JumpUpwardsSpeed = 5.0f;
-
     // Maximum slope angle character can overcome (in degrees)
     public float MaxSlope = 60.0f;
-
-    // Maximum number of character controller solver iterations
-    public int MaxIterations = 10;
 
     // Mass of the character (used for affecting other rigid bodies)
     public float CharacterMass = 1.0f;
@@ -90,14 +77,8 @@ public class CharacterControllerAuthoring : MonoBehaviour, IConvertGameObjectToE
     // Whether to affect other rigid bodies
     public bool AffectsPhysicsBodies = true;
 
-    // Whether to raise collision events
-    // Note: collision events raised by character controller will always have details calculated
-    public bool RaiseCollisionEvents = false;
 
-    // Whether to raise trigger events
-    public bool RaiseTriggerEvents = false;
-
-    void OnEnable() {}
+    void OnEnable() { }
 
     void IConvertGameObjectToEntity.Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
     {
@@ -109,15 +90,11 @@ public class CharacterControllerAuthoring : MonoBehaviour, IConvertGameObjectToE
                 MovementSpeed = MovementSpeed,
                 MaxMovementSpeed = MaxMovementSpeed,
                 RotationSpeed = RotationSpeed,
-                JumpUpwardsSpeed = JumpUpwardsSpeed,
                 MaxSlope = math.radians(MaxSlope),
-                MaxIterations = MaxIterations,
                 CharacterMass = CharacterMass,
                 SkinWidth = SkinWidth,
                 ContactTolerance = ContactTolerance,
-                AffectsPhysicsBodies = (byte)(AffectsPhysicsBodies ? 1 : 0),
-                RaiseCollisionEvents = (byte)(RaiseCollisionEvents ? 1 : 0),
-                RaiseTriggerEvents = (byte)(RaiseTriggerEvents ? 1 : 0)
+                AffectsPhysicsBodies = (byte)(AffectsPhysicsBodies ? 1 : 0)
             };
             var internalData = new CharacterControllerInternalData
             {
@@ -127,15 +104,6 @@ public class CharacterControllerAuthoring : MonoBehaviour, IConvertGameObjectToE
 
             dstManager.AddComponentData(entity, componentData);
             dstManager.AddComponentData(entity, internalData);
-            if (RaiseCollisionEvents)
-            {
-                dstManager.AddBuffer<StatefulCollisionEvent>(entity);
-            }
-            if (RaiseTriggerEvents)
-            {
-                dstManager.AddBuffer<StatefulTriggerEvent>(entity);
-                dstManager.AddComponentData(entity, new ExcludeFromTriggerEventConversion {});
-            }
         }
     }
 }
@@ -197,8 +165,6 @@ public class CharacterControllerSystem : SystemBase
         public ComponentTypeHandle<CharacterControllerInternalData> CharacterControllerInternalType;
         public ComponentTypeHandle<Translation> TranslationType;
         public ComponentTypeHandle<Rotation> RotationType;
-        public BufferTypeHandle<StatefulCollisionEvent> CollisionEventBufferType;
-        public BufferTypeHandle<StatefulTriggerEvent> TriggerEventBufferType;
         [ReadOnly] public ComponentTypeHandle<CharacterControllerComponentData> CharacterControllerComponentType;
         [ReadOnly] public ComponentTypeHandle<PhysicsCollider> PhysicsColliderType;
 
@@ -215,19 +181,7 @@ public class CharacterControllerSystem : SystemBase
             var chunkTranslationData = batchInChunk.GetNativeArray(TranslationType);
             var chunkRotationData = batchInChunk.GetNativeArray(RotationType);
 
-            var hasChunkCollisionEventBufferType = batchInChunk.Has(CollisionEventBufferType);
-            var hasChunkTriggerEventBufferType = batchInChunk.Has(TriggerEventBufferType);
 
-            BufferAccessor<StatefulCollisionEvent> collisionEventBuffers = default;
-            BufferAccessor<StatefulTriggerEvent> triggerEventBuffers = default;
-            if (hasChunkCollisionEventBufferType)
-            {
-                collisionEventBuffers = batchInChunk.GetBufferAccessor(CollisionEventBufferType);
-            }
-            if (hasChunkTriggerEventBufferType)
-            {
-                triggerEventBuffers = batchInChunk.GetBufferAccessor(TriggerEventBufferType);
-            }
 
             DeferredImpulseWriter.BeginForEachIndex(batchIndex);
 
@@ -238,18 +192,6 @@ public class CharacterControllerSystem : SystemBase
                 var collider = chunkPhysicsColliderData[i];
                 var position = chunkTranslationData[i];
                 var rotation = chunkRotationData[i];
-                DynamicBuffer<StatefulCollisionEvent> collisionEventBuffer = default;
-                DynamicBuffer<StatefulTriggerEvent> triggerEventBuffer = default;
-
-                if (hasChunkCollisionEventBufferType)
-                {
-                    collisionEventBuffer = collisionEventBuffers[i];
-                }
-
-                if (hasChunkTriggerEventBufferType)
-                {
-                    triggerEventBuffer = triggerEventBuffers[i];
-                }
 
                 // Collision filter must be valid
                 if (!collider.IsValid || collider.Value.Value.Filter.IsEmpty)
@@ -265,14 +207,12 @@ public class CharacterControllerSystem : SystemBase
                     DeltaTime = DeltaTime,
                     Up = up,
                     Gravity = ccComponentData.Gravity,
-                    MaxIterations = ccComponentData.MaxIterations,
                     Tau = k_DefaultTau,
                     Damping = k_DefaultDamping,
                     SkinWidth = ccComponentData.SkinWidth,
                     ContactTolerance = ccComponentData.ContactTolerance,
                     MaxSlope = ccComponentData.MaxSlope,
                     RigidBodyIndex = PhysicsWorld.GetRigidBodyIndex(ccInternalData.Entity),
-                    CurrentVelocity = ccInternalData.Velocity.Linear,
                     MaxMovementSpeed = ccComponentData.MaxMovementSpeed
                 };
 
@@ -283,24 +223,10 @@ public class CharacterControllerSystem : SystemBase
                     rot = rotation.Value
                 };
 
-                NativeList<StatefulCollisionEvent> currentFrameCollisionEvents = default;
-                NativeList<StatefulTriggerEvent> currentFrameTriggerEvents = default;
-
-                if (ccComponentData.RaiseCollisionEvents != 0)
-                {
-                    currentFrameCollisionEvents = new NativeList<StatefulCollisionEvent>(Allocator.Temp);
-                }
-
-                if (ccComponentData.RaiseTriggerEvents != 0)
-                {
-                    currentFrameTriggerEvents = new NativeList<StatefulTriggerEvent>(Allocator.Temp);
-                }
-
 
                 // Check support
                 CheckSupport(ref PhysicsWorld, ref collider, stepInput, transform,
-                    out ccInternalData.SupportedState, out float3 surfaceNormal, out float3 surfaceVelocity,
-                    currentFrameCollisionEvents);
+                    out ccInternalData.SupportedState, out float3 surfaceNormal, out float3 surfaceVelocity);
 
                 // User input
                 float3 desiredVelocity = ccInternalData.Velocity.Linear;
@@ -309,7 +235,7 @@ public class CharacterControllerSystem : SystemBase
                 // Calculate actual velocity with respect to surface
                 if (ccInternalData.SupportedState == CharacterSupportState.Supported)
                 {
-                    CalculateMovement(ccInternalData.CurrentRotationAngle, stepInput.Up, ccInternalData.IsJumping,
+                    CalculateMovement(ccInternalData.CurrentRotationAngle, stepInput.Up,
                         ccInternalData.Velocity.Linear, desiredVelocity, surfaceNormal, surfaceVelocity, out ccInternalData.Velocity.Linear);
                 }
                 else
@@ -319,19 +245,7 @@ public class CharacterControllerSystem : SystemBase
 
                 // World collision + integrate
                 CollideAndIntegrate(stepInput, ccComponentData.CharacterMass, ccComponentData.AffectsPhysicsBodies != 0,
-                    collider.ColliderPtr, ref transform, ref ccInternalData.Velocity.Linear, ref DeferredImpulseWriter,
-                    currentFrameCollisionEvents, currentFrameTriggerEvents);
-
-                // Update collision event status
-                if (currentFrameCollisionEvents.IsCreated)
-                {
-                    UpdateCollisionEvents(currentFrameCollisionEvents, collisionEventBuffer);
-                }
-
-                if (currentFrameTriggerEvents.IsCreated)
-                {
-                    UpdateTriggerEvents(currentFrameTriggerEvents, triggerEventBuffer);
-                }
+                    collider.ColliderPtr, ref transform, ref ccInternalData.Velocity.Linear, ref DeferredImpulseWriter);
 
                 // Write back and orientation integration
                 position.Value = transform.pos;
@@ -354,12 +268,10 @@ public class CharacterControllerSystem : SystemBase
             // Reset jumping state and unsupported velocity
             if (ccInternalData.SupportedState == CharacterSupportState.Supported)
             {
-                ccInternalData.IsJumping = false;
                 ccInternalData.UnsupportedVelocity = float3.zero;
             }
 
-            // Movement and jumping
-            bool shouldJump = false;
+            // Movement
             float3 requestedMovementDirection = float3.zero;
             {
                 float3 forward = math.forward(quaternion.identity);
@@ -367,8 +279,6 @@ public class CharacterControllerSystem : SystemBase
 
                 float horizontal = ccInternalData.Input.Movement.x;
                 float vertical = ccInternalData.Input.Movement.y;
-                bool jumpRequested = ccInternalData.Input.Jumped != 0;
-                ccInternalData.Input.Jumped = 0; // "consume" the event
                 bool haveInput = (math.abs(horizontal) > float.Epsilon) || (math.abs(vertical) > float.Epsilon);
                 if (haveInput)
                 {
@@ -376,7 +286,6 @@ public class CharacterControllerSystem : SystemBase
                     float3 worldSpaceMovement = math.rotate(quaternion.AxisAngle(up, ccInternalData.CurrentRotationAngle), localSpaceMovement);
                     requestedMovementDirection = math.normalize(worldSpaceMovement);
                 }
-                shouldJump = jumpRequested && ccInternalData.SupportedState == CharacterSupportState.Supported;
             }
 
             // Turning
@@ -397,14 +306,7 @@ public class CharacterControllerSystem : SystemBase
 
             // Apply input velocities
             {
-                if (shouldJump)
-                {
-                    // Add jump speed to surface velocity and make character unsupported
-                    ccInternalData.IsJumping = true;
-                    ccInternalData.SupportedState = CharacterSupportState.Unsupported;
-                    ccInternalData.UnsupportedVelocity = surfaceVelocity + ccComponentData.JumpUpwardsSpeed * up;
-                }
-                else if (ccInternalData.SupportedState != CharacterSupportState.Supported)
+                if (ccInternalData.SupportedState != CharacterSupportState.Supported)
                 {
                     // Apply gravity
                     ccInternalData.UnsupportedVelocity += ccComponentData.Gravity * DeltaTime;
@@ -415,7 +317,7 @@ public class CharacterControllerSystem : SystemBase
             }
         }
 
-        private void CalculateMovement(float currentRotationAngle, float3 up, bool isJumping,
+        private void CalculateMovement(float currentRotationAngle, float3 up,
             float3 currentVelocity, float3 desiredVelocity, float3 surfaceNormal, float3 surfaceVelocity, out float3 linearVelocity)
         {
             float3 forward = math.forward(quaternion.AxisAngle(up, currentRotationAngle));
@@ -452,65 +354,9 @@ public class CharacterControllerSystem : SystemBase
 
             relative += diff;
 
-            linearVelocity = math.rotate(surfaceFrame.Value, relative) + surfaceVelocity +
-                (isJumping ? math.dot(desiredVelocity, up) * up : float3.zero);
+            linearVelocity = math.rotate(surfaceFrame.Value, relative) + surfaceVelocity;
         }
 
-        private void UpdateTriggerEvents(NativeList<StatefulTriggerEvent> triggerEvents,
-            DynamicBuffer<StatefulTriggerEvent> triggerEventBuffer)
-        {
-            triggerEvents.Sort();
-
-            var previousFrameTriggerEvents = new NativeList<StatefulTriggerEvent>(triggerEventBuffer.Length, Allocator.Temp);
-
-            for (int i = 0; i < triggerEventBuffer.Length; i++)
-            {
-                var triggerEvent = triggerEventBuffer[i];
-                if (triggerEvent.State != EventOverlapState.Exit)
-                {
-                    previousFrameTriggerEvents.Add(triggerEvent);
-                }
-            }
-
-            var eventsWithState = new NativeList<StatefulTriggerEvent>(triggerEvents.Length, Allocator.Temp);
-
-            TriggerEventConversionSystem.UpdateTriggerEventState(previousFrameTriggerEvents, triggerEvents, eventsWithState);
-
-            triggerEventBuffer.Clear();
-
-            for (int i = 0; i < eventsWithState.Length; i++)
-            {
-                triggerEventBuffer.Add(eventsWithState[i]);
-            }
-        }
-
-        private void UpdateCollisionEvents(NativeList<StatefulCollisionEvent> collisionEvents,
-            DynamicBuffer<StatefulCollisionEvent> collisionEventBuffer)
-        {
-            collisionEvents.Sort();
-
-            var previousFrameCollisionEvents = new NativeList<StatefulCollisionEvent>(collisionEventBuffer.Length, Allocator.Temp);
-
-            for (int i = 0; i < collisionEventBuffer.Length; i++)
-            {
-                var collisionEvent = collisionEventBuffer[i];
-                if (collisionEvent.CollidingState != EventCollidingState.Exit)
-                {
-                    previousFrameCollisionEvents.Add(collisionEvent);
-                }
-            }
-
-            var eventsWithState = new NativeList<StatefulCollisionEvent>(collisionEvents.Length, Allocator.Temp);
-
-            CollisionEventConversionSystem.UpdateCollisionEventState(previousFrameCollisionEvents, collisionEvents, eventsWithState);
-
-            collisionEventBuffer.Clear();
-
-            for (int i = 0; i < eventsWithState.Length; i++)
-            {
-                collisionEventBuffer.Add(eventsWithState[i]);
-            }
-        }
     }
 
     [BurstCompile]
@@ -634,8 +480,6 @@ public class CharacterControllerSystem : SystemBase
         var physicsColliderType = GetComponentTypeHandle<PhysicsCollider>();
         var translationType = GetComponentTypeHandle<Translation>();
         var rotationType = GetComponentTypeHandle<Rotation>();
-        var collisionEventBufferType = GetBufferTypeHandle<StatefulCollisionEvent>();
-        var triggerEventBufferType = GetBufferTypeHandle<StatefulTriggerEvent>();
 
         var deferredImpulses = new NativeStream(chunks.Length, Allocator.TempJob);
 
@@ -647,8 +491,6 @@ public class CharacterControllerSystem : SystemBase
             PhysicsColliderType = physicsColliderType,
             TranslationType = translationType,
             RotationType = rotationType,
-            CollisionEventBufferType = collisionEventBufferType,
-            TriggerEventBufferType = triggerEventBufferType,
 
             // Input
             DeltaTime = Time.DeltaTime,

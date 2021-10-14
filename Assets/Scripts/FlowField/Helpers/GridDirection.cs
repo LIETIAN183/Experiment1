@@ -34,7 +34,7 @@ public class GridDirection
             West,
             NorthEast,
             SouthEast,
-            NorthWest,
-            SouthWest
+            SouthWest,
+            NorthWest
         };
 }

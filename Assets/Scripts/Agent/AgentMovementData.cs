@@ -4,11 +4,8 @@ using Unity.Mathematics;
 [GenerateAuthoringComponent]
 public struct AgentMovementData : IComponentData
 {
-    public float moveSpeed;
+    public float desireSpeed;
 
-    public float2 direction;
+    public float2 desireDirection;
 
-    public int2 index;
-    public float destinationMoveSpeed;
-    public bool destinationReached;
 }

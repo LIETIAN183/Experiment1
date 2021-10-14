@@ -149,6 +149,11 @@
 
 - Agent Walk over the obstacles
 
+#### 2021.10.14
+
+- Walk step up modify
+- Select Destination of Flow Field Algorithm update
+
 ---
 
 # Unity 插件
@@ -162,4 +167,3 @@
 - ~~Play Mode Saver~~
 - ~~Sensor Toolkit~~
 - ~~Peek~~
-- **Maybe** Easy Character Movement

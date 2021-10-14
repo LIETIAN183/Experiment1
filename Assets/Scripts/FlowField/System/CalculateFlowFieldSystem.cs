@@ -45,7 +45,7 @@ public class CalculateFlowFieldSystem : SystemBase
             int2 cellIndex = indicesToCheck.Dequeue();
             int cellFlatIndex = FlowFieldHelper.ToFlatIndex(cellIndex, gridSize.y);
             CellData curCellData = cellBuffer[cellFlatIndex];
-            neighborIndices.Clear();
+
             FlowFieldHelper.GetNeighborIndices(cellIndex, gridSize, ref neighborIndices);
             foreach (int2 neighborIndex in neighborIndices)
             {

@@ -95,7 +95,7 @@ namespace UnityTemplateProjects
             }
 
             // Translation, Modify movement by a boost factor (defined in Inspector)
-            Vector3 translation = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("UpDown"), Input.GetAxis("Vertical")) * Time.unscaledDeltaTime * Mathf.Pow(2.0f, boost);
+            Vector3 translation = new Vector3(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("UpDown"), Input.GetAxisRaw("Vertical")) * Time.unscaledDeltaTime * Mathf.Pow(2.0f, boost);
             m_TargetCameraState.Translate(translation);
 
             // Framerate-independent interpolation
@@ -105,6 +105,11 @@ namespace UnityTemplateProjects
             m_InterpolatingCameraState.LerpTowards(m_TargetCameraState, positionLerpPct, rotationLerpPct);
 
             m_InterpolatingCameraState.UpdateTransform(transform);
+        }
+
+        void LateUpdate()
+        {
+
         }
     }
 }

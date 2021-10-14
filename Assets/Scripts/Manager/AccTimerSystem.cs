@@ -17,7 +17,6 @@ public class AccTimerSystem : SystemBase
         // 设置读取加速度的功能类为单例模式，方便数据同步和读取
         RequireSingletonForUpdate<AccTimerData>();
         var entity = EntityManager.CreateEntity(typeof(AccTimerData));
-        // EntityManager.SetName(entity, "AccTimer");
         // 设置仿真系统 Update 时间间隔
         var fixedSimulationGroup = simulation?.GetExistingSystem<FixedStepSimulationSystemGroup>();
         fixedSimulationGroup.Timestep = timeStep;
@@ -55,10 +54,6 @@ public class AccTimerSystem : SystemBase
             // 更新单例数据
             SetSingleton(accTimer);
         }
-
-        // Debug Acc
-        // var temp = GetSingleton<AccTimerData>().acc;
-        // Debug.Log(new Vector3(temp.x, temp.y, temp.z).magnitude);
     }
 
     public void Active(int index)
