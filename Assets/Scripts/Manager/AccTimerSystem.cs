@@ -91,6 +91,7 @@ public class AccTimerSystem : SystemBase
         simulation.GetExistingSystem<GlobalGravitySystem>().Enabled = status;
         simulation.GetExistingSystem<ComsMotionSystem>().Enabled = status;
 
+
         // 分析
         // simulation.GetExistingSystem<AnalysisSystem>().Enabled = status;
     }

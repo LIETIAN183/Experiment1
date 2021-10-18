@@ -21,18 +21,15 @@ public class ConstraintsSystem : SystemBase
     {
 
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
-
-        // RaycastHit
-        // physicsWorld.CastRay(cast, out closesteHit);
-
-        Entities.WithoutBurst().WithReadOnly(physicsWorld).WithAll<AgentMovementData>().ForEach((ref Translation translation, ref Rotation rotation, in PhysicsVelocity velocity) =>
+        // 让人物不摔倒，同时跨越地面的障碍物
+        Entities.WithoutBurst().WithReadOnly(physicsWorld).WithAll<AgentMovementData>().ForEach((ref Translation translation, ref Rotation rotation, ref PhysicsVelocity velocity, ref PhysicsGravityFactor physicsGravity) =>
         {
             rotation.Value = quaternion.Euler(0, 0, 0);
             // 不移动时不进行爬坡检测
             if (velocity.Linear.Equals(float3.zero)) return;
             var vel = velocity.Linear;
             vel.y = 0;
-            float3 origin = translation.Value + math.normalize(vel) * 0.35f;
+            float3 origin = translation.Value + math.normalize(vel) * 0.26f;
             RaycastInput cast = new RaycastInput
             {
                 Start = origin,
@@ -41,13 +38,16 @@ public class ConstraintsSystem : SystemBase
             };
             physicsWorld.CastRay(cast, out RaycastHit hit);
             // Debug.Log(hit.Position);
-            if (hit.Position.y < 0.1f)
+            var delta = 1 - translation.Value.y + hit.Position.y;
+            if (delta >= 0f && delta <= 0.5f)
             {
-                translation.Value.y += hit.Position.y * 1.3f;
+                physicsGravity.Value = 0;
+                translation.Value.y += delta * 1.2f;
             }
-            ;// - hit.Position.y;
-             // hit.Position
-             // TODO:
+            else
+            {
+                physicsGravity.Value = 1;
+            }
 
         }).ScheduleParallel();
 
@@ -60,7 +60,7 @@ public class ConstraintsSystem : SystemBase
         Entities.WithAll<AgentMovementData>().ForEach((in Translation translation, in PhysicsVelocity velocity) =>
         {
             if (velocity.Linear.Equals(float3.zero)) return;
-            Gizmos.DrawRay(translation.Value + math.normalize(velocity.Linear) * 0.4f, math.down());
+            Gizmos.DrawRay(translation.Value + math.normalize(velocity.Linear) * 0.35f, math.down());
         }).Run();
     }
 }

@@ -153,17 +153,3 @@
 
 - Walk step up modify
 - Select Destination of Flow Field Algorithm update
-
----
-
-# Unity 插件
-
-- ~~Hierarchy 2~~
-- ~~Advanced People Pack 2~~
-- ~~POLYGON Starter Pack - Low Poly 3D Art by Synty~~
-- Modern UI Pack
-- ~~Odin - Inspector and Serializer~~
-- ~~Editor Console Pro~~
-- ~~Play Mode Saver~~
-- ~~Sensor Toolkit~~
-- ~~Peek~~

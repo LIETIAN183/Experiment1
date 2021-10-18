@@ -15,49 +15,52 @@ public class CharacterControllerOneToManyInputSystem : SystemBase
     {
         // Read user input
         // var input = GetSingleton<CharacterControllerInput>();
-        float2 movement = float2.zero;
-        if (Input.GetKey(KeyCode.W))
-        {
-            movement += new float2(0, 1);
-            // direction += Vector3.forward;
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            movement += new float2(0, -1);
-            // direction += Vector3.back;
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            movement += new float2(-1, 0);
-            // direction += Vector3.left;
-        }
-        if (Input.GetKey(KeyCode.D))
-        {
-            movement += new float2(1, 0);
-            // direction += Vector3.right;
-        }
-        Entities
-            .WithName("CharacterControllerOneToManyInputSystemJob")
-            .WithBurst()
-            .ForEach((ref CharacterControllerInternalData ccData) =>
-            {
-                ccData.Input.Movement = movement;
-                // ccData.Input.Looking = input.Looking;
-            }
-            ).ScheduleParallel();
+        // float2 movement = float2.zero;
+        // if (Input.GetKey(KeyCode.W))
+        // {
+        //     movement += new float2(0, 1);
+        //     // direction += Vector3.forward;
+        // }
+        // if (Input.GetKey(KeyCode.S))
+        // {
+        //     movement += new float2(0, -1);
+        //     // direction += Vector3.back;
+        // }
+        // if (Input.GetKey(KeyCode.A))
+        // {
+        //     movement += new float2(-1, 0);
+        //     // direction += Vector3.left;
+        // }
+        // if (Input.GetKey(KeyCode.D))
+        // {
+        //     movement += new float2(1, 0);
+        //     // direction += Vector3.right;
+        // }
+        // Entities
+        //     .WithName("CharacterControllerOneToManyInputSystemJob")
+        //     .WithBurst()
+        //     .ForEach((ref CharacterControllerInternalData ccData) =>
+        //     {
+        //         ccData.Input.Movement = movement;
+        //         // ccData.Input.Looking = input.Looking;
+        //     }
+        //     ).ScheduleParallel();
+        DynamicBuffer<CellBufferElement> buffer = GetBufferFromEntity<CellBufferElement>(true)[GetSingletonEntity<FlowFieldSettingData>()];
+        DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
+        var settingData = GetSingleton<FlowFieldSettingData>();
 
-        var x = new float3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        var time = Time.DeltaTime;
-        Entities
-        .WithAll<AgentTag>()
-        .WithBurst()
-        .ForEach((ref PhysicsVelocity velocity, ref PhysicsMass mass) =>
+        float deltaTime = Time.DeltaTime;
+
+        if (cellBuffer.Length == 0) return;
+
+        Entities.WithReadOnly(cellBuffer).ForEach((ref CharacterControllerInternalData data, in Translation translation) =>
         {
-            // ccData.Input.Movement = movement;
-            velocity.Linear = x;
-            // mass.InverseInertia = float3.zero;
-            // ccData.Input.Looking = input.Looking;
-        }
-        ).ScheduleParallel();
+            int2 localCellIndex = FlowFieldHelper.GetCellIndexFromWorldPos(settingData.originPoint, translation.Value, settingData.gridSize, settingData.cellRadius * 2);
+
+            int flatLocalCellIndex = FlowFieldHelper.ToFlatIndex(localCellIndex, settingData.gridSize.y);
+            float2 moveDirection = cellBuffer[flatLocalCellIndex].bestDirection;
+            var vel = moveDirection * 2 * deltaTime;
+            data.Input.Movement += vel * deltaTime;
+        }).ScheduleParallel();
     }
 }
