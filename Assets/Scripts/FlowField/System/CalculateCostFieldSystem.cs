@@ -3,12 +3,14 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Systems;
+using UnityEngine;
 
-// [DisableAutoCreation]
 [UpdateInGroup(typeof(FlowFieldSimulationSystemGroup))]
 public class CalculateCostFieldSystem : SystemBase
 {
     private BuildPhysicsWorld buildPhysicsWorld;
+
+    public float accMax = 0;
 
     protected override void OnCreate()
     {
@@ -18,7 +20,9 @@ public class CalculateCostFieldSystem : SystemBase
     protected override void OnUpdate()
     {
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
-
+        var accMagnitude = math.length(GetSingleton<AccTimerData>().acc) / 9.81f;
+        if (accMax < accMagnitude) accMax = accMagnitude;
+        var accTemp = accMax;
 
         Entities.ForEach((ref DynamicBuffer<CellBufferElement> buffer, ref FlowFieldSettingData flowFieldSettingData) =>
         {
@@ -31,24 +35,42 @@ public class CalculateCostFieldSystem : SystemBase
             {
                 CellData curCellData = cellBuffer[i];
 
+                var pos = curCellData.worldPos;
+                pos.y = 1;
+                var halfExtents = flowFieldSettingData.cellRadius;
+                halfExtents.y = 1;
                 // 计算网格内障碍物
                 outHits.Clear();
-                physicsWorld.OverlapBox(curCellData.worldPos, quaternion.identity, flowFieldSettingData.cellRadius, ref outHits, CollisionFilter.Default);
+                physicsWorld.OverlapBox(pos, quaternion.identity, halfExtents, ref outHits, CollisionFilter.Default);
 
                 // 计算前重置初始值
-                curCellData.cost = 1;
+                // curCellData.cost = 1;
+
+                float cost = 1;
+                float max_y = 0;
+                float sum_m = 0;
+                int count = 0;
                 foreach (var hit in outHits)
                 {
-                    if (hit.Material.CustomTags.Equals(1))//00000001
+                    if (hit.Material.CustomTags.Equals(2))//00000010
                     {
-                        curCellData.cost++;
+                        cost = byte.MaxValue;
+                        count++;
+                        // break;
                     }
-                    else if (hit.Material.CustomTags.Equals(2))//00000010
+                    else if (hit.Material.CustomTags.Equals(1))//00000001
                     {
-                        curCellData.cost = byte.MaxValue;
-                        break;
+                        if (-hit.Fraction > max_y) max_y = -hit.Fraction;
+                        var component = GetComponentDataFromEntity<PhysicsMass>(true)[hit.Entity];
+                        sum_m += 1 / component.InverseMass;
+                        count++;
                     }
                 }
+                cost += math.exp(-accTemp) * sum_m * max_y * 2;
+                if (cost > 255) cost = 255;
+
+                curCellData.cost = (byte)cost;
+                curCellData.count = count;
 
                 // 计算 Integration Field 前重置 bestCost
                 curCellData.bestCost = ushort.MaxValue;
@@ -59,6 +81,6 @@ public class CalculateCostFieldSystem : SystemBase
             outHits.Dispose();
         }).Run();
 
-        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CalculateFlowFieldSystem>().Enabled = true;
+        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CalculateFlowFieldSystem>().timer = 0.2f;
     }
 }

@@ -8,4 +8,6 @@ public struct CellData
     public byte cost;
     public ushort bestCost;
     public int2 bestDirection;
+
+    public int count;
 }

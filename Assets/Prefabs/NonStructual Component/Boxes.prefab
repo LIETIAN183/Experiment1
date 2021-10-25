@@ -290,6 +290,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   previous_y: 0
+  size: 0
+  mass: 0
   originPosition:
     x: 0
     y: 0

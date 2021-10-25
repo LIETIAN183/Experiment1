@@ -6,21 +6,18 @@ using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using UnityEngine;
 
-// [DisableAutoCreation]
-[UpdateInGroup(typeof(FlowFieldSimulationSystemGroup))]
-[UpdateAfter(typeof(CalculateCostFieldSystem))]
+// [UpdateInGroup(typeof(FlowFieldSimulationSystemGroup))]
+// [UpdateAfter(typeof(CalculateCostFieldSystem))]
 public class CalculateFlowFieldSystem : SystemBase
 {
-    protected override void OnCreate()
-    {
-        this.Enabled = false;
-    }
-
+    public float timer = 1;
     protected override void OnUpdate()
     {
+        timer -= Time.DeltaTime;
+        if (timer > 0) return;
+        timer = 1;
 
-        DynamicBuffer<CellBufferElement> buffer = GetBuffer<CellBufferElement>(GetSingletonEntity<FlowFieldSettingData>());
-        DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
+        DynamicBuffer<CellData> cellBuffer = GetBuffer<CellBufferElement>(GetSingletonEntity<FlowFieldSettingData>()).Reinterpret<CellData>();
 
         if (cellBuffer.Length == 0) return;
 
@@ -75,7 +72,6 @@ public class CalculateFlowFieldSystem : SystemBase
         // Release Native Container
         neighborIndices.Dispose();
         indicesToCheck.Dispose();
-
-        this.Enabled = false;
+        World.DefaultGameObjectInjectionWorld.GetExistingSystem<FlowFieldDebugSystem>().UpdateData();
     }
 }

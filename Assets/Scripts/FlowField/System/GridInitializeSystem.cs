@@ -10,9 +10,6 @@ public class GridInitiializeSystem : SystemBase
         var settingEntity = GetSingletonEntity<FlowFieldSettingData>();
         var settingComponent = GetSingleton<FlowFieldSettingData>();
 
-        // Sync SettingData to DisplayDebug
-        GridDebug.instance.debugFlowFieldSetting = settingComponent;
-
         // DynamicBuffer
         DynamicBuffer<CellBufferElement> buffer = GetBuffer<CellBufferElement>(settingEntity);
         DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();

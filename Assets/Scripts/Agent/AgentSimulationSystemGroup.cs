@@ -12,13 +12,13 @@ namespace Unity.Entities
     [UpdateAfter(typeof(BeginSimulationEntityCommandBufferSystem))]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(FixedStepSimulationSystemGroup))]
-    [UpdateAfter(typeof(FlowFieldSimulationSystemGroup))]
+    // [UpdateAfter(typeof(FlowFieldSimulationSystemGroup))]
     public class AgentSimulationSystemGroup : ComponentSystemGroup
     {
         [Preserve]
         public AgentSimulationSystemGroup()
         {
-            FixedRateManager = new FixedRateUtils.FixedRateCatchUpManager(0.5f);
+            FixedRateManager = new FixedRateUtils.FixedRateCatchUpManager(0.2f);
         }
     }
 }

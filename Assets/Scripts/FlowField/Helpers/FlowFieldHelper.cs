@@ -11,31 +11,17 @@ public static class FlowFieldHelper
         {
             int2 neighborIndex = GetIndexAtRelativePosition(originIndex, curDirection, gridSize);
 
-            if (neighborIndex.x >= 0)
-            {
-                results.Add(neighborIndex);
-            }
+            if (neighborIndex.x >= 0) results.Add(neighborIndex);
         }
     }
 
     private static int2 GetIndexAtRelativePosition(int2 originPos, int2 relativePos, int2 gridSize)
     {
-
         int2 finalPos = originPos + relativePos;
-        if (finalPos.x < 0 || finalPos.x >= gridSize.x || finalPos.y < 0 || finalPos.y >= gridSize.y)
-        {
-            return new int2(-1, -1);
-        }
-        else
-        {
-            return finalPos;
-        }
+        return (finalPos.x < 0 || finalPos.x >= gridSize.x || finalPos.y < 0 || finalPos.y >= gridSize.y) ? new int2(-1, -1) : finalPos;
     }
 
-    public static int ToFlatIndex(int2 index2D, int height)
-    {
-        return height * index2D.x + index2D.y;
-    }
+    public static int ToFlatIndex(int2 index2D, int height) => height * index2D.x + index2D.y;
 
     public static int2 GetCellIndexFromWorldPos(float3 originPoint, float3 worldPos, int2 gridSize, float3 cellDiameter)
     {

@@ -7,25 +7,41 @@ using Unity.Transforms;
 using Unity.Physics.Systems;
 using RaycastHit = Unity.Physics.RaycastHit;
 using UnityEngine;
+using Unity.Jobs;
+using Unity.Burst;
+using Drawing;
 
-// [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class PathDisplaySystem : SystemBase
 {
-    // public LineRenderer line;
-    // int count;
-    // private BuildPhysicsWorld buildPhysicsWorld;
-
     protected override void OnCreate()
     {
-        // this.Enabled = false;
-        // line = new LineRenderer();
-
+        this.Enabled = false;
     }
     protected override void OnUpdate()
     {
-        Entities.WithoutBurst().ForEach((in Translation trans, in AgentMovementData data) =>
+        var builder = DrawingManager.GetBuilder(true);
+
+        this.Dependency = Entities.WithAll<AgentMovementData>().ForEach((ref DynamicBuffer<TrajectoryBufferElement> trajectory, in Translation translation, in PhysicsVelocity velocity, in AgentMovementData movementData) =>
         {
-            LineDebug.instance.addPosition(trans.Value);
-        }).Run();
+            // 射线检测可视化
+            var vel = velocity.Linear;
+            vel.y = 0;
+            if (!vel.Equals(float3.zero))
+            {
+                float3 origin = translation.Value + math.normalize(vel) * 0.26f;
+                builder.Ray(origin, math.down(), Color.red);
+            }
+
+            trajectory.Add(translation.Value);
+            // 轨迹可视化
+            builder.PushLineWidth(2f);
+            builder.Polyline(trajectory.Reinterpret<float3>().AsNativeArray(), Color.blue);
+            builder.PopLineWidth();
+
+        }).ScheduleParallel(this.Dependency);
+
+        builder.DisposeAfter(this.Dependency);
+
+        CompleteDependency();
     }
 }

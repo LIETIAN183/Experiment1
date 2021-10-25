@@ -22,13 +22,23 @@ public class ConstraintsSystem : SystemBase
 
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
         // 让人物不摔倒，同时跨越地面的障碍物
-        Entities.WithoutBurst().WithReadOnly(physicsWorld).WithAll<AgentMovementData>().ForEach((ref Translation translation, ref Rotation rotation, ref PhysicsVelocity velocity, ref PhysicsGravityFactor physicsGravity) =>
+        Entities.WithoutBurst().WithReadOnly(physicsWorld).WithAll<AgentMovementData>().ForEach((ref Translation translation, ref Rotation rotation, ref PhysicsVelocity velocity, ref PhysicsGravityFactor physicsGravity, in AgentMovementData movementData) =>
         {
+
+
             rotation.Value = quaternion.Euler(0, 0, 0);
+
+            if (movementData.state == AgentState.NotActive)
+            {
+                physicsGravity.Value = 1;
+                return;
+            }
             // 不移动时不进行爬坡检测
-            if (velocity.Linear.Equals(float3.zero)) return;
+            // TODO: 约束条件更精确一些
+            // if (velocity.Linear.Equals(float3.zero)) return;
             var vel = velocity.Linear;
             vel.y = 0;
+            if (vel.Equals(float3.zero)) return;
             float3 origin = translation.Value + math.normalize(vel) * 0.26f;
             RaycastInput cast = new RaycastInput
             {
@@ -37,9 +47,8 @@ public class ConstraintsSystem : SystemBase
                 Filter = CollisionFilter.Default
             };
             physicsWorld.CastRay(cast, out RaycastHit hit);
-            // Debug.Log(hit.Position);
             var delta = 1 - translation.Value.y + hit.Position.y;
-            if (delta >= 0f && delta <= 0.5f)
+            if (delta >= 0f && delta < 0.4f)
             {
                 physicsGravity.Value = 0;
                 translation.Value.y += delta * 1.2f;
@@ -52,15 +61,5 @@ public class ConstraintsSystem : SystemBase
         }).ScheduleParallel();
 
         this.CompleteDependency();
-    }
-
-    public void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Entities.WithAll<AgentMovementData>().ForEach((in Translation translation, in PhysicsVelocity velocity) =>
-        {
-            if (velocity.Linear.Equals(float3.zero)) return;
-            Gizmos.DrawRay(translation.Value + math.normalize(velocity.Linear) * 0.35f, math.down());
-        }).Run();
     }
 }

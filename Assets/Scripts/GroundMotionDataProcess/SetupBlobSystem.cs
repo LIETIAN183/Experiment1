@@ -28,7 +28,6 @@ public class SetupBlobSystem : SystemBase
         // 分类数据
         ClassifyFile();
 
-
         // 读取数据并存储在 BlobAsset 中
         gmBlobRefs = new List<BlobAssetReference<GroundMotionBlobAsset>>();
         // 获得所有可选 GroundMotion 的名字

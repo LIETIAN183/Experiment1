@@ -5,9 +5,9 @@ public struct CellBufferElement : IBufferElementData
 {
     public CellData cell;
 
-    public static implicit operator CellData(CellBufferElement entityBufferElement)
+    public static implicit operator CellData(CellBufferElement cellBufferElement)
     {
-        return entityBufferElement.cell;
+        return cellBufferElement.cell;
     }
 
     public static implicit operator CellBufferElement(CellData e)

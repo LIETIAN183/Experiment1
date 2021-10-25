@@ -5,19 +5,19 @@ using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Transforms;
 
-[DisableAutoCreation]
-public class AgentInit : SystemBase
+public class AgentInitSystem : SystemBase
 {
     protected override void OnCreate()
     {
+        this.Enabled = false;
     }
     protected override void OnUpdate()
     {
 
-
-        Entities.WithAll<AgentMovementData>().ForEach((ref PhysicsMass mass) =>
+        Entities.ForEach((ref AgentMovementData data) =>
         {
-            mass.InverseInertia = float3.zero;
+            data.state = AgentState.Delay;
+
         }).ScheduleParallel();
 
         this.Enabled = false;

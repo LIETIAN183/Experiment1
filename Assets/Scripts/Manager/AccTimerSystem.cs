@@ -39,8 +39,6 @@ public class AccTimerSystem : SystemBase
             // 关闭其他系统
             ControlSystem(false);
             // 分析系统
-            ECSUIController.Instance.ShowNotification("Simulation End");
-            // 废弃 ECSSystemManager 系统，因为分离会导致运行时间存在差异，导致 Analysis NativeContainer 内存泄露，所以只能由 AccTimerSystem 直接控制其他系统的停止
             this.Enabled = false;
         }
         else
@@ -77,6 +75,9 @@ public class AccTimerSystem : SystemBase
         ControlSystem(true);
         simulation.GetExistingSystem<ComsShakeSystem>().Enabled = true;
         simulation.GetExistingSystem<SubShakeSystem>().Enabled = true;
+        simulation.GetExistingSystem<AgentInitSystem>().Enabled = true;
+        simulation.GetExistingSystem<AgentMovementSystem>().Enabled = true;
+        simulation.GetExistingSystem<PathDisplaySystem>().Enabled = true;
     }
 
     protected override void OnStopRunning()

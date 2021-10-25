@@ -27,14 +27,14 @@ public class GridDirection
     public static readonly GridDirection SouthWest = new GridDirection(-1, -1);
 
     public static readonly List<GridDirection> CardinalAndIntercardinalDirections = new List<GridDirection>
-        {
-            North,
-            East,
-            South,
-            West,
-            NorthEast,
-            SouthEast,
-            SouthWest,
-            NorthWest
-        };
+    {
+        North,
+        East,
+        South,
+        West,
+        NorthEast,
+        SouthEast,
+        SouthWest,
+        NorthWest
+    };
 }
