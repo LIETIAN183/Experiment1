@@ -1,6 +1,5 @@
 using Unity.Collections;
 using Unity.Entities;
-// using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Transforms;
@@ -24,13 +23,13 @@ public class PathDisplaySystem : SystemBase
         this.Dependency = Entities.WithAll<AgentMovementData>().ForEach((ref DynamicBuffer<TrajectoryBufferElement> trajectory, in Translation translation, in PhysicsVelocity velocity, in AgentMovementData movementData) =>
         {
             // 射线检测可视化
-            var vel = velocity.Linear;
-            vel.y = 0;
-            if (!vel.Equals(float3.zero))
-            {
-                float3 origin = translation.Value + math.normalize(vel) * 0.26f;
-                builder.Ray(origin, math.down(), Color.red);
-            }
+            // var vel = velocity.Linear;
+            // vel.y = 0;
+            // if (!vel.Equals(float3.zero))
+            // {
+            //     float3 origin = translation.Value + math.normalize(vel) * 0.26f;
+            //     builder.Ray(origin, math.down(), Color.red);
+            // }
 
             trajectory.Add(translation.Value);
             // 轨迹可视化

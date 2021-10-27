@@ -1,7 +1,4 @@
-using System;
 using Unity.Entities;
-using UnityEngine;
-using Unity.Mathematics;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class AccTimerSystem : SystemBase
 {
@@ -73,9 +70,8 @@ public class AccTimerSystem : SystemBase
         this.Enabled = true;
 
         ControlSystem(true);
-        simulation.GetExistingSystem<ComsShakeSystem>().Enabled = true;
-        simulation.GetExistingSystem<SubShakeSystem>().Enabled = true;
-        simulation.GetExistingSystem<AgentInitSystem>().Enabled = true;
+        // simulation.GetExistingSystem<ComsShakeSystem>().Enabled = true;
+        // simulation.GetExistingSystem<SubShakeSystem>().Enabled = true;
         simulation.GetExistingSystem<AgentMovementSystem>().Enabled = true;
         simulation.GetExistingSystem<PathDisplaySystem>().Enabled = true;
     }
@@ -89,8 +85,7 @@ public class AccTimerSystem : SystemBase
 
     public void ControlSystem(bool status)
     {
-        simulation.GetExistingSystem<GlobalGravitySystem>().Enabled = status;
-        simulation.GetExistingSystem<ComsMotionSystem>().Enabled = status;
+        // simulation.GetExistingSystem<ComsMotionSystem>().Enabled = status;
 
 
         // 分析

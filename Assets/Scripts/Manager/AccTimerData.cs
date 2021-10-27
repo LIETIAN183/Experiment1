@@ -1,6 +1,5 @@
 using Unity.Entities;
 using Unity.Mathematics;
-using System.Collections.Generic;
 [GenerateAuthoringComponent]
 public struct AccTimerData : IComponentData
 {
@@ -16,5 +15,4 @@ public struct AccTimerData : IComponentData
     public float3 acc;
 
     public float elapsedTime;
-
 }

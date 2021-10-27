@@ -21,7 +21,7 @@ public class ReloadSystem : SystemBase
         simulation.GetExistingSystem<ComsShakeSystem>().Enabled = false;
         simulation.GetExistingSystem<SubShakeSystem>().Enabled = false;
 
-        Entities.WithAll<ComsTag>().ForEach((ref Translation translation, ref Rotation rotation, in ComsTag data) =>
+        Entities.WithAll<ComsData>().ForEach((ref Translation translation, ref Rotation rotation, in ComsData data) =>
         {
             translation.Value = data.originPosition;
             rotation.Value = data.originRotation;

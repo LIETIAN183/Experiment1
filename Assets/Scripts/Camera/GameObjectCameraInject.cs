@@ -3,15 +3,15 @@ using Unity.Entities;
 
 public class GameObjectCameraInject : MonoBehaviour
 {
-    // Update is called once per frame
     void Update()
     {
+        // 关联当前相机Transform 到 CameraSyncSystem
         foreach (World world in World.All)
         {
             CameraSyncSystem cameraSyncSystem = world.GetExistingSystem<CameraSyncSystem>();
             if (cameraSyncSystem != null)
             {
-                cameraSyncSystem.CameraGameObjectTransform = this.transform;
+                cameraSyncSystem.CameraTransformInGO = this.transform;
                 cameraSyncSystem.Enabled = true;
                 Destroy(this);
             }

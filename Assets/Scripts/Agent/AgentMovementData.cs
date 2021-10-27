@@ -7,9 +7,14 @@ public struct AgentMovementData : IComponentData
 {
     public float desireSpeed;
 
-    public float2 desireDirection;
+    // public float2 desireDirection;
 
     public AgentState state;
 
-    public float delayTimeVariable;
+    public float reactionTimeVariable;
+
+    // 用于分析
+    public float reactionTime;
+
+    public float k1, k2, k3;
 }

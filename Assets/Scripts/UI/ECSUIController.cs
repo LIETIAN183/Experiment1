@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using Unity.Entities;
-using System.Collections.Generic;
 using Michsky.UI.ModernUIPack;
-using UnityEngine.SceneManagement;
 using BansheeGz.BGDatabase;
 using System;
 public class ECSUIController : MonoBehaviour
@@ -43,7 +40,7 @@ public class ECSUIController : MonoBehaviour
         startBtn.clickEvent.AddListener(() =>
         {
             // 获得选择的地震 Index. 开始仿真
-            World.DefaultGameObjectInjectionWorld.GetExistingSystem<EnvInitialSystem>().Active(EqSelector.index);
+            World.DefaultGameObjectInjectionWorld.GetExistingSystem<InitialSystem>().Active(EqSelector.index);
 
             // 更新 Button 状态
             startBtn.GetComponent<CanvasGroup>().interactable = false;

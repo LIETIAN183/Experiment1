@@ -29,18 +29,11 @@ public class ComsShakeSystem : SystemBase
             // x计算真实位移，endmovement需要调整后再输出
             data.endMovement += data.velocity * time;
             // 单边限制
-            if (data.directionConstrain && data.endMovement < 0 && data.velocity < 0)
-            {
-                data.velocity *= -0.3f;
-            }
-            else
-            {
-                data.velocity += data._acc * time;
-            }
+            // Returns b if c is true, a otherwise.
+            data.velocity = math.select(data.velocity + data._acc * time, data.velocity * -0.3f, data.directionConstrain && data.endMovement < 0 && data.velocity < 0);
             data.strength = math.dot(-acc, ltd.Forward) / math.dot(ltd.Forward, ltd.Forward);
             // 放大实验采样频率，c需要乘以相应倍数
             data._acc = -data.k * data.endMovement - data.c * multiple * data.velocity + data.strength;
-
 
             // 采用近似算法，整体旋转
             // if (data.simplifiedMethod)

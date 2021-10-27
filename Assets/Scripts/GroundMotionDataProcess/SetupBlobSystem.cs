@@ -1,12 +1,10 @@
 using Unity.Entities;
-using Unity.Physics;
 using Unity.Mathematics;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
 using System.IO;
 using System.Linq;
-using UnityEditor;
 
 public class SetupBlobSystem : SystemBase
 {

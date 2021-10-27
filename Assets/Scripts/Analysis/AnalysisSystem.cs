@@ -29,12 +29,9 @@ public class AnalysisSystem : SystemBase
         NativeArray<int> bridge = new NativeArray<int>(1, Allocator.TempJob);
 
         bridge[0] = 0;
-        Entities.WithAll<ComsTag>().ForEach((in Translation translation, in ComsTag data) =>
+        Entities.WithAll<ComsData>().ForEach((in Translation translation, in ComsData data) =>
         {
-            if (translation.Value.y < 0.25f)
-            {
-                bridge[0]++;
-            }
+            if (translation.Value.y < 0.25f) bridge[0]++;
         }).Schedule();
 
         // 读数据要等所有数据写完才能读
@@ -42,7 +39,7 @@ public class AnalysisSystem : SystemBase
         var direction = data.acc.z > 0 ? 1 : -1;
 
         // Add row to Detial Table EachStep
-        var temp = math.length(data.acc);
+        var accTemp = math.length(data.acc);
         DB_Detail detail = DB_Detail.NewEntity();
         detail.F_eqIndex = data.gmIndex;
         detail.F_time = data.elapsedTime;
@@ -50,10 +47,11 @@ public class AnalysisSystem : SystemBase
         detail.F_zAcc = data.acc.z;
         detail.F_yAcc = data.acc.y;
         detail.F_horiAcc = direction * math.length(data.acc.xz);
-        detail.F_Acc = direction * temp;
+        detail.F_Acc = direction * accTemp;
         detail.F_dropCount = bridge[0];
 
-        pga = temp > pga ? temp : pga;
+        // pga = temp > pga ? temp : pga;
+        pga = math.select(pga, accTemp, accTemp > pga);
 
         // 需要手动释放空间，不然会内存泄漏
         bridge.Dispose();
@@ -76,10 +74,7 @@ public class AnalysisSystem : SystemBase
         // bridge[0]:itemCount
         bridge[0] = 0;
         // BGExcelImportGo.Instance.Export();
-        Entities.WithAll<ComsTag>().ForEach((in Translation translation, in ComsTag data) =>
-        {
-            bridge[0]++;
-        }).Schedule();
+        Entities.WithAll<ComsData>().ForEach((in ComsData data) => { bridge[0]++; }).Schedule();
 
         // 读数据要等所有数据写完才能读
         this.CompleteDependency();
@@ -95,6 +90,12 @@ public class AnalysisSystem : SystemBase
 
         bridge.Dispose();
 
-        pga = 0;
+        // 每一次地震导出一次
+        BGExcelImportGo.Instance.Export();
+
+        // 重置数据库
+        DB_Detail.MetaDefault.ClearEntities();
+        DB_Eq.MetaDefault.ClearEntities();
+        DB_Summary.MetaDefault.ClearEntities();
     }
 }

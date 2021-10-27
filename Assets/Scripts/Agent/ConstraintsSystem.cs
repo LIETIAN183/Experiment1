@@ -24,10 +24,10 @@ public class ConstraintsSystem : SystemBase
         // 让人物不摔倒，同时跨越地面的障碍物
         Entities.WithoutBurst().WithReadOnly(physicsWorld).WithAll<AgentMovementData>().ForEach((ref Translation translation, ref Rotation rotation, ref PhysicsVelocity velocity, ref PhysicsGravityFactor physicsGravity, in AgentMovementData movementData) =>
         {
-
-
+            // 保持Agent不摔倒
             rotation.Value = quaternion.Euler(0, 0, 0);
 
+            // 判断是否处于 Escape 状态
             if (movementData.state == AgentState.NotActive)
             {
                 physicsGravity.Value = 1;

@@ -1,25 +1,19 @@
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Physics;
-using Unity.Transforms;
 
+[DisableAutoCreation]
 public class AgentInitSystem : SystemBase
 {
-    protected override void OnCreate()
-    {
-        this.Enabled = false;
-    }
     protected override void OnUpdate()
     {
-
-        Entities.ForEach((ref AgentMovementData data) =>
+        Entities.WithoutBurst().ForEach((ref AgentMovementData data) =>
         {
             data.state = AgentState.Delay;
+            // TODO: 确定范围
+            data.reactionTimeVariable = 0;
+            // data.reactionTimeVariable = NormalDistribution.RandomGaussianInRange(0.7f, 1.3f);
 
-        }).ScheduleParallel();
-
+        }).Run();
         this.Enabled = false;
     }
 }

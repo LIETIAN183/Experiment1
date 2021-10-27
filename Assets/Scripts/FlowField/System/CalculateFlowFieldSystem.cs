@@ -25,7 +25,7 @@ public class CalculateFlowFieldSystem : SystemBase
         var gridSize = settingData.gridSize;
 
         // Calculate DestinationIndex
-        var destinationIndex = FlowFieldHelper.GetCellIndexFromWorldPos(settingData.originPoint, settingData.destination, gridSize, settingData.cellRadius * 2);
+        var destinationIndex = FlowFieldHelper.GetCellIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSize, settingData.cellRadius * 2);
         // Update Destination Cell's cost and bestCost
         int flatDestinationIndex = FlowFieldHelper.ToFlatIndex(destinationIndex, gridSize.y);
         CellData destinationCell = cellBuffer[flatDestinationIndex];

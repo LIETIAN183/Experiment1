@@ -26,9 +26,9 @@ public class ComsMotionSystem : SystemBase
         var time = Time.DeltaTime;
 
         Entities
-        .WithAll<ComsTag>()
+        .WithAll<ComsData>()
         .WithName("ComsMove")
-        .ForEach((ref PhysicsVelocity physicsVelocity, ref ComsTag data, in Translation translation, in Rotation rotation, in PhysicsMass physicsMass) =>
+        .ForEach((ref PhysicsVelocity physicsVelocity, ref ComsData data, in Translation translation, in Rotation rotation, in PhysicsMass physicsMass) =>
         {
             // 垂直惯性力的添加通过修改全局
             // 垂直速度或位移小于阈值时代表物体不在空中

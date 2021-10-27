@@ -10,7 +10,7 @@ public class CalculateCostFieldSystem : SystemBase
 {
     private BuildPhysicsWorld buildPhysicsWorld;
 
-    public float accMax = 0;
+    private float accMax = 0;
 
     protected override void OnCreate()
     {
@@ -52,13 +52,13 @@ public class CalculateCostFieldSystem : SystemBase
                 int count = 0;
                 foreach (var hit in outHits)
                 {
-                    if (hit.Material.CustomTags.Equals(2))//00000010
+                    if (hit.Material.CustomTags.Equals(2))//00000010 Big Obstacle
                     {
                         cost = byte.MaxValue;
                         count++;
                         // break;
                     }
-                    else if (hit.Material.CustomTags.Equals(1))//00000001
+                    else if (hit.Material.CustomTags.Equals(1))//00000001 Small Obstacle
                     {
                         if (-hit.Fraction > max_y) max_y = -hit.Fraction;
                         var component = GetComponentDataFromEntity<PhysicsMass>(true)[hit.Entity];
@@ -77,7 +77,6 @@ public class CalculateCostFieldSystem : SystemBase
                 curCellData.bestDirection = int2.zero;
                 cellBuffer[i] = curCellData;
             }
-
             outHits.Dispose();
         }).Run();
 
