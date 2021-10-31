@@ -18,7 +18,7 @@ namespace Unity.Entities
         [Preserve]
         public AgentSimulationSystemGroup()
         {
-            FixedRateManager = new FixedRateUtils.FixedRateCatchUpManager(0.05f);
+            FixedRateManager = new FixedRateUtils.FixedRateCatchUpManager(0.1f);
         }
     }
 }

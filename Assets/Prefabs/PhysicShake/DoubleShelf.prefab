@@ -1823,7 +1823,7 @@ MonoBehaviour:
     m_BevelRadius: 0
     m_MinimumAngle: 2.5000002
   m_CustomMesh: {fileID: 0}
-  m_ForceUnique: 1
+  m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
     m_Template: {fileID: 11400000, guid: d18fe806c098f1842960f57b011aa671, type: 2}

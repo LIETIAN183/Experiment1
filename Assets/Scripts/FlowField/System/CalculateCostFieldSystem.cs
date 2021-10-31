@@ -66,7 +66,7 @@ public class CalculateCostFieldSystem : SystemBase
                         count++;
                     }
                 }
-                cost += math.exp(-accTemp) * sum_m * max_y * 2;
+                cost += math.exp(-accTemp) * sum_m * max_y;//
                 if (cost > 255) cost = 255;
 
                 curCellData.cost = (byte)cost;

@@ -242,7 +242,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MotionType: 0
   m_Smoothing: 0
-  m_Mass: 60
+  m_Mass: 80
   m_LinearDamping: 0.01
   m_AngularDamping: 0.05
   m_InitialLinearVelocity:
@@ -291,10 +291,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   desireSpeed: 2
-  desireDirection:
-    x: 0
-    y: 0
   state: 0
+  reactionTimeVariable: 0
+  reactionTime: 0
+  k1: 0
+  k2: 0
+  k3: 0
 --- !u!114 &7530782321942106985
 MonoBehaviour:
   m_ObjectHideFlags: 0

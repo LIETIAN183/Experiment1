@@ -12,6 +12,7 @@ public class SelectDestinationSystem : SystemBase
         // 通过鼠标设置目标点
         if (Input.GetMouseButtonDown(0))
         {
+            if (Camera.main.Equals(null)) return;
             var screenRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             var RaycastInput = new RaycastInput
             {

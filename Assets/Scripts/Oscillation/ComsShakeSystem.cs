@@ -8,10 +8,7 @@ using Unity.Transforms;
 [UpdateAfter(typeof(AccTimerSystem))]
 public class ComsShakeSystem : SystemBase
 {
-    protected override void OnCreate()
-    {
-        this.Enabled = false;
-    }
+    protected override void OnCreate() => this.Enabled = false;
 
     protected override void OnUpdate()
     {

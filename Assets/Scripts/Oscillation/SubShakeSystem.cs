@@ -8,10 +8,7 @@ using Unity.Transforms;
 [UpdateAfter(typeof(ComsShakeSystem))]
 public class SubShakeSystem : SystemBase
 {
-    protected override void OnCreate()
-    {
-        this.Enabled = false;
-    }
+    protected override void OnCreate() => this.Enabled = false;
 
     protected override void OnUpdate()
     {
@@ -27,7 +24,8 @@ public class SubShakeSystem : SystemBase
 
             // var curmovement = math.pow(curData.height, 2) * (3 * parentData.length - curData.height) * parentData.endMovement / (2 * math.pow(parentData.length, 3));
             var curmovement = k * hSquare * (3 * parentData.length - curData.height);
-            translation.Value += curData.originLocalPosition + math.forward() * curmovement - translation.Value;
+            // translation.Value += curData.originLocalPosition + math.forward() * curmovement - translation.Value;
+            translation.Value = curData.originLocalPosition + math.forward() * curmovement;
 
             // w'(h)= Δx(6Lh-3h^2)/2L^3=tanθ
             // var gradient = -3 * parentData.endMovement * (math.pow(curData.height, 2) - 2 * parentData.length * curData.height) / (2 * math.pow(parentData.length, 3));

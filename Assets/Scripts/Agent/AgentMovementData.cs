@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public enum AgentState { NotActive, Delay, Escape };
+public enum AgentState { NotActive, Delay, Escape, Escaped };
 [GenerateAuthoringComponent]
 public struct AgentMovementData : IComponentData
 {
@@ -16,5 +16,5 @@ public struct AgentMovementData : IComponentData
     // 用于分析
     public float reactionTime;
 
-    public float k1, k2, k3;
+    public float3 originPosition;
 }

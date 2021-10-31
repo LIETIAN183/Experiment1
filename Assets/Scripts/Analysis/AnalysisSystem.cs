@@ -16,10 +16,7 @@ public class AnalysisSystem : SystemBase
 
     private int addDataLineCount;
 
-    protected override void OnCreate()
-    {
-        this.Enabled = false;
-    }
+    protected override void OnCreate() => this.Enabled = false;
     protected override void OnUpdate()
     {
         var data = GetSingleton<AccTimerData>();

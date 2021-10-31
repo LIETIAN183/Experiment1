@@ -13,20 +13,17 @@ public class ComsMotionSystem : SystemBase
     public static readonly float staticFriction = 0.5f;
     public static readonly float gravity = -9.81f;
     public static readonly float threshold = 0.0001f;
-    protected override void OnCreate()
-    {
-        this.Enabled = false;
-    }
+    protected override void OnCreate() => this.Enabled = false;
 
     protected override void OnUpdate()
     {
         var horiAcc = GetSingleton<AccTimerData>().acc;
         var vertiAcc = horiAcc.y;
         horiAcc.y = 0;
+        if (horiAcc.Equals(float3.zero)) return;
         var time = Time.DeltaTime;
 
         Entities
-        .WithAll<ComsData>()
         .WithName("ComsMove")
         .ForEach((ref PhysicsVelocity physicsVelocity, ref ComsData data, in Translation translation, in Rotation rotation, in PhysicsMass physicsMass) =>
         {

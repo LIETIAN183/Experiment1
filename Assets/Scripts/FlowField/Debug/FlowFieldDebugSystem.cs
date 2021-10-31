@@ -20,7 +20,7 @@ public class FlowFieldDebugSystem : SystemBase
     protected override void OnCreate()
     {
         data = new List<CellData>();
-        drawOffset = new float3(0, 0, 0);
+        drawOffset = new float3(0, 2, 0);
     }
     protected override void OnUpdate()
     {
@@ -35,11 +35,11 @@ public class FlowFieldDebugSystem : SystemBase
             {
                 case FlowFieldDisplayType.CostField:
                     draw.WireGrid(settingComponent.originPoint + _gridSize / 2 + drawOffset, Quaternion.identity, settingComponent.gridSize, _gridSize.xz, Color.black);
-                    data.ForEach(cell => draw.Label2D(cell.worldPos + drawOffset, cell.cost.ToString(), 50, LabelAlignment.Center));
+                    data.ForEach(cell => draw.Label2D(cell.worldPos + drawOffset, cell.cost == 255 ? "M" : cell.cost.ToString(), 50, LabelAlignment.Center));
                     break;
                 case FlowFieldDisplayType.IntegrationField:
                     draw.WireGrid(settingComponent.originPoint + _gridSize / 2 + drawOffset, Quaternion.identity, settingComponent.gridSize, _gridSize.xz, Color.black);
-                    data.ForEach(cell => draw.Label2D(cell.worldPos + drawOffset, cell.bestCost.ToString(), 40, LabelAlignment.Center));
+                    data.ForEach(cell => draw.Label2D(cell.worldPos + drawOffset, cell.bestCost == ushort.MaxValue ? "M" : cell.bestCost.ToString(), 40, LabelAlignment.Center));
                     break;
                 case FlowFieldDisplayType.CostHeatMap:
                     //https://stackoverflow.com/questions/10901085/range-values-to-pseudocolor

@@ -5,7 +5,6 @@ public class AccTimerSystem : SystemBase
     World simulation;
 
     private float timeStep = 0.02f;
-    private int increase;
 
     protected override void OnCreate()
     {
@@ -70,9 +69,10 @@ public class AccTimerSystem : SystemBase
         this.Enabled = true;
 
         ControlSystem(true);
-        // simulation.GetExistingSystem<ComsShakeSystem>().Enabled = true;
-        // simulation.GetExistingSystem<SubShakeSystem>().Enabled = true;
-        simulation.GetExistingSystem<AgentMovementSystem>().Enabled = true;
+        simulation.GetExistingSystem<ComsShakeSystem>().Enabled = true;
+        simulation.GetExistingSystem<SubShakeSystem>().Enabled = true;
+        simulation.GetExistingSystem<AgentStateSystem>().Enabled = true;
+        // simulation.GetExistingSystem<AgentMovementSystem>().Enabled = true;
         simulation.GetExistingSystem<PathDisplaySystem>().Enabled = true;
     }
 
@@ -85,7 +85,7 @@ public class AccTimerSystem : SystemBase
 
     public void ControlSystem(bool status)
     {
-        // simulation.GetExistingSystem<ComsMotionSystem>().Enabled = status;
+        simulation.GetExistingSystem<ComsMotionSystem>().Enabled = status;
 
 
         // 分析
