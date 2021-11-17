@@ -51,9 +51,11 @@ public class CalculateFlowFieldSystem : SystemBase
                 // 更新第一层障碍物的最佳方向
                 if (neighborCellData.cost == byte.MaxValue)
                 {
-                    if (neighborCellData.bestDirection.Equals(GridDirection.None))
+                    // if (neighborCellData.bestDirection.Equals(GridDirection.None))
+                    if (neighborCellData.updated == false)
                     {
                         neighborCellData.bestDirection = cellIndex - neighborIndex;
+                        neighborCellData.updated = true;
                         cellBuffer[flatNeighborIndex] = neighborCellData;
                     }
                     continue;

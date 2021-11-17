@@ -7,11 +7,14 @@ using Unity.Physics.Systems;
 
 // 仿真时间 0.1f 可行
 [UpdateInGroup(typeof(AgentSimulationSystemGroup))]
-[DisableAutoCreation]
 public class SFMmovementSystem : SystemBase
 {
     private BuildPhysicsWorld buildPhysicsWorld;
-    protected override void OnCreate() => buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
+    protected override void OnCreate()
+    {
+        buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
+        this.Enabled = false;
+    }
     protected override void OnUpdate()
     {
         // 用于计算最终的加速度，作为时间尺度
@@ -31,7 +34,7 @@ public class SFMmovementSystem : SystemBase
                 float2 interactionForce = 0;
                 foreach (var hit in outHits)
                 {
-                    if (hit.Material.CustomTags.Equals(2) || hit.Material.CustomTags.Equals(4))//00000010 障碍物 00000100 智能体
+                    if ((hit.Material.CustomTags & 0b_0001_1110) != 0)
                     {
                         if (hit.Entity.Equals(entity)) continue;
                         var direction = math.normalizesafe(translation.Value.xz - hit.Position.xz);
@@ -40,7 +43,7 @@ public class SFMmovementSystem : SystemBase
                 }
 
                 var SFMDirection = math.normalizesafe(SFMtarget - translation.Value.xz);
-                velocity.Linear.xz += ((SFMDirection * movementData.desireSpeed - velocity.Linear.xz) / 0.5f + interactionForce * mass.InverseMass) * deltaTime;
+                velocity.Linear.xz += ((SFMDirection * movementData.stdVel - velocity.Linear.xz) / 0.5f + interactionForce * mass.InverseMass) * deltaTime;
                 outHits.Dispose();
             }
 

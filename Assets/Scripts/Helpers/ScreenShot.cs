@@ -1,28 +1,15 @@
 using UnityEngine;
+using Unity.Entities;
 
 public class ScreenShot : MonoBehaviour
 {
-    public Camera _camera;
-    private float timer;
-
-    void Start()
-    {
-        _camera = GetComponent<Camera>();
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        if (timer > 0) timer -= Time.deltaTime;
-        else _camera.depth = -1;
-
         if (Input.GetKeyUp(KeyCode.L))
         {
-            // 切换到截图摄像机
-            _camera.depth = 10;
-            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "\\Test.png");
-            // 延迟反切换，切换太快则截图还是主 Camera 渲染的内容，上一句函数可能有延迟
-            timer = 1;
+            var debugtype = World.DefaultGameObjectInjectionWorld.GetExistingSystem<FlowFieldDebugSystem>()._curDisplayType;
+
+            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + debugtype.ToString() + "_" + Time.time + ".png");
         }
     }
 

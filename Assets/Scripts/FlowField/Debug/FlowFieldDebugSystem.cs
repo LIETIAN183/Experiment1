@@ -6,7 +6,7 @@ using System.Linq;
 using Unity.Collections;
 using System.Collections.Generic;
 
-public enum FlowFieldDisplayType { None, CostField, IntegrationField, CostHeatMap, IntegrationHeatMap, FlowField };
+public enum FlowFieldDisplayType { None, Grid, CostField, IntegrationField, CostHeatMap, IntegrationHeatMap, FlowField };
 public class FlowFieldDebugSystem : SystemBase
 {
     public FlowFieldDisplayType _curDisplayType;
@@ -20,7 +20,7 @@ public class FlowFieldDebugSystem : SystemBase
     protected override void OnCreate()
     {
         data = new List<CellData>();
-        drawOffset = new float3(0, 2, 0);
+        drawOffset = new float3(0, -0.9f, 0);
     }
     protected override void OnUpdate()
     {
@@ -49,7 +49,14 @@ public class FlowFieldDebugSystem : SystemBase
                     {
                         float costHeat = (maxCost - cell.cost) / maxCost;
                         Color drawColor = cell.cost == 255 ? Color.black : Color.HSVToRGB(costHeat / 3, 1, 1);
-                        draw.SolidPlane(cell.worldPos + drawOffset, math.up(), settingComponent.cellRadius.xz * 2, drawColor);
+                        drawColor = cell.cost == 0 ? Color.blue : drawColor;
+                        var height = cell.cost == 255 ? 1 : cell.cost / maxCost;
+                        var tempPos = cell.worldPos;
+                        tempPos.y = height / 2;
+                        var tempSize = settingComponent.cellRadius * 2;
+                        tempSize.y = height;
+                        draw.SolidBox(tempPos + drawOffset, tempSize, drawColor);
+                        // draw.SolidPlane(cell.worldPos + drawOffset, math.up(), settingComponent.cellRadius.xz * 2, drawColor);
                     }
                     break;
                 case FlowFieldDisplayType.IntegrationHeatMap:
@@ -59,21 +66,41 @@ public class FlowFieldDebugSystem : SystemBase
                     {
                         float intHeat = (maxBestCost - cell.bestCost) / maxBestCost;
                         Color drawColor = cell.bestCost == ushort.MaxValue ? Color.black : Color.HSVToRGB(intHeat / 3, 1, 1);
-                        draw.SolidPlane(cell.worldPos + drawOffset, math.up(), settingComponent.cellRadius.xz * 2, drawColor);
+                        drawColor = cell.bestCost == 0 ? Color.blue : drawColor;
+                        var height = cell.bestCost == ushort.MaxValue ? 1 : cell.bestCost / maxBestCost;
+                        var tempPos = cell.worldPos;
+                        tempPos.y = height / 2;
+                        var tempSize = settingComponent.cellRadius * 2;
+                        tempSize.y = height;
+                        draw.SolidBox(tempPos + drawOffset, tempSize, drawColor);
+                        // draw.SolidPlane(cell.worldPos + drawOffset, math.up(), settingComponent.cellRadius.xz * 2, drawColor);
                     }
                     break;
                 case FlowFieldDisplayType.FlowField:
                     foreach (var cell in data)
                     {
-                        if (cell.cost == 0) draw.CircleXZ(cell.worldPos, settingComponent.cellRadius.x, Color.yellow);
+                        if (cell.cost == 0) draw.CircleXZ(cell.worldPos + drawOffset, settingComponent.cellRadius.x, Color.yellow);
                         else if (cell.bestDirection.Equals(GridDirection.None)) drawCross45(draw, cell.worldPos + drawOffset, settingComponent.cellRadius, Color.red);
-                        else draw.Arrowhead(cell.worldPos, new float3(cell.bestDirection.x, 0, cell.bestDirection.y), 0.2f, Color.blue);
+                        else draw.Arrowhead(cell.worldPos + drawOffset, new float3(cell.bestDirection.x, 0, cell.bestDirection.y), 0.2f, Color.blue);
                     }
+                    break;
+                case FlowFieldDisplayType.Grid:
+                    draw.WireGrid(settingComponent.originPoint + _gridSize / 2 + drawOffset, Quaternion.identity, settingComponent.gridSize, _gridSize.xz, Color.black);
                     break;
                 default:
                     break;
             }
             draw.PopLineWidth();
+
+            // Ruler Display for HeatMap
+            // Color _drawColor;
+            // for (int i = 0; i <= 100; i += 1)
+            // {
+            //     if (i == 0) _drawColor = Color.blue;
+            //     else if (i == 100) _drawColor = Color.black;
+            //     else _drawColor = Color.HSVToRGB((1 - i / 100f) / 3, 1, 1);
+            //     draw.SolidPlane(new float3(20, 0, i / 10f), math.up(), new float2(1, 0.1f), _drawColor);
+            // }
         }
     }
 

@@ -34,6 +34,7 @@ public class ComsMotionSystem : SystemBase
                 // 当物体静止且水平惯性力小于最大静摩擦力时，直接不添加力，简化计算
                 // 即当物体运动或者水平惯性力大于最大静摩擦力时，才添加水平惯性力到物体上
                 // ma_{h}<μm(g-a_{v}) 表示水平惯性力小于最大静摩擦力
+                if (horiAcc.Equals(float3.zero)) return;
 
                 if (math.length(physicsVelocity.Linear.xz) >= threshold || math.length(horiAcc) >= math.abs(staticFriction * (gravity - vertiAcc)))
                 {
@@ -42,8 +43,9 @@ public class ComsMotionSystem : SystemBase
             }
             else
             {
-                // 空气阻力 k = 1/2ρc_{d}A = 0.01f ρ = 1.29 c_{d} = 0.8 A = 0.02
-                physicsVelocity.ApplyLinearImpulse(physicsMass, -math.normalize(physicsVelocity.Linear) * 0.01f * math.pow(math.length(physicsVelocity.Linear), 2) * time);
+                // 空气阻力 k = 1/2ρc_{d}A = 0.01f;ρ = 1.29;c_{d} = 0.8;A = 0.02
+                // physicsVelocity.ApplyLinearImpulse(physicsMass, -math.normalize(physicsVelocity.Linear) * 0.01f * math.pow(math.length(physicsVelocity.Linear), 2) * time);
+                physicsVelocity.ApplyLinearImpulse(physicsMass, -math.length(physicsVelocity.Linear) * 0.01f * physicsVelocity.Linear * time);
             }
             data.previous_y = translation.Value.y;
         }).ScheduleParallel();

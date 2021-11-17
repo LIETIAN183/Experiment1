@@ -39,6 +39,7 @@ public class ECSUIController : MonoBehaviour
         // StartBtn 地震开始按钮
         startBtn.clickEvent.AddListener(() =>
         {
+            World.DefaultGameObjectInjectionWorld.GetExistingSystem<FullAnalysisSystem>().ProjectInit();
             // 获得选择的地震 Index. 开始仿真
             World.DefaultGameObjectInjectionWorld.GetExistingSystem<InitialSystem>().Active(EqSelector.index);
 
@@ -48,7 +49,7 @@ public class ECSUIController : MonoBehaviour
         });
 
         // Analysis Button
-
+        analysisBtn.clickEvent.AddListener(World.DefaultGameObjectInjectionWorld.GetExistingSystem<FullAnalysisSystem>().StartFullAnalysis);
 
         // Export Button
         exportBtn.clickEvent.AddListener(BGExcelImportGo.Instance.Export);

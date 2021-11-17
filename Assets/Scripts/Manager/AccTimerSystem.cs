@@ -1,10 +1,13 @@
 using Unity.Entities;
+using Unity.Mathematics;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class AccTimerSystem : SystemBase
 {
     World simulation;
 
     private float timeStep = 0.02f;
+
+    public bool flag = true;
 
     protected override void OnCreate()
     {
@@ -24,6 +27,7 @@ public class AccTimerSystem : SystemBase
     {
         // 获得单例数据
         var accTimer = GetSingleton<AccTimerData>();
+        var cofficient = GetSingleton<AnalysisTypeData>().cofficient / 100f;
         // 读取加速度序列
         ref BlobArray<GroundMotion> gmArray = ref SetupBlobSystem.gmBlobRefs[accTimer.gmIndex].Value.gmArray;
 
@@ -32,32 +36,28 @@ public class AccTimerSystem : SystemBase
         // 放在这里可以保留最后一秒的仿真数据
         if (accTimer.timeCount >= gmArray.Length)
         {
-            // 关闭其他系统
-            ControlSystem(false);
-            // 分析系统
-            this.Enabled = false;
+            accTimer.elapsedTime = accTimer.timeCount * accTimer.dataDeltaTime;
+            ECSUIController.Instance.progress.currentTime = accTimer.elapsedTime;
+            accTimer.acc = float3.zero;
+            accTimer.timeCount += accTimer.increaseNumber;
         }
         else
         {
             accTimer.elapsedTime = accTimer.timeCount * accTimer.dataDeltaTime;
             // 更新时间进度条
             ECSUIController.Instance.progress.currentTime = accTimer.elapsedTime;
-            accTimer.acc = gmArray[accTimer.timeCount].acceleration;
+            accTimer.acc = gmArray[accTimer.timeCount].acceleration * cofficient;
             accTimer.timeCount += accTimer.increaseNumber;
 
-            // 更新单例数据
-            SetSingleton(accTimer);
+            accTimer.pga = math.max(accTimer.pga, math.length(accTimer.acc));
+
         }
+        // 更新单例数据
+        SetSingleton(accTimer);
     }
 
     public void Active(int index)
     {
-        //-----------------------------------数据分析 填写地震Index和地震名字-----------------------------------------------------
-        // DB_Eq newData = DB_Eq.NewEntity();
-        // newData.F_eqIndex = index;
-        // newData.F_eqName = SetupBlobSystem.gmBlobRefs[index].Value.gmName.ToString();
-        // ------------------------------------- Analysis END -------------------------------------------------------------------
-
         // 初始化单例数据
         var accTimer = GetSingleton<AccTimerData>();
         accTimer.gmIndex = index;
@@ -68,12 +68,7 @@ public class AccTimerSystem : SystemBase
         SetSingleton(accTimer);
         this.Enabled = true;
 
-        ControlSystem(true);
-        simulation.GetExistingSystem<ComsShakeSystem>().Enabled = true;
-        simulation.GetExistingSystem<SubShakeSystem>().Enabled = true;
-        simulation.GetExistingSystem<AgentStateSystem>().Enabled = true;
-        // simulation.GetExistingSystem<AgentMovementSystem>().Enabled = true;
-        simulation.GetExistingSystem<PathDisplaySystem>().Enabled = true;
+        simulation.GetExistingSystem<AnalysisSystem>().Enabled = true;
     }
 
     protected override void OnStopRunning()
@@ -81,14 +76,5 @@ public class AccTimerSystem : SystemBase
         var accTimer = GetSingleton<AccTimerData>();
         accTimer.acc = 0;
         SetSingleton(accTimer);
-    }
-
-    public void ControlSystem(bool status)
-    {
-        simulation.GetExistingSystem<ComsMotionSystem>().Enabled = status;
-
-
-        // 分析
-        // simulation.GetExistingSystem<AnalysisSystem>().Enabled = status;
     }
 }

@@ -16,11 +16,6 @@ public class ReloadSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        simulation.GetExistingSystem<AccTimerSystem>().Enabled = false;
-        simulation.GetExistingSystem<ComsMotionSystem>().Enabled = false;
-        simulation.GetExistingSystem<ComsShakeSystem>().Enabled = false;
-        simulation.GetExistingSystem<SubShakeSystem>().Enabled = false;
-
         Entities.WithAll<ComsData>().ForEach((ref Translation translation, ref Rotation rotation, in ComsData data) =>
         {
             translation.Value = data.originPosition;
@@ -33,14 +28,23 @@ public class ReloadSystem : SystemBase
             data.endMovement = 0;
             data.velocity = 0;
             data._acc = 0;
-            data.k = 160;
-            data.c = 2;
         }).ScheduleParallel();
 
         Entities.WithAll<SubShakeData>().ForEach((ref Translation translation, ref Rotation rotation, in SubShakeData data) =>
         {
             translation.Value = data.originLocalPosition;
             rotation.Value = quaternion.Euler(0, 0, 0);
+        }).ScheduleParallel();
+
+        Entities.WithAll<AgentMovementData>().ForEach((ref Translation translation, ref AgentMovementData data, ref DynamicBuffer<TrajectoryBufferElement> trajectory) =>
+        {
+            translation.Value = data.originPosition;
+            data.state = AgentState.NotActive;
+            data.reactionTime = 0;
+            data.escapeTime = 0;
+            data.pathLength = 0;
+            data.lastPosition = 0;
+            trajectory.Clear();
         }).ScheduleParallel();
 
         ECSUIController.Instance.startBtn.GetComponent<CanvasGroup>().interactable = true;

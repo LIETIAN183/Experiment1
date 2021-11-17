@@ -1,4 +1,3 @@
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -7,43 +6,46 @@ using Unity.Transforms;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class AgentStateSystem : SystemBase
 {
-    private float accInMenmory;
-    protected override void OnCreate() => this.Enabled = false;
+    // protected override void OnCreate() => this.Enabled = false;
     protected override void OnUpdate()
     {
-        var destination = GetSingleton<FlowFieldSettingData>().destination;
-
+        var timer = GetSingleton<AccTimerData>();
         // 记录仿真以来的最大地震强度，以此来进行延迟时间的计算
-        float acc = math.length(GetSingleton<AccTimerData>().acc);
-        if (accInMenmory < acc) accInMenmory = acc;
-        float accTemp = accInMenmory;
-        float elapsedTime = GetSingleton<AccTimerData>().elapsedTime;
+        float _pga = timer.pga;
+        float elapsedTime = timer.elapsedTime;
 
-        Entities.ForEach((ref PhysicsVelocity velocity, ref AgentMovementData movementData, ref Translation translation) =>
+        Entities.WithAll<AgentMovementData>().ForEach((ref PhysicsVelocity velocity, ref AgentMovementData movementData, ref Translation translation) =>
         {
             switch (movementData.state)
             {
                 case AgentState.NotActive:
+                    velocity.Linear = float3.zero;
                     return;
                 case AgentState.Delay:
                     // 计算反应时间，超过反应时间后智能体开始撤离
-                    if (movementData.reactionTimeVariable * 25 * math.exp(-accTemp) < elapsedTime)
+                    if (movementData.reactionTimeVariable * 25 * math.exp(-_pga) < elapsedTime)
                     {
                         movementData.state = AgentState.Escape;
-                        movementData.reactionTime = movementData.reactionTimeVariable * 25 * math.exp(-accTemp);
+                        movementData.reactionTime = movementData.reactionTimeVariable * 25 * math.exp(-_pga);
                     }
                     return;
                 case AgentState.Escape:
                     // 到达目的地，停止运动 距离目的地小于0.5f
-                    if (math.length(destination.xz - translation.Value.xz) < 0.5f) movementData.state = AgentState.Escaped;
+                    if (translation.Value.x < -10f)
+                    {
+                        movementData.state = AgentState.Escaped;
+                        movementData.escapeTime = elapsedTime;
+                        translation.Value.y = -10;
+                    }
                     return;
                 case AgentState.Escaped:
                     velocity.Linear = float3.zero;
-                    translation.Value.y = -10;
                     return;
                 default:
                     return;
             }
         }).ScheduleParallel();
+
+        this.CompleteDependency();
     }
 }

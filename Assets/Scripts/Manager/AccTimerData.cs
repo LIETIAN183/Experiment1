@@ -15,4 +15,6 @@ public struct AccTimerData : IComponentData
     public float3 acc;
 
     public float elapsedTime;
+
+    public float pga;
 }

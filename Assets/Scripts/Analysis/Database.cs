@@ -153,6 +153,17 @@ public partial class DB_Detail : BGEntity
 			_F_dropCount[Index] = value;
 		}
 	}
+	public System.Int32 F_escaped
+	{
+		get
+		{
+			return _F_escaped[Index];
+		}
+		set
+		{
+			_F_escaped[Index] = value;
+		}
+	}
 	private static BansheeGz.BGDatabase.BGFieldEntityName _ufle12jhs77_F_name;
 	public static BansheeGz.BGDatabase.BGFieldEntityName _F_name
 	{
@@ -232,6 +243,15 @@ public partial class DB_Detail : BGEntity
 		{
 			if(_ufle12jhs77_F_dropCount==null || _ufle12jhs77_F_dropCount.IsDeleted) _ufle12jhs77_F_dropCount=(BansheeGz.BGDatabase.BGFieldInt) MetaDefault.GetField(new BGId(4886694361553423016UL,18094290060984744093UL));
 			return _ufle12jhs77_F_dropCount;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldInt _ufle12jhs77_F_escaped;
+	public static BansheeGz.BGDatabase.BGFieldInt _F_escaped
+	{
+		get
+		{
+			if(_ufle12jhs77_F_escaped==null || _ufle12jhs77_F_escaped.IsDeleted) _ufle12jhs77_F_escaped=(BansheeGz.BGDatabase.BGFieldInt) MetaDefault.GetField(new BGId(5516643015721476985UL,15701446706182041989UL));
+			return _ufle12jhs77_F_escaped;
 		}
 	}
 	private static readonly DB_Detail.Factory _factory0_PFS = new DB_Detail.Factory();
@@ -547,15 +567,147 @@ public partial class DB_Summary : BGEntity
 			_F_itemCount[Index] = value;
 		}
 	}
-	public System.Single F_EqLength
+	public System.Single F_simulationTime
 	{
 		get
 		{
-			return _F_EqLength[Index];
+			return _F_simulationTime[Index];
 		}
 		set
 		{
-			_F_EqLength[Index] = value;
+			_F_simulationTime[Index] = value;
+		}
+	}
+	public System.Single F_reactionTIme_ave
+	{
+		get
+		{
+			return _F_reactionTIme_ave[Index];
+		}
+		set
+		{
+			_F_reactionTIme_ave[Index] = value;
+		}
+	}
+	public System.Single F_reactionTIme_min
+	{
+		get
+		{
+			return _F_reactionTIme_min[Index];
+		}
+		set
+		{
+			_F_reactionTIme_min[Index] = value;
+		}
+	}
+	public System.Single F_reactionTIme_max
+	{
+		get
+		{
+			return _F_reactionTIme_max[Index];
+		}
+		set
+		{
+			_F_reactionTIme_max[Index] = value;
+		}
+	}
+	public System.Single F_escapeTIme_ave
+	{
+		get
+		{
+			return _F_escapeTIme_ave[Index];
+		}
+		set
+		{
+			_F_escapeTIme_ave[Index] = value;
+		}
+	}
+	public System.Single F_escapeTIme_min
+	{
+		get
+		{
+			return _F_escapeTIme_min[Index];
+		}
+		set
+		{
+			_F_escapeTIme_min[Index] = value;
+		}
+	}
+	public System.Single F_escapeTIme_max
+	{
+		get
+		{
+			return _F_escapeTIme_max[Index];
+		}
+		set
+		{
+			_F_escapeTIme_max[Index] = value;
+		}
+	}
+	public System.Single F_escapeLength_ave
+	{
+		get
+		{
+			return _F_escapeLength_ave[Index];
+		}
+		set
+		{
+			_F_escapeLength_ave[Index] = value;
+		}
+	}
+	public System.Single F_escapeLength_min
+	{
+		get
+		{
+			return _F_escapeLength_min[Index];
+		}
+		set
+		{
+			_F_escapeLength_min[Index] = value;
+		}
+	}
+	public System.Single F_escapeLength_max
+	{
+		get
+		{
+			return _F_escapeLength_max[Index];
+		}
+		set
+		{
+			_F_escapeLength_max[Index] = value;
+		}
+	}
+	public System.Single F_vel_ave
+	{
+		get
+		{
+			return _F_vel_ave[Index];
+		}
+		set
+		{
+			_F_vel_ave[Index] = value;
+		}
+	}
+	public System.Single F_vel_min
+	{
+		get
+		{
+			return _F_vel_min[Index];
+		}
+		set
+		{
+			_F_vel_min[Index] = value;
+		}
+	}
+	public System.Single F_vel_max
+	{
+		get
+		{
+			return _F_vel_max[Index];
+		}
+		set
+		{
+			_F_vel_max[Index] = value;
 		}
 	}
 	private static BansheeGz.BGDatabase.BGFieldEntityName _ufle12jhs77_F_name;
@@ -603,13 +755,121 @@ public partial class DB_Summary : BGEntity
 			return _ufle12jhs77_F_itemCount;
 		}
 	}
-	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_EqLength;
-	public static BansheeGz.BGDatabase.BGFieldFloat _F_EqLength
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_simulationTime;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_simulationTime
 	{
 		get
 		{
-			if(_ufle12jhs77_F_EqLength==null || _ufle12jhs77_F_EqLength.IsDeleted) _ufle12jhs77_F_EqLength=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4765886187894296917UL,4908088481250146198UL));
-			return _ufle12jhs77_F_EqLength;
+			if(_ufle12jhs77_F_simulationTime==null || _ufle12jhs77_F_simulationTime.IsDeleted) _ufle12jhs77_F_simulationTime=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4765886187894296917UL,4908088481250146198UL));
+			return _ufle12jhs77_F_simulationTime;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_reactionTIme_ave;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_reactionTIme_ave
+	{
+		get
+		{
+			if(_ufle12jhs77_F_reactionTIme_ave==null || _ufle12jhs77_F_reactionTIme_ave.IsDeleted) _ufle12jhs77_F_reactionTIme_ave=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4698146916101593241UL,2500934234736512398UL));
+			return _ufle12jhs77_F_reactionTIme_ave;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_reactionTIme_min;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_reactionTIme_min
+	{
+		get
+		{
+			if(_ufle12jhs77_F_reactionTIme_min==null || _ufle12jhs77_F_reactionTIme_min.IsDeleted) _ufle12jhs77_F_reactionTIme_min=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5378768338366046738UL,7535247065446403996UL));
+			return _ufle12jhs77_F_reactionTIme_min;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_reactionTIme_max;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_reactionTIme_max
+	{
+		get
+		{
+			if(_ufle12jhs77_F_reactionTIme_max==null || _ufle12jhs77_F_reactionTIme_max.IsDeleted) _ufle12jhs77_F_reactionTIme_max=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5694352428283209765UL,2681379727484566970UL));
+			return _ufle12jhs77_F_reactionTIme_max;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_escapeTIme_ave;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_escapeTIme_ave
+	{
+		get
+		{
+			if(_ufle12jhs77_F_escapeTIme_ave==null || _ufle12jhs77_F_escapeTIme_ave.IsDeleted) _ufle12jhs77_F_escapeTIme_ave=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5212482698973865373UL,3816724647317693060UL));
+			return _ufle12jhs77_F_escapeTIme_ave;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_escapeTIme_min;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_escapeTIme_min
+	{
+		get
+		{
+			if(_ufle12jhs77_F_escapeTIme_min==null || _ufle12jhs77_F_escapeTIme_min.IsDeleted) _ufle12jhs77_F_escapeTIme_min=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5352015652405569635UL,6846708334796447622UL));
+			return _ufle12jhs77_F_escapeTIme_min;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_escapeTIme_max;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_escapeTIme_max
+	{
+		get
+		{
+			if(_ufle12jhs77_F_escapeTIme_max==null || _ufle12jhs77_F_escapeTIme_max.IsDeleted) _ufle12jhs77_F_escapeTIme_max=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4614663973447401171UL,3759681356998053250UL));
+			return _ufle12jhs77_F_escapeTIme_max;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_escapeLength_ave;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_escapeLength_ave
+	{
+		get
+		{
+			if(_ufle12jhs77_F_escapeLength_ave==null || _ufle12jhs77_F_escapeLength_ave.IsDeleted) _ufle12jhs77_F_escapeLength_ave=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4835598022678539227UL,13054947179287942330UL));
+			return _ufle12jhs77_F_escapeLength_ave;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_escapeLength_min;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_escapeLength_min
+	{
+		get
+		{
+			if(_ufle12jhs77_F_escapeLength_min==null || _ufle12jhs77_F_escapeLength_min.IsDeleted) _ufle12jhs77_F_escapeLength_min=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4690682699160406393UL,12482032135857797273UL));
+			return _ufle12jhs77_F_escapeLength_min;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_escapeLength_max;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_escapeLength_max
+	{
+		get
+		{
+			if(_ufle12jhs77_F_escapeLength_max==null || _ufle12jhs77_F_escapeLength_max.IsDeleted) _ufle12jhs77_F_escapeLength_max=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5288883079770257348UL,13555099439447561861UL));
+			return _ufle12jhs77_F_escapeLength_max;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_vel_ave;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_vel_ave
+	{
+		get
+		{
+			if(_ufle12jhs77_F_vel_ave==null || _ufle12jhs77_F_vel_ave.IsDeleted) _ufle12jhs77_F_vel_ave=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5455327766858307826UL,14564464141471851156UL));
+			return _ufle12jhs77_F_vel_ave;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_vel_min;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_vel_min
+	{
+		get
+		{
+			if(_ufle12jhs77_F_vel_min==null || _ufle12jhs77_F_vel_min.IsDeleted) _ufle12jhs77_F_vel_min=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(5399967649891925385UL,879362064704177055UL));
+			return _ufle12jhs77_F_vel_min;
+		}
+	}
+	private static BansheeGz.BGDatabase.BGFieldFloat _ufle12jhs77_F_vel_max;
+	public static BansheeGz.BGDatabase.BGFieldFloat _F_vel_max
+	{
+		get
+		{
+			if(_ufle12jhs77_F_vel_max==null || _ufle12jhs77_F_vel_max.IsDeleted) _ufle12jhs77_F_vel_max=(BansheeGz.BGDatabase.BGFieldFloat) MetaDefault.GetField(new BGId(4920144616963575440UL,16706110664453375923UL));
+			return _ufle12jhs77_F_vel_max;
 		}
 	}
 	private static readonly DB_Detail.Factory _factory0_PFS = new DB_Detail.Factory();

@@ -6,12 +6,18 @@ using Unity.Transforms;
 using Unity.Physics.Systems;
 using UnityEngine;
 
+// TODO: 添加货架的排斥力
 [UpdateInGroup(typeof(AgentSimulationSystemGroup))]
 // [DisableAutoCreation]
 public class AgentMovementSystem : SystemBase
 {
     private BuildPhysicsWorld buildPhysicsWorld;
-    protected override void OnCreate() => buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
+    protected override void OnCreate()
+    {
+        buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
+        this.Enabled = false;
+    }
+
     protected override void OnUpdate()
     {
         DynamicBuffer<CellData> cellBuffer = GetBuffer<CellBufferElement>(GetSingletonEntity<FlowFieldSettingData>()).Reinterpret<CellData>();
@@ -23,7 +29,17 @@ public class AgentMovementSystem : SystemBase
         // 用于物体检测
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
 
-        Entities.WithReadOnly(cellBuffer).ForEach((Entity entity, ref PhysicsVelocity velocity, ref AgentMovementData movementData, in Translation translation, in PhysicsMass mass) =>
+        var acc = GetSingleton<AccTimerData>().acc;
+
+        var horizontalAcc = acc.xz;
+
+        var vertiAcc = math.abs(acc.y);
+
+        var accMagnitude = math.length(acc);
+
+        var _pga = GetSingleton<AccTimerData>().pga;
+
+        Entities.WithReadOnly(cellBuffer).WithReadOnly(physicsWorld).ForEach((Entity entity, ref PhysicsVelocity velocity, ref AgentMovementData movementData, in Translation translation, in PhysicsMass mass) =>
         {
             if (movementData.state == AgentState.Escape)
             {
@@ -33,25 +49,28 @@ public class AgentMovementSystem : SystemBase
                 int flatLocalCellIndex = FlowFieldHelper.ToFlatIndex(localCellIndex, settingData.gridSize.y);
                 float2 desireDirection = math.normalizesafe(cellBuffer[flatLocalCellIndex].bestDirection);
 
-                // 计算附近的障碍物与智能体
-                // NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.Temp);
-                // physicsWorld.OverlapSphere(translation.Value, 1, ref outHits, CollisionFilter.Default);
-                // float3 interactionForce = 0;
-                // foreach (var hit in outHits)
-                // {
-                //     if (hit.Material.CustomTags.Equals(2) || hit.Material.CustomTags.Equals(4))//00000010 障碍物
-                //     {
-                //         if (hit.Entity.Equals(entity)) continue;
-                //         var direction = translation.Value - hit.Position;
-                //         direction.y = 0;
-                //         direction = math.normalize(direction);
-                //         interactionForce += 2000 * math.exp((0.25f - math.abs(hit.Fraction)) / 0.08f) * direction;
-                //     }
-                // }
-                velocity.Linear.xz += (desireDirection * movementData.desireSpeed - velocity.Linear.xz) / 0.5f * deltaTime;
+                float2 interactionForce = 0;
+                // pga 超过2没必要计算排斥力了
+                if (_pga < 2)
+                {
+                    // 计算和其他智能体的排斥力
+                    NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.Temp);
+                    physicsWorld.OverlapSphere(translation.Value, 1, ref outHits, CollisionFilter.Default);
+                    foreach (var hit in outHits)
+                    {
+                        if ((hit.Material.CustomTags & 0b_0001_0000) != 0)
+                        {
+                            if (hit.Entity.Equals(entity)) continue;
+                            var direction = math.normalizesafe(translation.Value.xz - hit.Position.xz);
+                            interactionForce += 2000 * math.exp((0.25f - math.abs(hit.Fraction)) / 0.08f - _pga) * direction;
+                        }
+                    }
 
-                // + interactionForce* mass.InverseMass * deltaTime;
-                // outHits.Dispose();
+                    outHits.Dispose();
+                }
+                var desireSpeed = math.exp(-vertiAcc - translation.Value.y + 1.05f) * movementData.stdVel;// originPosition.y 取代 1.05f
+
+                velocity.Linear.xz += ((desireDirection * desireSpeed - velocity.Linear.xz) / 0.5f + horizontalAcc + interactionForce * mass.InverseMass) * deltaTime;
             }
         }).ScheduleParallel();
 

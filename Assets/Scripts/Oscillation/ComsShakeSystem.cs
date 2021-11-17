@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 [AlwaysSynchronizeSystem]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
@@ -28,7 +29,7 @@ public class ComsShakeSystem : SystemBase
             // 单边限制
             // Returns b if c is true, a otherwise.
             data.velocity = math.select(data.velocity + data._acc * time, data.velocity * -0.3f, data.directionConstrain && data.endMovement < 0 && data.velocity < 0);
-            data.strength = math.dot(-acc, ltd.Forward) / math.dot(ltd.Forward, ltd.Forward);
+            data.strength = math.dot(-acc, ltd.Forward);
             // 放大实验采样频率，c需要乘以相应倍数
             data._acc = -data.k * data.endMovement - data.c * multiple * data.velocity + data.strength;
 

@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TagNames:
   - Small
-  - Big
+  - Medium
+  - Impassable
+  - Wall
   - Agent
-  - 
-  - 
   - 
   - 
   - 

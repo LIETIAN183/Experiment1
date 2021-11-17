@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79f877434772c463192af154345455c9, type: 3}
-  m_Name: BigSizePhysicsMaterial
+  m_Name: Medium Obstacle
   m_EditorClassIdentifier: 
   m_Value:
     m_SupportsTemplate: 0
@@ -21,13 +21,13 @@ MonoBehaviour:
     m_Friction:
       m_Override: 1
       m_Value:
-        Value: 0.3
-        CombineMode: 1
+        Value: 0.5
+        CombineMode: 0
     m_Restitution:
       m_Override: 1
       m_Value:
-        Value: 0.3
-        CombineMode: 1
+        Value: 0
+        CombineMode: 2
     m_BelongsToCategories:
       m_Override: 0
       m_Value:

@@ -5,16 +5,19 @@ public enum AgentState { NotActive, Delay, Escape, Escaped };
 [GenerateAuthoringComponent]
 public struct AgentMovementData : IComponentData
 {
-    public float desireSpeed;
-
-    // public float2 desireDirection;
+    public float stdVel;
 
     public AgentState state;
 
     public float reactionTimeVariable;
 
     // 用于分析
+    public float3 originPosition;
     public float reactionTime;
 
-    public float3 originPosition;
+    public float escapeTime;
+
+    public float pathLength;
+
+    public float3 lastPosition;
 }
