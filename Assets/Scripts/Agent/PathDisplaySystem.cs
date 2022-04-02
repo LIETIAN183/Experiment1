@@ -21,15 +21,16 @@ public class PathDisplaySystem : SystemBase
             // builder.Ray(origin, math.down(), Color.red);
 
             // TODO:曲线平面化 颜色随速度深浅
-            if (data.state == AgentState.Escape)
+            if (data.state == AgentState.Escape && !translation.Value.Equals(data.lastPosition))
             {
-                data.pathLength += math.distance(data.lastPosition, translation.Value);
+                data.pathLength += math.distance(data.lastPosition.xz, translation.Value.xz);
                 trajectory.Add(translation.Value);
                 data.lastPosition = translation.Value;
+                data.curVel = math.length(velocity.Linear.xz);
             }
             // 轨迹可视化
-            builder.PushLineWidth(2f);
-            builder.Polyline(trajectory.Reinterpret<float3>().AsNativeArray(), Color.blue);
+            builder.PushLineWidth(4f);
+            builder.Polyline(trajectory.Reinterpret<float3>().AsNativeArray(), Color.white);
             builder.PopLineWidth();
 
         }).ScheduleParallel(this.Dependency);

@@ -3,6 +3,7 @@ using Unity.Entities;
 using Michsky.UI.ModernUIPack;
 using BansheeGz.BGDatabase;
 using System;
+using UnityEngine.UI;
 public class ECSUIController : MonoBehaviour
 {
     public static ECSUIController Instance { get; private set; }
@@ -14,6 +15,8 @@ public class ECSUIController : MonoBehaviour
     public CustomDropdown debugDropdown;
 
     public NotificationManager notification;
+
+    public Text cofficientDisplay;
 
     /// <summary>
     /// Awake is called when the script instance is being loaded.

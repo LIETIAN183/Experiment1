@@ -1,13 +1,12 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 public class AccTimerSystem : SystemBase
 {
     World simulation;
 
     private float timeStep = 0.02f;
-
-    public bool flag = true;
 
     protected override void OnCreate()
     {
@@ -39,6 +38,7 @@ public class AccTimerSystem : SystemBase
             accTimer.elapsedTime = accTimer.timeCount * accTimer.dataDeltaTime;
             ECSUIController.Instance.progress.currentTime = accTimer.elapsedTime;
             accTimer.acc = float3.zero;
+            accTimer.groundVel = float3.zero;
             accTimer.timeCount += accTimer.increaseNumber;
         }
         else
@@ -46,10 +46,13 @@ public class AccTimerSystem : SystemBase
             accTimer.elapsedTime = accTimer.timeCount * accTimer.dataDeltaTime;
             // 更新时间进度条
             ECSUIController.Instance.progress.currentTime = accTimer.elapsedTime;
+            accTimer.groundVel += accTimer.acc * accTimer.increaseNumber * accTimer.dataDeltaTime;
             accTimer.acc = gmArray[accTimer.timeCount].acceleration * cofficient;
             accTimer.timeCount += accTimer.increaseNumber;
 
             accTimer.pga = math.max(accTimer.pga, math.length(accTimer.acc));
+
+            ECSUIController.Instance.cofficientDisplay.text = "PGA:" + accTimer.pga / 9.81f + "g";
 
         }
         // 更新单例数据
@@ -61,7 +64,8 @@ public class AccTimerSystem : SystemBase
         // 初始化单例数据
         var accTimer = GetSingleton<AccTimerData>();
         accTimer.gmIndex = index;
-        accTimer.acc = 0;
+        accTimer.acc = float3.zero;
+        accTimer.groundVel = float3.zero;
         accTimer.timeCount = 0;
         accTimer.dataDeltaTime = SetupBlobSystem.gmBlobRefs[index].Value.deltaTime;
         accTimer.increaseNumber = (int)(timeStep / accTimer.dataDeltaTime);

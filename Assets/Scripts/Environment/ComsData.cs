@@ -5,7 +5,7 @@ using Unity.Mathematics;
 public struct ComsData : IComponentData
 {
     // 用于判断空中状态
-    public float previous_y;
+    public float previous_VelInY;
 
     // 以下参数仅用于数据统计分析
     // 用于判断掉落状态和最终位移

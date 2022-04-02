@@ -63,6 +63,10 @@ MonoBehaviour:
   k: 160
   c: 2
   directionConstrain: 0
+  forward:
+    x: 0
+    y: 0
+    z: 0
 --- !u!1 &5548771432205122525
 GameObject:
   m_ObjectHideFlags: 0
@@ -76,6 +80,7 @@ GameObject:
   - component: {fileID: 5548771432205122521}
   - component: {fileID: 5548771432205122520}
   - component: {fileID: 5548771432205122523}
+  - component: {fileID: 5258906379883059559}
   m_Layer: 0
   m_Name: h3
   m_TagString: Untagged
@@ -256,7 +261,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 0.74
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771432205122520
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -306,6 +318,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5258906379883059559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5548771432205122525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &5548771432281767395
 GameObject:
   m_ObjectHideFlags: 0
@@ -481,6 +543,7 @@ GameObject:
   - component: {fileID: 5548771432319501741}
   - component: {fileID: 5548771432319501740}
   - component: {fileID: 5548771432319501743}
+  - component: {fileID: 7773085477985094706}
   m_Layer: 0
   m_Name: h5
   m_TagString: Untagged
@@ -661,7 +724,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 1.48
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771432319501740
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -711,6 +781,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7773085477985094706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5548771432319501745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &5548771432541119134
 GameObject:
   m_ObjectHideFlags: 0
@@ -1192,6 +1312,7 @@ GameObject:
   - component: {fileID: 5548771432863363232}
   - component: {fileID: 5548771432863363235}
   - component: {fileID: 5548771432863363234}
+  - component: {fileID: 2090256294591916268}
   m_Layer: 0
   m_Name: h4
   m_TagString: Untagged
@@ -1372,7 +1493,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 1.11
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771432863363235
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1422,6 +1550,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2090256294591916268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5548771432863363236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &5548771433068855270
 GameObject:
   m_ObjectHideFlags: 0
@@ -1759,6 +1937,7 @@ GameObject:
   - component: {fileID: 5548771433651499150}
   - component: {fileID: 5548771433651499153}
   - component: {fileID: 5548771433651499152}
+  - component: {fileID: 660625689881309649}
   m_Layer: 0
   m_Name: h6
   m_TagString: Untagged
@@ -1939,7 +2118,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 1.85
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771433651499153
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -1989,6 +2175,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &660625689881309649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5548771433651499154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &5548771434006640768
 GameObject:
   m_ObjectHideFlags: 0
@@ -2164,6 +2400,7 @@ GameObject:
   - component: {fileID: 5548771434066592440}
   - component: {fileID: 5548771434066592443}
   - component: {fileID: 5548771434066592442}
+  - component: {fileID: 6517282222610111983}
   m_Layer: 0
   m_Name: h2
   m_TagString: Untagged
@@ -2344,7 +2581,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 0.37
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &5548771434066592443
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2394,6 +2638,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6517282222610111983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5548771434066592444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &5548771434120683082
 GameObject:
   m_ObjectHideFlags: 0
@@ -2488,6 +2782,7 @@ GameObject:
   - component: {fileID: 6826800781691921894}
   - component: {fileID: 9140041556979525562}
   - component: {fileID: 8880147468051598546}
+  - component: {fileID: 105598135601613297}
   m_Layer: 0
   m_Name: v1
   m_TagString: Untagged
@@ -2670,7 +2965,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 0.185
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &9140041556979525562
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2720,6 +3022,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &105598135601613297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6826800781691921899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &6826800781697374290
 GameObject:
   m_ObjectHideFlags: 0
@@ -2733,6 +3085,7 @@ GameObject:
   - component: {fileID: 6826800781697374289}
   - component: {fileID: 4347177983936564675}
   - component: {fileID: 1375338262012514284}
+  - component: {fileID: 7325337973441834134}
   m_Layer: 0
   m_Name: v3
   m_TagString: Untagged
@@ -2915,7 +3268,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 0.925
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &4347177983936564675
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -2965,6 +3325,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7325337973441834134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6826800781697374290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &6826800781881246533
 GameObject:
   m_ObjectHideFlags: 0
@@ -2978,6 +3388,7 @@ GameObject:
   - component: {fileID: 6826800781881246528}
   - component: {fileID: 5877998201558924023}
   - component: {fileID: 7971140778040156774}
+  - component: {fileID: 177336195405222332}
   m_Layer: 0
   m_Name: v6
   m_TagString: Untagged
@@ -3160,7 +3571,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 2.035
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &5877998201558924023
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3210,6 +3628,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &177336195405222332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6826800781881246533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &6826800782014097798
 GameObject:
   m_ObjectHideFlags: 0
@@ -3223,6 +3691,7 @@ GameObject:
   - component: {fileID: 6826800782014097797}
   - component: {fileID: 3236767780677362562}
   - component: {fileID: 7552313697614549348}
+  - component: {fileID: 3502922882342735862}
   m_Layer: 0
   m_Name: v2
   m_TagString: Untagged
@@ -3405,7 +3874,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 0.555
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &3236767780677362562
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3455,6 +3931,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3502922882342735862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6826800782014097798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &6826800782444907258
 GameObject:
   m_ObjectHideFlags: 0
@@ -3468,6 +3994,7 @@ GameObject:
   - component: {fileID: 6826800782444907257}
   - component: {fileID: 2556011652540026124}
   - component: {fileID: 2223198300861279873}
+  - component: {fileID: 138271317570555187}
   m_Layer: 0
   m_Name: v4
   m_TagString: Untagged
@@ -3650,7 +4177,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 1.295
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &2556011652540026124
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3700,6 +4234,56 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &138271317570555187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6826800782444907258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0
 --- !u!1 &6826800782911758010
 GameObject:
   m_ObjectHideFlags: 0
@@ -3713,6 +4297,7 @@ GameObject:
   - component: {fileID: 6826800782911758009}
   - component: {fileID: 7490786694037969979}
   - component: {fileID: 4087076999250323176}
+  - component: {fileID: 9025304508362464003}
   m_Layer: 0
   m_Name: v5
   m_TagString: Untagged
@@ -3895,7 +4480,14 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+  originalRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   height: 1.665
+  parent: {fileID: 4639422600978535706}
 --- !u!33 &7490786694037969979
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -3945,3 +4537,53 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &9025304508362464003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6826800782911758010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MotionType: 1
+  m_Smoothing: 1
+  m_Mass: 1
+  m_LinearDamping: 0.01
+  m_AngularDamping: 0.05
+  m_InitialLinearVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_InitialAngularVelocity:
+    x: 0
+    y: 0
+    z: 0
+  m_GravityFactor: 1
+  m_OverrideDefaultMassDistribution: 0
+  m_CenterOfMass:
+    x: 0
+    y: 0
+    z: 0
+  m_Orientation:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+    RotationOrder: 4
+  m_InertiaTensor:
+    x: 0.4
+    y: 0.4
+    z: 0.4
+  m_CustomTags:
+    Tag00: 0
+    Tag01: 0
+    Tag02: 0
+    Tag03: 0
+    Tag04: 0
+    Tag05: 0
+    Tag06: 0
+    Tag07: 0

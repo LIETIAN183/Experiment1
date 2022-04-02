@@ -15,7 +15,8 @@ public class ComsShakeSystem : SystemBase
     {
         var acc = GetSingleton<AccTimerData>().acc;
         var time = Time.DeltaTime;
-        var multiple = time / 0.01f;
+        Debug.Log(time);
+        var multiple = time / 0.01f * 2f;
 
         Entities.WithAll<ShakeData>().WithName("ComsBend").ForEach((ref ShakeData data, ref Rotation rotation, in LocalToWorld ltd) =>
         {
@@ -29,7 +30,7 @@ public class ComsShakeSystem : SystemBase
             // 单边限制
             // Returns b if c is true, a otherwise.
             data.velocity = math.select(data.velocity + data._acc * time, data.velocity * -0.3f, data.directionConstrain && data.endMovement < 0 && data.velocity < 0);
-            data.strength = math.dot(-acc, ltd.Forward);
+            data.strength = math.dot(-acc * 2f, ltd.Forward);
             // 放大实验采样频率，c需要乘以相应倍数
             data._acc = -data.k * data.endMovement - data.c * multiple * data.velocity + data.strength;
 

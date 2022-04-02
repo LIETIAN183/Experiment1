@@ -22,10 +22,10 @@ public class InputManger : MonoBehaviour
             Time.timeScale = Time.timeScale == 0 ? 1 : 0;
         }
 
-        if (Input.GetKeyUp(KeyCode.R))
-        {
-            World.DefaultGameObjectInjectionWorld.GetExistingSystem<ReloadSystem>().Enabled = true;
-        }
+        // if (Input.GetKeyUp(KeyCode.R))
+        // {
+        //     World.DefaultGameObjectInjectionWorld.GetExistingSystem<ReloadSystem>().Enabled = true;
+        // }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {

@@ -20,7 +20,7 @@ public class FlowFieldDebugSystem : SystemBase
     protected override void OnCreate()
     {
         data = new List<CellData>();
-        drawOffset = new float3(0, -0.9f, 0);
+        drawOffset = new float3(0, 2f, 0);
     }
     protected override void OnUpdate()
     {
@@ -79,9 +79,16 @@ public class FlowFieldDebugSystem : SystemBase
                 case FlowFieldDisplayType.FlowField:
                     foreach (var cell in data)
                     {
-                        if (cell.cost == 0) draw.CircleXZ(cell.worldPos + drawOffset, settingComponent.cellRadius.x, Color.yellow);
-                        else if (cell.bestDirection.Equals(GridDirection.None)) drawCross45(draw, cell.worldPos + drawOffset, settingComponent.cellRadius, Color.red);
-                        else draw.Arrowhead(cell.worldPos + drawOffset, new float3(cell.bestDirection.x, 0, cell.bestDirection.y), 0.2f, Color.blue);
+                        if (cell.cost == 0) draw.CircleXZ(cell.worldPos + drawOffset, settingComponent.cellRadius.x * 0.8f, Color.yellow);
+                        else if (cell.bestDirection.Equals(GridDirection.None)) drawCross45(draw, cell.worldPos + drawOffset, settingComponent.cellRadius * 0.8f, Color.red);
+                        // else draw.Arrowhead(cell.worldPos + drawOffset, new float3(cell.bestDirection.x, 0, cell.bestDirection.y), 0.2f, Color.blue);
+                        else
+                        {
+                            var dir = math.normalize(new float3(cell.bestDirection.x, 0, cell.bestDirection.y));
+                            var halfLength = settingComponent.cellRadius.x * 0.8f;
+                            var originPos = cell.worldPos + drawOffset;
+                            draw.Arrow(originPos - halfLength * dir, originPos + halfLength * dir, Color.black);
+                        }
                     }
                     break;
                 case FlowFieldDisplayType.Grid:

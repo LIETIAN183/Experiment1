@@ -33,7 +33,7 @@ public class ReloadSystem : SystemBase
         Entities.WithAll<SubShakeData>().ForEach((ref Translation translation, ref Rotation rotation, in SubShakeData data) =>
         {
             translation.Value = data.originLocalPosition;
-            rotation.Value = quaternion.Euler(0, 0, 0);
+            rotation.Value = data.originalRotation;
         }).ScheduleParallel();
 
         Entities.WithAll<AgentMovementData>().ForEach((ref Translation translation, ref AgentMovementData data, ref DynamicBuffer<TrajectoryBufferElement> trajectory) =>
@@ -50,6 +50,7 @@ public class ReloadSystem : SystemBase
         ECSUIController.Instance.startBtn.GetComponent<CanvasGroup>().interactable = true;
         ECSUIController.Instance.EqSelector.GetComponent<CanvasGroup>().interactable = true;
         this.Enabled = false;
+        simulation.GetExistingSystem<AnalysisSystem>().escapedBackup = 0;
     }
 }
 

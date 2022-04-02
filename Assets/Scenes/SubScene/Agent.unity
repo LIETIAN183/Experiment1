@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1487950779}
   - component: {fileID: 1487950780}
+  - component: {fileID: 1487950781}
   m_Layer: 0
   m_Name: Spawaner
   m_TagString: Untagged
@@ -166,14 +167,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f60c3d0a54bfad744992f80c39d2167f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  desireCount: 100
+  desireCount: 200
   currentCount: 0
   center:
     x: 0
-    y: 1
+    y: 0.9
     z: 0
   sideLength: 10
   Prefab: {fileID: 7530782321942106993, guid: fab381279a3b1174cbe44a7d856bbe1e, type: 3}
+--- !u!114 &1487950781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1487950778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 433e562974fd4ce46810c1404f6f0f2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Values: []
 --- !u!1001 &7530782321066362207
 PrefabInstance:
   m_ObjectHideFlags: 0

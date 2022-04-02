@@ -5,6 +5,7 @@ using Unity.Transforms;
 using Unity.Physics.Systems;
 using Unity.Collections;
 using Unity.Physics;
+// using System.Collections.Generic;
 // using UnityEngine;
 // using Random = Unity.Mathematics.Random;
 
@@ -16,7 +17,8 @@ public class SpawnerSystem : SystemBase
 
     public float spawnerDelayTime = 2f;
     public float timer;
-    private static readonly float3 halfExtents = new float3(0.26f, 0.26f, 0.26f);
+    public static readonly float3 halfExtents = new float3(0.25f, 0.85f, 0.25f);
+
 
     protected override void OnCreate()
     {
@@ -31,27 +33,46 @@ public class SpawnerSystem : SystemBase
         timer += Time.DeltaTime;
         if (timer < spawnerDelayTime) return;
 
-        Random random = new Random(10);
+        // Random random = new Random(30);
+        Random random = new Random(30);
         // random.InitState();
 
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
 
         var commandBuffer = m_EntityCommandBufferSystem.CreateCommandBuffer();
         NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.TempJob);
+
         // Debug.Log(outHits.Length);
-        Entities.WithReadOnly(physicsWorld).ForEach((ref SpawnerData spawner) =>
+        Entities.WithReadOnly(physicsWorld).ForEach((ref SpawnerData spawner, ref DynamicBuffer<PosBufferElement> buffer) =>
         {
-            while (spawner.currentCount++ < spawner.desireCount)
+            while (spawner.currentCount < spawner.desireCount)
             {
+
+                spawner.currentCount++;
                 Entity spawnedEntity = commandBuffer.Instantiate(spawner.Prefab);
                 float3 position;
+
+                bool flag;
+                DynamicBuffer<float3> posBuffer = buffer.Reinterpret<float3>();
+                // 由于Agent生成延迟，因此碰撞检测时只能检测到商品等物体，无法检测到其他Agent
                 do
                 {
                     outHits.Clear();
+                    flag = true;
                     position = spawner.center + new float3(random.NextFloat(-spawner.sideLength, spawner.sideLength), 0, random.NextFloat(-spawner.sideLength, spawner.sideLength));
                     physicsWorld.OverlapBox(position, quaternion.identity, halfExtents, ref outHits, CollisionFilter.Default);
-                } while (outHits.Length != 0);
+
+                    foreach (var pos in posBuffer)
+                    {
+                        if (math.distance(pos, position) < 0.6f)
+                        {
+                            flag = false;
+                            break;
+                        }
+                    }
+                } while (outHits.Length != 0 || !flag);
                 commandBuffer.SetComponent<Translation>(spawnedEntity, new Translation { Value = position });
+                posBuffer.Add(position);
 
                 var mass = GetComponent<PhysicsMass>(spawner.Prefab);
                 mass.InverseInertia = float3.zero;

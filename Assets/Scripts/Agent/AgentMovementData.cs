@@ -20,4 +20,8 @@ public struct AgentMovementData : IComponentData
     public float pathLength;
 
     public float3 lastPosition;
+
+    public float curVel;
+
+    public float stepDuration;
 }

@@ -7,13 +7,19 @@ using UnityEngine;
 // 分析系统
 // [DisableAutoCreation]
 [AlwaysSynchronizeSystem]
-[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-[UpdateAfter(typeof(ComsMotionSystem))]
-[UpdateAfter(typeof(SubShakeSystem))]
+// [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+[UpdateInGroup(typeof(AnalysisSystemGroup))]
+// [UpdateAfter(typeof(ComsMotionSystem))]
+// [UpdateAfter(typeof(SubShakeSystem))]
 // [UpdateAfter(typeof(AgentStateSystem))]
 public class AnalysisSystem : SystemBase
 {
+
+    public int escapedBackup = 0;
+
+    public string GroupID;
     protected override void OnCreate() => this.Enabled = false;
+
     protected override void OnUpdate()
     {
         var data = GetSingleton<AccTimerData>();
@@ -51,21 +57,21 @@ public class AnalysisSystem : SystemBase
         detail.F_Acc = direction * math.length(data.acc);
         detail.F_dropCount = bridge[0];
         detail.F_escaped = bridge[1];
+        detail.F_escapredPerSec = bridge[1] - escapedBackup;
+        detail.F_GroupID = GroupID;
+        escapedBackup = bridge[1];
 
 
         // 人数到达标准，结束仿真
         var count = GetSingleton<SpawnerData>().desireCount;
-        if (bridge[1].Equals(count))
+        if (bridge[1].Equals(count))//&& data.elapsedTime >= 50
+        // if (data.elapsedTime >= 50)
         {
-            var analysisSetting = GetSingleton<AnalysisTypeData>();
-            analysisSetting.task = AnalysisTasks.Reload;
-            SetSingleton<AnalysisTypeData>(analysisSetting);
             World.DefaultGameObjectInjectionWorld.GetExistingSystem<AccTimerSystem>().Enabled = false;
             this.Enabled = false;
 
-            var cofficient = GetSingleton<AnalysisTypeData>().cofficient / 100f;
-
-            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + SetupBlobSystem.gmBlobRefs[setting.index].Value.gmName.ToString() + "_" + cofficient.ToString() + ".png");
+            var index = GetSingleton<AnalysisTypeData>().eqCount;
+            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + SetupBlobSystem.gmBlobRefs[setting.index - 1].Value.gmName.ToString() + "_" + index.ToString() + ".png");
         }
 
         // 需要手动释放空间，不然会内存泄漏
@@ -117,7 +123,6 @@ public class AnalysisSystem : SystemBase
             bridge[12] = math.min(bridge[12], data.pathLength / (data.escapeTime - data.reactionTime));
             bridge[13] = math.max(bridge[13], data.pathLength / (data.escapeTime - data.reactionTime));
         }).Schedule();
-
         // 读数据要等所有数据写完才能读
         this.CompleteDependency();
 
@@ -145,6 +150,7 @@ public class AnalysisSystem : SystemBase
         summary.F_vel_ave = bridge[11] / count;
         summary.F_vel_min = bridge[12];
         summary.F_vel_max = bridge[13];
+        summary.F_GroupID = GroupID;
 
         bridge.Dispose();
 
@@ -157,5 +163,8 @@ public class AnalysisSystem : SystemBase
         DB_Summary.MetaDefault.ClearEntities();
 
         // World.DefaultGameObjectInjectionWorld.GetExistingSystem<AgentStateSystem>().Enabled = true;
+        var analysisSetting = GetSingleton<AnalysisTypeData>();
+        analysisSetting.task = AnalysisTasks.Reload;
+        SetSingleton<AnalysisTypeData>(analysisSetting);
     }
 }

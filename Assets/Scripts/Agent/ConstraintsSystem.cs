@@ -14,8 +14,9 @@ public class ConstraintsSystem : SystemBase
     protected override void OnUpdate()
     {
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
+        var deltaTime = Time.DeltaTime;
         // 让人物不摔倒，同时跨越地面的障碍物
-        Entities.WithReadOnly(physicsWorld).ForEach((ref Translation translation, ref Rotation rotation, ref PhysicsVelocity velocity, ref PhysicsGravityFactor physicsGravity, in AgentMovementData movementData) =>
+        Entities.WithReadOnly(physicsWorld).ForEach((ref Translation translation, ref Rotation rotation, ref PhysicsVelocity velocity, ref PhysicsGravityFactor physicsGravity, ref AgentMovementData movementData) =>
         {
             // 保持Agent不摔倒
             // rotation.Value = quaternion.Euler(0, 0, 0);
@@ -30,10 +31,11 @@ public class ConstraintsSystem : SystemBase
             float2 vel = velocity.Linear.xz;
             //不移动时不进行爬坡检测
             if (vel.Equals(float2.zero)) return;
+
             // 人物半径 0.25f
-            float3 origin = translation.Value.addFloat2(math.normalize(vel) * 0.26f);
+            float3 origin = translation.Value.addFloat2(math.normalize(vel) * 0.27f);
             // origin.y += 1.1f;
-            var bottom = origin.y - 1;
+            var bottom = origin.y - 0.9f;
             RaycastInput cast = new RaycastInput
             {
                 Start = origin,
@@ -45,7 +47,13 @@ public class ConstraintsSystem : SystemBase
             if (deltaDis > 0 && deltaDis < 0.4f && translation.Value.y < 1.5f)
             {
                 physicsGravity.Value = 0;
-                translation.Value.y += deltaDis * 1.2f;
+                translation.Value.y += deltaDis * 1.5f;
+                movementData.stepDuration = 0.1f;
+            }
+            else if (movementData.stepDuration > 0)
+            {
+                movementData.stepDuration -= deltaTime;
+                return;
             }
             else physicsGravity.Value = 1;
 

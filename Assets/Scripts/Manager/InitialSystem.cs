@@ -30,11 +30,16 @@ public class InitialSystem : SystemBase
         // }).ScheduleParallel();
 
         // -------------------------------------------------- Agent ---------------------------------------------------------------------------
-        Entities.ForEach((ref AgentMovementData data, in Translation translation) =>
+        var count = GetSingleton<SpawnerData>().desireCount;
+        if (count > 0)
         {
-            data.state = AgentState.Delay;
-            data.lastPosition = translation.Value;
-        }).ScheduleParallel();
+            Entities.ForEach((ref AgentMovementData data, in Translation translation) =>
+            {
+                data.state = AgentState.Delay;
+                data.lastPosition = translation.Value;
+            }).ScheduleParallel();
+        }
+
 
         // 开始仿真
         World.DefaultGameObjectInjectionWorld.GetExistingSystem<AccTimerSystem>().Active(index);

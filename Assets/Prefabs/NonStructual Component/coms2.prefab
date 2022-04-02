@@ -152,23 +152,23 @@ MonoBehaviour:
     y: -0.02
     z: 0
   m_PrimitiveSize:
-    x: 0.08
-    y: 0.23
-    z: 0.05
+    x: 0.032920655
+    y: 0.07695003
+    z: 0.23
   m_PrimitiveOrientation:
     Value:
-      x: -0
+      x: -90
       y: 0
-      z: 0
+      z: -90
     RotationOrder: 4
   m_Capsule:
     Height: 0.23
-    Radius: 0.04
-    Axis: 1
+    Radius: 0.038475014
+    Axis: 2
   m_Cylinder:
     Height: 0.23
-    Radius: 0.04
-    Axis: 1
+    Radius: 0.038475014
+    Axis: 2
   m_CylinderSideCount: 20
   m_SphereRadius: 0.115
   m_MinimumSkinnedVertexWeight: 0.1
@@ -180,19 +180,19 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 0}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
     m_Friction:
       m_Override: 0
       m_Value:
-        Value: 0.5
-        CombineMode: 0
+        Value: 0.3
+        CombineMode: 1
     m_Restitution:
       m_Override: 0
       m_Value:
-        Value: 0
+        Value: 0.3
         CombineMode: 1
     m_BelongsToCategories:
       m_Override: 0
@@ -267,7 +267,7 @@ MonoBehaviour:
     m_CustomMaterialTags:
       m_Override: 0
       m_Value:
-        Tag00: 0
+        Tag00: 1
         Tag01: 0
         Tag02: 0
         Tag03: 0
@@ -289,4 +289,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  previous_y: 0
+  previous_VelInY: 0
+  originPosition:
+    x: 0
+    y: 0
+    z: 0
+  originRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0

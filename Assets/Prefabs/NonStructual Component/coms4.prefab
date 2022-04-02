@@ -97,7 +97,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  previous_y: 0
+  previous_VelInY: 0
+  originPosition:
+    x: 0
+    y: 0
+    z: 0
+  originRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
 --- !u!114 &3045038826719942321
 MonoBehaviour:
   m_ObjectHideFlags: 0

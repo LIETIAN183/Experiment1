@@ -13,7 +13,7 @@ public static class FlowFieldHelper
             if (neighborIndex.x >= 0) results.Add(neighborIndex);
         }
     }
-    private static int2 GetIndexAtRelativePosition(int2 currentPos, int2 relativePos, int2 gridSize)
+    public static int2 GetIndexAtRelativePosition(int2 currentPos, int2 relativePos, int2 gridSize)
     {
         int2 finalPos = currentPos + relativePos;
         return (finalPos.x < 0 || finalPos.x >= gridSize.x || finalPos.y < 0 || finalPos.y >= gridSize.y) ? new int2(-1, -1) : finalPos;

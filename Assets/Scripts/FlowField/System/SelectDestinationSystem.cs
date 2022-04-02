@@ -5,6 +5,7 @@ using Unity.Physics.Systems;
 using RaycastHit = Unity.Physics.RaycastHit;
 using UnityEngine;
 
+[DisableAutoCreation]
 public class SelectDestinationSystem : SystemBase
 {
     protected override void OnUpdate()

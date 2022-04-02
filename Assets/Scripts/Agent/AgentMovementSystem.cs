@@ -29,15 +29,9 @@ public class AgentMovementSystem : SystemBase
         // 用于物体检测
         var physicsWorld = buildPhysicsWorld.PhysicsWorld;
 
-        var acc = GetSingleton<AccTimerData>().acc;
+        var accData = GetSingleton<AccTimerData>();
 
-        var horizontalAcc = acc.xz;
-
-        var vertiAcc = math.abs(acc.y);
-
-        var accMagnitude = math.length(acc);
-
-        var _pga = GetSingleton<AccTimerData>().pga;
+        float2 SFMtarget = GetSingleton<FlowFieldSettingData>().destination.xz;
 
         Entities.WithReadOnly(cellBuffer).WithReadOnly(physicsWorld).ForEach((Entity entity, ref PhysicsVelocity velocity, ref AgentMovementData movementData, in Translation translation, in PhysicsMass mass) =>
         {
@@ -47,11 +41,26 @@ public class AgentMovementSystem : SystemBase
                 int2 localCellIndex = FlowFieldHelper.GetCellIndexFromWorldPos(translation.Value, settingData.originPoint, settingData.gridSize, settingData.cellRadius * 2);
                 // 获得当前的期望方向
                 int flatLocalCellIndex = FlowFieldHelper.ToFlatIndex(localCellIndex, settingData.gridSize.y);
+
+                // var SFMDirection = math.normalizesafe(SFMtarget - translation.Value.xz);
                 float2 desireDirection = math.normalizesafe(cellBuffer[flatLocalCellIndex].bestDirection);
+                if (translation.Value.z > 5 || translation.Value.x < -5)
+                {
+                    int2 neighberIndex = FlowFieldHelper.GetIndexAtRelativePosition(localCellIndex, cellBuffer[flatLocalCellIndex].bestDirection, settingData.gridSize);
+                    int flatNeigborIndex = FlowFieldHelper.ToFlatIndex(neighberIndex, settingData.gridSize.y);
+                    if (cellBuffer[flatNeigborIndex].cost == 1)
+                    {
+                        desireDirection = math.normalizesafe(SFMtarget - translation.Value.xz);
+                    }
+                }
+                // if (cellBuffer[flatLocalCellIndex].cost == 1 && Vector2.Angle(SFMDirection, desireDirection) < 50)
+                // {
+                //     desireDirection = SFMDirection;
+                // }
 
                 float2 interactionForce = 0;
                 // pga 超过2没必要计算排斥力了
-                if (_pga < 2)
+                if (accData.pga < 3)
                 {
                     // 计算和其他智能体的排斥力
                     NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.Temp);
@@ -62,15 +71,18 @@ public class AgentMovementSystem : SystemBase
                         {
                             if (hit.Entity.Equals(entity)) continue;
                             var direction = math.normalizesafe(translation.Value.xz - hit.Position.xz);
-                            interactionForce += 2000 * math.exp((0.25f - math.abs(hit.Fraction)) / 0.08f - _pga) * direction;
+                            interactionForce += 20 * math.exp((0.25f - math.abs(hit.Fraction)) / 0.08f - accData.pga) * direction;
                         }
                     }
 
                     outHits.Dispose();
                 }
-                var desireSpeed = math.exp(-vertiAcc - translation.Value.y + 1.05f) * movementData.stdVel;// originPosition.y 取代 1.05f
+                var desireSpeed = math.exp(-translation.Value.y + movementData.originPosition.y - math.length(accData.acc)) * movementData.stdVel;// originPosition.y 取代 1.05f
 
-                velocity.Linear.xz += ((desireDirection * desireSpeed - velocity.Linear.xz) / 0.5f + horizontalAcc + interactionForce * mass.InverseMass) * deltaTime;
+                // desireSpeed = math.max(desireSpeed, 0);
+
+
+                velocity.Linear.xz += ((desireDirection * desireSpeed - velocity.Linear.xz) / 0.5f - accData.acc.xz + interactionForce * mass.InverseMass) * deltaTime;
             }
         }).ScheduleParallel();
 

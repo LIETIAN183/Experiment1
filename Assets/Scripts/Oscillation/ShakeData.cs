@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 
 [GenerateAuthoringComponent]
 public struct ShakeData : IComponentData
@@ -16,4 +17,6 @@ public struct ShakeData : IComponentData
     public float k, c;
 
     public bool directionConstrain;
+
+    public float3 forward;
 }
