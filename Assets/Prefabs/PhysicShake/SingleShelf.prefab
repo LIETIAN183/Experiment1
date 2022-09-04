@@ -60,8 +60,9 @@ MonoBehaviour:
   endMovement: 0
   velocity: 0
   _acc: 0
-  k: 160
-  c: 2
+  k: 1600
+  c: 20
+  mass: 10
   directionConstrain: 0
   forward:
     x: 0

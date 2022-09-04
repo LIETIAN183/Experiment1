@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
-public class GridInitiializeSystem : SystemBase
+public partial class GridInitiializeSystem : SystemBase
 {
     protected override void OnUpdate()
     {
@@ -12,6 +12,8 @@ public class GridInitiializeSystem : SystemBase
         // DynamicBuffer
         DynamicBuffer<CellBufferElement> buffer = GetBuffer<CellBufferElement>(settingEntity);
         DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
+
+        cellBuffer.Clear();
 
         int2 gridSize = settingComponent.gridSize;
         float3 originPoint = settingComponent.originPoint;
@@ -30,7 +32,6 @@ public class GridInitiializeSystem : SystemBase
                 cellBuffer.Add(newCellData);
             }
         }
-
         this.Enabled = false;
     }
 }

@@ -5,9 +5,9 @@ using Unity.Physics.Systems;
 using RaycastHit = Unity.Physics.RaycastHit;
 using UnityEngine;
 
-[DisableAutoCreation]
-public class SelectDestinationSystem : SystemBase
+public partial class SelectDestinationSystem : SystemBase
 {
+    protected override void OnCreate() => this.Enabled = false;
     protected override void OnUpdate()
     {
         // 通过鼠标设置目标点

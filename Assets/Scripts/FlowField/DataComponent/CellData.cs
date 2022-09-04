@@ -10,4 +10,6 @@ public struct CellData
 
     // 用于判断不可通行区域的最外层网格是否更新过
     public bool updated;
+
+    public float sumMass, maxY;
 }

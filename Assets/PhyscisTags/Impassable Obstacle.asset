@@ -103,8 +103,8 @@ MonoBehaviour:
       m_Value:
         Tag00: 0
         Tag01: 0
-        Tag02: 1
-        Tag03: 0
+        Tag02: 0
+        Tag03: 1
         Tag04: 0
         Tag05: 0
         Tag06: 0

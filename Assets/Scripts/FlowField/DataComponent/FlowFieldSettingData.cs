@@ -8,5 +8,7 @@ public struct FlowFieldSettingData : IComponentData
     public int2 gridSize;
     public float3 cellRadius;
     public float3 destination;
+
+    public float3 displayHeightOffset;
 }
 

@@ -1211,7 +1211,7 @@ namespace Drawing {
 					maxIndices = math.max(maxIndices, rawMeshData.GetSubMesh(subMeshIndex).indexCount);
 				}
 				var tris = new NativeArray<int>(maxIndices, Allocator.Temp, NativeArrayOptions.UninitializedMemory);
-				var seenEdges = new NativeHashMap<int2, bool>(maxIndices, Allocator.Temp);
+				var seenEdges = new NativeParallelHashMap<int2, bool>(maxIndices, Allocator.Temp);
 
 				for (int subMeshIndex = 0; subMeshIndex < rawMeshData.subMeshCount; subMeshIndex++) {
 					var submesh = rawMeshData.GetSubMesh(subMeshIndex);

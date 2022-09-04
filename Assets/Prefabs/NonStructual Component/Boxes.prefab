@@ -180,7 +180,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 84a24d2183055e245872a8b20f5fcf9a, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -289,9 +289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  previous_y: 0
-  size: 0
-  mass: 0
+  previous_VelInY: 0
   originPosition:
     x: 0
     y: 0

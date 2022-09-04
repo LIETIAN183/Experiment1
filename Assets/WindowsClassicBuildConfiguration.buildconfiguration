@@ -1,9 +1,10 @@
 {
+    "Show": true,
     "Dependencies": [],
     "Components": [
         {
             "$type": "Unity.Build.Common.GeneralSettings, Unity.Build",
-            "ProductName": "DiffEQ",
+            "ProductName": "Test",
             "CompanyName": "Company Name",
             "Version": "1.0.0"
         },
@@ -21,7 +22,7 @@
         {
             "$type": "Unity.Build.Classic.ClassicBuildProfile, Unity.Build.Classic",
             "$version": 1,
-            "Platform": "win",
+            "Platform": "StandaloneWindows64",
             "Configuration": 3
         }
     ]

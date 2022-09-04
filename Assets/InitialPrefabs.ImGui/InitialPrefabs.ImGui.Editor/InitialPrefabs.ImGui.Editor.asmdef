@@ -1,0 +1,21 @@
+{
+    "name": "InitialPrefabs.ImGui.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:2ba081b12aa12e346b7f8636f0e6fe91",
+        "GUID:3151c5aad1414994b8c05db75eb8928e",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:15fc0a57446b3144c949da3e2b9737a9"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

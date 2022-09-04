@@ -1,6 +1,7 @@
 using Unity.Entities;
 
-[GenerateAuthoringComponent, InternalBufferCapacity(250)]
+// [GenerateAuthoringComponent]
+[InternalBufferCapacity(250)]
 public struct CellBufferElement : IBufferElementData
 {
     public CellData cell;
