@@ -195,7 +195,7 @@ public partial class UISystem : SystemBase
             var stepIndex = ImGui.Dropdown("PGA Step", 0, stepList, in dropStyle);
             if (!float.TryParse(stepList[stepIndex], out pgaStep)) pgaStep = 0;
             //开始多轮统计
-            if (ImGui.Button("Start Single Simulation", in buttonStyle))
+            if (ImGui.Button("Start MultiRound Simulation", in buttonStyle))
             {
                 // 获得选择的地震 Index. 开始仿真
                 simulation.GetExistingSystem<MultiRoundStatisticsSystem>().StartMultiRoundStatistics(pgaThreshold, pgaStep);
