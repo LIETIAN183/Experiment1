@@ -7,6 +7,8 @@ public struct SimulationLayerConfigurationData : IComponentData
 {
     public bool isSimulateEnvironment;
 
+    public bool isItemBreakable;
+
     public bool isSimulateFlowField;
 
     public bool isSimulateAgent;

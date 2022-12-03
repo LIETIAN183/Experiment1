@@ -28768,6 +28768,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7758980337656988525, guid: c833c7c07b4cbd849b9d808f93361c9f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7904786020096245506, guid: c833c7c07b4cbd849b9d808f93361c9f,
         type: 3}
       propertyPath: m_Name
@@ -28912,16 +28917,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   previousVelinY: 0
   inAir: 0
-  originPosition:
-    x: 0
-    y: 0
-    z: 0
-  originRotation:
-    value:
-      x: 0
-      y: 0
-      z: 0
-      w: 0
 --- !u!114 &6392581625634319160
 MonoBehaviour:
   m_ObjectHideFlags: 0

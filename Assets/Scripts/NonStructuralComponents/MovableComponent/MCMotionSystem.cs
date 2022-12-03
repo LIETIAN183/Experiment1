@@ -48,7 +48,6 @@ public partial class MCMotionSystem : SystemBase
 
             data.previousVelinY = physicsVelocity.Linear.y;
         }).ScheduleParallel();
-
         // this.CompleteDependency();
     }
 }

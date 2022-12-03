@@ -5,11 +5,11 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Jobs;
 using Unity.Physics;
-using UnityEngine;
 // using UnityEngine;
-using Random = Unity.Mathematics.Random;
+// using UnityEngine;
+// using Random = Unity.Mathematics.Random;
 using System.Threading.Tasks;
-// using System;
+using Unity.Burst;
 
 // 程序一开始就运行该系统，放在 FixedStepSimulationSystemGroup 可能出现无法读到单例数据的错误
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
@@ -19,6 +19,8 @@ public partial class MultiRoundStatisticsSystem : SystemBase
     World simulation;
 
     private EndSimulationEntityCommandBufferSystem m_EndSimECBSystem;
+
+    // private Hash128 envGUID;
 
     protected override void OnCreate()
     {
@@ -37,8 +39,10 @@ public partial class MultiRoundStatisticsSystem : SystemBase
         SetSingleton<MultiRoundStatisticsData>(analysisCircledata);
     }
 
-    protected override async void OnUpdate()
+    // 内部不能使用异步的 aync 和 Task.Delay,因为该函数定时调用多次，会导致延时失效，反而相同函数执行多次，只适用于单次调用的函数
+    protected override void OnUpdate()
     {
+        // UnityEngine.Debug.Log(envGUID.ToString());
         var analysisCircledata = GetSingleton<MultiRoundStatisticsData>();
 
         switch (analysisCircledata.curStage)
@@ -92,8 +96,6 @@ public partial class MultiRoundStatisticsSystem : SystemBase
             case AnalysisStage.Recover:
                 RecoverData().Complete();
                 analysisCircledata.curStage = AnalysisStage.Start;
-                // 可能是SystemBase设置Enabled有延迟，同时AnalysisSystem系统0.1f运行一次，导致不等待1s的化，AnalysisSystem不会停止再启动，而会直到整体仿真结束时再停止，这会导致内部参数不会在单词仿真前重置
-                await Task.Delay(1000);
                 break;
             default:
                 break;
@@ -121,6 +123,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
         this.Enabled = true;
     }
 
+    [BurstCompile]
     public JobHandle DataBuckup()
     {
         // 最开始需要做的初始化
@@ -137,7 +140,11 @@ public partial class MultiRoundStatisticsSystem : SystemBase
         }).ScheduleParallel(Dependency);
 
         // 备份初始位置
-        var handle2 = Entities.WithAny<SubFCData, MCData, AgentMovementData>().ForEach((Entity e, int entityInQueryIndex, in Translation translation, in Rotation rotation) =>
+        // var handle2 = Entities.WithAny<SubFCData, MCData, AgentMovementData>().ForEach((Entity e, int entityInQueryIndex, in Translation translation, in Rotation rotation) =>
+        // {
+        //     ecb.AddComponent<BackupData>(entityInQueryIndex, e, new BackupData { originPosition = translation.Value, originRotation = rotation.Value });
+        // }).ScheduleParallel(Dependency);
+        var handle2 = Entities.WithAny<AgentMovementData>().ForEach((Entity e, int entityInQueryIndex, in Translation translation, in Rotation rotation) =>
         {
             ecb.AddComponent<BackupData>(entityInQueryIndex, e, new BackupData { originPosition = translation.Value, originRotation = rotation.Value });
         }).ScheduleParallel(Dependency);
@@ -151,9 +158,13 @@ public partial class MultiRoundStatisticsSystem : SystemBase
         return sumHandle;
     }
 
+    [BurstCompile]
     public JobHandle RecoverData()
     {
-
+        // 重置环境
+        simulation.GetExistingSystem<InitialSystem>().ReloadSubScene();
+        simulation.GetExistingSystem<ReplaceSystem>().RemoveAllFluid();
+        // 重置行人数据
         var accTimer = GetSingleton<AccTimerData>();
         accTimer.targetPGA = 0;
         SetSingleton(accTimer);

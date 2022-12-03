@@ -78,9 +78,13 @@ public partial class UISystem : SystemBase
         // 显示当前地震名与仿真时间
         // TODO: 时间显示有时存在跳动异常
         ImGui.Label((string.IsNullOrEmpty(data.seismicName.ToString()) ? "Seismic Name" : data.seismicName.ToString()) + $"|Time: {data.elapsedTime:0.0}s/{data.seismicFinishTime:0.0}s", in textStyle.WithColor(DefaultStyles.Text));
-        // 显示PGA
-        ImGui.Label($"PGA: {data.curPGA:0.0}g", in textStyle);
+        // 显示当前地震加速度
+        ImGui.Label($"CurAcc:{math.length(data.acc):0.00}m/s2", in textStyle);
 
+        // 显示PGA
+        ImGui.Label($"PGA: {data.curPGA:0.00}g", in textStyle);
+
+        // DisplayNotificationForever(simulation.GetExistingSystem<MultiRoundStatisticsSystem>().Enabled.ToString());
         if (simulation.GetExistingSystem<AccTimerSystem>().Enabled | simulation.GetExistingSystem<MultiRoundStatisticsSystem>().Enabled)
         {
             showConfiguration = false;
@@ -104,6 +108,7 @@ public partial class UISystem : SystemBase
                 // 配置环境参数
                 if (simulationSetting.isSimulateEnvironment = ImGui.Toggle("Simulate Environment", in buttonStyle, true))
                 {
+                    simulationSetting.isItemBreakable = ImGui.Toggle("Item Breakable", in buttonStyle, true);
                     var accTimerData = GetSingleton<AccTimerData>();
                     var envList = Enumerable.Range(1, 6).Select(x => (x * 0.5f).ToString()).ToArray();
                     var envIndex = ImGui.Dropdown("Env Enhance Factor", 1, envList, in dropStyle);

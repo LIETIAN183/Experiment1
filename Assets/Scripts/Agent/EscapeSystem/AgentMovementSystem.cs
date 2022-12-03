@@ -92,8 +92,11 @@ public partial class AgentMovementSystem : SystemBase
                 outHits.Dispose();
             }
             var desireSpeed = math.exp(-translation.Value.y + movementData.originPosition.y - math.length(accData.acc)) * movementData.stdVel;// originPosition.y 取代 1.05f
+            movementData.desireSpeed = desireSpeed;
+            movementData.curSpeed = math.length(velocity.Linear.xz);
 
             velocity.Linear.xz += ((desireDirection * desireSpeed - velocity.Linear.xz) / 0.5f - accData.acc.xz + interactionForce * mass.InverseMass) * deltaTime;
+            movementData.nextSpeed = math.length(velocity.Linear.xz);
 
         }).ScheduleParallel();
 

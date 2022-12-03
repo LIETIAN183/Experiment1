@@ -16,6 +16,14 @@
                 {
                     "Scene": "GlobalObjectId_V1-1-ec8a6b7456ef8854a92e5f1a3c9d4347-102900000-0",
                     "AutoLoad": true
+                },
+                {
+                    "Scene": "GlobalObjectId_V1-1-628be021d41b9b34e9a78c2b3a67390f-102900000-0",
+                    "AutoLoad": false
+                },
+                {
+                    "Scene": "GlobalObjectId_V1-1-257150d7496425b439395c91d4b7171f-102900000-0",
+                    "AutoLoad": false
                 }
             ]
         },

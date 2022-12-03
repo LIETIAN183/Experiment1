@@ -64,17 +64,27 @@ public partial class SingleStatisticSystem : SystemBase
         NativeQueue<bool> countQueue = new NativeQueue<bool>(Allocator.TempJob);
         var countWriter = countQueue.AsParallelWriter();
 
-        Entities.WithAll<MCData>().ForEach((in Translation translation, in BackupData recoverData, in MCData data) =>
+        // 最底层货架上的商品存在一定的错误计算，但误差可接受
+        // 将地面下降2m统计则将为准确结果
+        // Entities.WithAll<MCData>().ForEach((in Translation translation, in BackupData recoverData, in MCData data) =>
+        // {
+        //     // 位于第二层货架上方的商品，低于0.5f且商品不在空中时，算掉落
+        //     if (recoverData.originPosition.y > 0.5f && translation.Value.y < 0.5f && !data.inAir)
+        //     {
+        //         countWriter.Enqueue(true);
+        //     }
+        //     else if (recoverData.originPosition.y < 0.5f)
+        //     {
+        //         // 位于底层的货架上的商品，位移超过0.4m就算其掉落
+        //         if (math.lengthsq(recoverData.originPosition - translation.Value) > 0.16f) countWriter.Enqueue(true);
+        //     }
+        // }).ScheduleParallel(Dependency).Complete();
+        Entities.WithAll<MCData>().ForEach((in Translation translation, in MCData data) =>
         {
             // 位于第二层货架上方的商品，低于0.5f且商品不在空中时，算掉落
-            if (recoverData.originPosition.y > 0.5f && translation.Value.y < 0.5f && !data.inAir)
+            if (translation.Value.y < 0.5f && !data.inAir)
             {
                 countWriter.Enqueue(true);
-            }
-            else if (recoverData.originPosition.y < 0.5f)
-            {
-                // 位于底层的货架上的商品，位移超过0.4m就算其掉落
-                if (math.lengthsq(recoverData.originPosition - translation.Value) > 0.16f) countWriter.Enqueue(true);
             }
         }).ScheduleParallel(Dependency).Complete();
 
@@ -101,9 +111,8 @@ public partial class SingleStatisticSystem : SystemBase
         escapedPedestrain_Backup = escaped;
         countQueue.Dispose();
 
-        // 人数到达标准，结束仿真
+        // // 人数到达标准，结束仿真
         if (escaped.Equals(GetSingleton<SpawnerData>().desireCount))//&& data.elapsedTime >= 50
-                                                                    // if (data.elapsedTime >= 50)
         {
             GetSummary();
             World.DefaultGameObjectInjectionWorld.GetExistingSystem<AccTimerSystem>().Enabled = false;
@@ -115,7 +124,7 @@ public partial class SingleStatisticSystem : SystemBase
         summaries.Clear();
     }
 
-    void GetSummary()
+    public void GetSummary()
     {
         var accData = GetSingleton<AccTimerData>();
 

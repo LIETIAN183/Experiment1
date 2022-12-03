@@ -75,7 +75,30 @@ public partial class AccTimerSystem : SystemBase
 
         var simulationSetting = GetSingleton<SimulationLayerConfigurationData>();
         // 不进行统计时，设置仿真结束条件，延迟10s结束仿真
-        if ((!simulationSetting.isPerformStatistics | !simulationSetting.isSimulateAgent) && accTimerData.elapsedTime >= accTimerData.seismicFinishTime + 2)
+        // if ((!simulationSetting.isPerformStatistics | !simulationSetting.isSimulateAgent) && accTimerData.elapsedTime >= accTimerData.seismicFinishTime + 2)
+        // {
+        //     this.Enabled = false;
+        // }
+
+        // 有行人时所有行人逃出后结束仿真
+        if (simulationSetting.isPerformStatistics)
+        {
+            // 不处理，放到 SingleStatisticSystem 中处理
+        }
+        else if (simulationSetting.isSimulateAgent)
+        {
+            var escaping = GetEntityQuery(ComponentType.ReadOnly<Escaping>()).CalculateEntityCount();
+            if (escaping == 0)
+            // if (escaped.Equals(GetSingleton<SpawnerData>().desireCount))
+            {
+                // if (simulationSetting.isPerformStatistics)
+                // {
+                //     simulation.GetExistingSystem<SingleStatisticSystem>().GetSummary();
+                // }
+                this.Enabled = false;
+            }
+        }
+        else if (accTimerData.elapsedTime >= accTimerData.seismicFinishTime + 2)
         {
             this.Enabled = false;
         }
@@ -93,7 +116,6 @@ public partial class AccTimerSystem : SystemBase
             simulation.GetExistingSystem<UISystem>().DisplayNotification2s("Spawning Agents");
             await Task.Delay(2000);
         }
-
         var accTimer = GetSingleton<AccTimerData>();
         accTimer.seismicIndex = index;
         accTimer.targetPGA = targetPGA;
@@ -115,6 +137,11 @@ public partial class AccTimerSystem : SystemBase
             // 环境系统
             simulation.GetExistingSystem<MCMotionSystem>().Enabled = state;
             simulation.GetExistingSystem<FCTopOscSystem>().Enabled = state;
+
+            if (setting.isItemBreakable)
+            {
+                simulation.GetExistingSystem<ReplaceSystem>().Enabled = state;
+            }
         }
 
         if (setting.isSimulateFlowField)
