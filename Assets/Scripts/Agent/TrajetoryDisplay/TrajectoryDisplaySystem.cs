@@ -13,7 +13,7 @@ public partial class TrajectoryDisplaySystem : SystemBase
     {
         var builder = DrawingManager.GetBuilder(true);
 
-        this.Dependency = Entities.WithAny<Escaping, Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabled).ForEach((in DynamicBuffer<TrajectoryBufferElement> trajectory) =>
+        this.Dependency = Entities.WithAny<Escaping, Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabledEntities).ForEach((in DynamicBuffer<TrajectoryBuffer> trajectory) =>
         {
             // 轨迹可视化
             builder.PushLineWidth(2f);

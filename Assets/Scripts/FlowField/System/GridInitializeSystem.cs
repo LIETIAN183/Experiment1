@@ -10,7 +10,7 @@ public partial class GridInitiializeSystem : SystemBase
         var settingComponent = GetSingleton<FlowFieldSettingData>();
 
         // DynamicBuffer
-        DynamicBuffer<CellBufferElement> buffer = GetBuffer<CellBufferElement>(settingEntity);
+        DynamicBuffer<CellBuffer> buffer = GetBuffer<CellBuffer>(settingEntity);
         DynamicBuffer<CellData> cellBuffer = buffer.Reinterpret<CellData>();
 
         cellBuffer.Clear();

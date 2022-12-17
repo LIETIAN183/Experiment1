@@ -79,10 +79,10 @@ public partial class SingleStatisticSystem : SystemBase
         //         if (math.lengthsq(recoverData.originPosition - translation.Value) > 0.16f) countWriter.Enqueue(true);
         //     }
         // }).ScheduleParallel(Dependency).Complete();
-        Entities.WithAll<MCData>().ForEach((in Translation translation, in MCData data) =>
+        Entities.WithAll<MCData>().ForEach((in LocalTransform localTransform, in MCData data) =>
         {
             // 位于第二层货架上方的商品，低于0.5f且商品不在空中时，算掉落
-            if (translation.Value.y < 0.5f && !data.inAir)
+            if (localTransform.Position.y < 0.5f && !data.inAir)
             {
                 countWriter.Enqueue(true);
             }
@@ -91,7 +91,7 @@ public partial class SingleStatisticSystem : SystemBase
         var query = new EntityQueryDesc
         {
             All = new ComponentType[] { ComponentType.ReadOnly<Escaped>() },
-            Options = EntityQueryOptions.IncludeDisabled
+            Options = EntityQueryOptions.IncludeDisabledEntities
         };
         var escaped = GetEntityQuery(query).CalculateEntityCount();
         var curDetail = new Detail()
@@ -115,7 +115,7 @@ public partial class SingleStatisticSystem : SystemBase
         if (escaped.Equals(GetSingleton<SpawnerData>().desireCount))//&& data.elapsedTime >= 50
         {
             GetSummary();
-            World.DefaultGameObjectInjectionWorld.GetExistingSystem<AccTimerSystem>().Enabled = false;
+            World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<AccTimerSystem>().Enabled = false;
         }
     }
     public void ClearDataStorage()
@@ -136,7 +136,7 @@ public partial class SingleStatisticSystem : SystemBase
         var lengthWriter = lengthQueue.AsParallelWriter();
         var velWriter = velQueue.AsParallelWriter();
 
-        Entities.WithAll<Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabled).ForEach((in RecordData recordData) =>
+        Entities.WithAll<Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabledEntities).ForEach((in RecordData recordData) =>
         {
             timeWriter.Enqueue(recordData.escapeTime);
             lengthWriter.Enqueue(recordData.escapeLength);

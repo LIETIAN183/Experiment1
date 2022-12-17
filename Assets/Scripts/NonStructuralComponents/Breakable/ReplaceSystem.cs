@@ -21,7 +21,7 @@ public struct fluidInfo
 public partial class ReplaceSystem : SystemBase
 {
     private EndFixedStepSimulationEntityCommandBufferSystem m_endFixedStepSimECBSystem;
-    private StepPhysicsWorld stepPhysicsWorld;
+    // private StepPhysicsWorld stepPhysicsWorld;
     private PhysicsWorld physicsWorld;
     private List<Entity> deletedEntity;
     private Random random;
@@ -31,9 +31,9 @@ public partial class ReplaceSystem : SystemBase
     public GameObject fluidSolver;
     protected override void OnCreate()
     {
-        m_endFixedStepSimECBSystem = World.GetExistingSystem<EndFixedStepSimulationEntityCommandBufferSystem>();
-        stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
-        physicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>().PhysicsWorld;
+        m_endFixedStepSimECBSystem = World.GetExistingSystemManaged<EndFixedStepSimulationEntityCommandBufferSystem>();
+        // stepPhysicsWorld = World.GetOrCreateSystem<StepPhysicsWorld>();
+        physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
         deletedEntity = new List<Entity>();
         fluidGeneratePositions = new List<fluidInfo>();
         random = new Random();
@@ -43,9 +43,9 @@ public partial class ReplaceSystem : SystemBase
 
     protected override void OnStartRunning()
     {
-        var ecb = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>().CreateCommandBuffer();
+        var ecb = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>().CreateCommandBuffer();
 
-        Entities.WithAll<BreakableTag>().ForEach((in DynamicBuffer<EntityBufferElement> buffer) =>
+        Entities.WithAll<BreakableData>().ForEach((in DynamicBuffer<EntityBufferElement> buffer) =>
         {
             var prefabs = buffer.Reinterpret<Entity>();
             foreach (var prefab in prefabs)
@@ -57,11 +57,10 @@ public partial class ReplaceSystem : SystemBase
                 foreach (var c in childbuffer)
                 {
                     if (c == prefab) continue;
-                    if (HasComponent<Translation>(c) && !HasComponent<OriginalState>(c))
+                    if (HasComponent<LocalTransform>(c) && !HasComponent<OriginalState>(c))
                     {
-                        var t = GetComponent<Translation>(c);
-                        var r = GetComponent<Rotation>(c);
-                        ecb.AddComponent<OriginalState>(c, new OriginalState { originPosition = t.Value, originRotation = r.Value });
+                        var t = GetComponent<LocalTransform>(c);
+                        ecb.AddComponent<OriginalState>(c, new OriginalState { originPosition = t.Position, originRotation = t.Rotation });
                         ecb.AddComponent<MCData>(c);
                     }
                 }
@@ -76,35 +75,37 @@ public partial class ReplaceSystem : SystemBase
         fluidSolver.GetComponent<GenerateFluid>().RemoveAllFluidInGo();
     }
 
-    BufferFromEntity<Child> childList;
-    BufferFromEntity<LinkedEntityGroup> linkedList;
-    BufferFromEntity<EntityBufferElement> prefabList;
-    ComponentDataFromEntity<Rotation> rotationList;
-    ComponentDataFromEntity<Translation> translationList;
-    ComponentDataFromEntity<PhysicsVelocity> velocityList;
-    ComponentDataFromEntity<OriginalState> originStateList;
-    ComponentDataFromEntity<BreakableTag> breakableList;
+    BufferLookup<Child> childList;
+    BufferLookup<LinkedEntityGroup> linkedList;
+    BufferLookup<EntityBufferElement> prefabList;
+    ComponentLookup<LocalTransform> localTransformList;
+    ComponentLookup<PhysicsVelocity> velocityList;
+    ComponentLookup<OriginalState> originStateList;
+    ComponentLookup<BreakableData> breakableList;
 
     [BurstCompile]
     protected override void OnUpdate()
     {
         var ecb = m_endFixedStepSimECBSystem.CreateCommandBuffer();
 
-        childList = GetBufferFromEntity<Child>(true);
-        linkedList = GetBufferFromEntity<LinkedEntityGroup>(true);
-        prefabList = GetBufferFromEntity<EntityBufferElement>(true);
-        breakableList = GetComponentDataFromEntity<BreakableTag>(true);
-        rotationList = GetComponentDataFromEntity<Rotation>(true);
-        translationList = GetComponentDataFromEntity<Translation>(true);
-        velocityList = GetComponentDataFromEntity<PhysicsVelocity>(true);
-        originStateList = GetComponentDataFromEntity<OriginalState>(true);
+        childList = GetBufferLookup<Child>(true);
+        linkedList = GetBufferLookup<LinkedEntityGroup>(true);
+        prefabList = GetBufferLookup<EntityBufferElement>(true);
+        breakableList = GetComponentLookup<BreakableData>(true);
+        localTransformList = GetComponentLookup<LocalTransform>(true);
+        velocityList = GetComponentLookup<PhysicsVelocity>(true);
+        originStateList = GetComponentLookup<OriginalState>(true);
 
         // 判断使用的物理系统
         // UnityEngine.Debug.Log(World.GetOrCreateSystem<StepPhysicsWorld>().Simulation.GetType());
         // 如果使用 Unity Physics，选用注释的代码
         // var events = ((Simulation)World.GetOrCreateSystem<StepPhysicsWorld>().Simulation).CollisionEvents;
 
-        var events = ((HavokSimulation)stepPhysicsWorld.Simulation).CollisionEvents;
+        // var events = ((HavokSimulation)stepPhysicsWorld.Simulation).CollisionEvents;
+        var simulation = SystemAPI.GetSingleton<SimulationSingleton>();
+        var havokSimulation = simulation.AsHavokSimulation();
+
+        HavokCollisionEvents events = havokSimulation.CollisionEvents;
         foreach (var e in events)
         {
             // 过滤事件，如果触发碰撞事件的双方都不是可破碎物体时跳过
@@ -152,8 +153,8 @@ public partial class ReplaceSystem : SystemBase
         var prefab = prefabs[random.NextInt(0, prefabs.Length)];
 
         // 配置替换物的位置、旋转角度和速度
-        var targetRotation = rotationList[selectedEntity].Value;
-        var targetTranslation = translationList[selectedEntity].Value;
+        var targetRotation = localTransformList[selectedEntity].Rotation;
+        var targetTranslation = localTransformList[selectedEntity].Position;
         var targetVelocity = velocityList[selectedEntity];
 
         if (breakableList[selectedEntity].fluidInside)
@@ -171,8 +172,7 @@ public partial class ReplaceSystem : SystemBase
                 (float3 p, quaternion r) = rotateAroundPoint(float3.zero, targetRotation, data.originPosition, data.originRotation);
                 // 设置位置、旋转角度和速度
                 ecb.SetComponent<PhysicsVelocity>(child, targetVelocity);
-                ecb.SetComponent<Translation>(child, new Translation { Value = p + targetTranslation });
-                ecb.SetComponent<Rotation>(child, new Rotation { Value = r });
+                ecb.SetComponent<LocalTransform>(child, new LocalTransform { Position = p + targetTranslation, Rotation = r });
                 ecb.SetComponent<MCData>(child, new MCData { previousVelinY = targetVelocity.Linear.y });
             }
         }

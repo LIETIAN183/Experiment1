@@ -31,13 +31,13 @@ public partial class SpawnerSystem : SystemBase
 
         Random random = new Random(30);
 
-        var physicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>().PhysicsWorld;
+        var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
-        var commandBuffer = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>().CreateCommandBuffer();
+        var commandBuffer = World.GetOrCreateSystemManaged<BeginInitializationEntityCommandBufferSystem>().CreateCommandBuffer();
         NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.TempJob);
 
         // Debug.Log(outHits.Length);
-        Entities.WithReadOnly(physicsWorld).ForEach((ref SpawnerData spawner, ref DynamicBuffer<PosBufferElement> buffer) =>
+        Entities.WithReadOnly(physicsWorld).ForEach((ref SpawnerData spawner, ref DynamicBuffer<PosBuffer> buffer) =>
         {
             if (!spawner.canSpawn) return;
             DynamicBuffer<float3> posBuffer = buffer.Reinterpret<float3>();
@@ -67,7 +67,8 @@ public partial class SpawnerSystem : SystemBase
                 } while (outHits.Length != 0 || !flag);
                 commandBuffer.AddComponent<Idle>(spawnedEntity);
                 commandBuffer.AddComponent<RecordData>(spawnedEntity);
-                commandBuffer.SetComponent<Translation>(spawnedEntity, new Translation { Value = position });
+                commandBuffer.SetComponent<LocalTransform>(spawnedEntity, new LocalTransform { Position = position });
+                // commandBuffer.SetComponent<Translation>(spawnedEntity, new Translation { Value = position });
                 posBuffer.Add(position);
 
                 var mass = GetComponent<PhysicsMass>(spawner.Prefab);

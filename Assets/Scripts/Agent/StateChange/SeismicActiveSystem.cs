@@ -9,12 +9,12 @@ public partial class SeismicActiveSystem : SystemBase
 
     protected override void OnCreate()
     {
-        m_EndSimECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_EndSimECBSystem = World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         this.Enabled = false;
     }
     protected override void OnUpdate()
     {
-        if (World.DefaultGameObjectInjectionWorld.GetExistingSystem<AccTimerSystem>().Enabled)
+        if (World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<AccTimerSystem>().Enabled)
         {
             var ecb = m_EndSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 

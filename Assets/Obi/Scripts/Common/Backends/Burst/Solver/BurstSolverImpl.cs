@@ -3,6 +3,7 @@ using UnityEngine;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Collections;
+using System.Linq;
 
 namespace Obi
 {
@@ -230,7 +231,7 @@ namespace Obi
                 JobHandle.ScheduleBatchedJobs();
             }
         }
-  
+
         private void GetOrCreateColliderWorld()
         {
             colliderGrid = GameObject.FindObjectOfType<BurstColliderWorld>();
@@ -244,7 +245,7 @@ namespace Obi
         public void InitializeFrame(Vector4 translation, Vector4 scale, Quaternion rotation)
         {
             m_InertialFrame = new BurstInertialFrame(translation, scale, rotation);
-        } 
+        }
 
         public void UpdateFrame(Vector4 translation, Vector4 scale, Quaternion rotation, float deltaTime)
         {
@@ -308,7 +309,7 @@ namespace Obi
                 int end = sourceOffset + set;
 
                 // TODO: replace by built in method in 0.9.0
-                deformableTriangles.RemoveRangeBurst(sourceOffset * 3, (end - sourceOffset) * 3 );
+                deformableTriangles.RemoveRangeBurst(sourceOffset * 3, (end - sourceOffset) * 3);
 
                 return set;
             }
@@ -317,7 +318,7 @@ namespace Obi
 
         public void SetSimplices(int[] simplices, SimplexCounts counts)
         {
-            this.simplices.CopyFrom(simplices);
+            this.simplices.CopyFrom(simplices.ToList().ToNativeArray(Allocator.Temp));
             this.simplexCounts = counts;
 
             if (simplexBounds.IsCreated)
@@ -427,12 +428,12 @@ namespace Obi
 
         public void GetCollisionContacts(Oni.Contact[] contacts, int count)
         {
-            NativeArray<Oni.Contact>.Copy(colliderContacts.Reinterpret<Oni.Contact>(),0, contacts,0,count);
+            NativeArray<Oni.Contact>.Copy(colliderContacts.Reinterpret<Oni.Contact>(), 0, contacts, 0, count);
         }
 
         public void GetParticleCollisionContacts(Oni.Contact[] contacts, int count)
         {
-            NativeArray<Oni.Contact>.Copy(particleContacts.Reinterpret<Oni.Contact>(),0, contacts,0,count);
+            NativeArray<Oni.Contact>.Copy(particleContacts.Reinterpret<Oni.Contact>(), 0, contacts, 0, count);
         }
 
         public void SetParameters(Oni.SolverParameters parameters)
@@ -683,7 +684,7 @@ namespace Obi
                     pf.batches[i].enabled = true;
 
                     (pc.batches[i] as BurstParticleCollisionConstraintsBatch).batchData = particleBatchData[i];
-                    (pf.batches[i] as BurstParticleFrictionConstraintsBatch ).batchData = particleBatchData[i];
+                    (pf.batches[i] as BurstParticleFrictionConstraintsBatch).batchData = particleBatchData[i];
                 }
 
                 // Generate fluid interaction batches:

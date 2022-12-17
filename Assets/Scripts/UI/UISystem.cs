@@ -51,7 +51,7 @@ public partial class UISystem : SystemBase
     protected override void OnStartRunning()
     {
         // 存储地震事件列表
-        if (simulation.GetExistingSystem<SetupBlobSystem>().dataReadSuccessed)
+        if (simulation.GetExistingSystemManaged<SetupBlobSystem>().dataReadSuccessed)
         {
             seismicEvents = SetupBlobSystem.seismicBlobRefs.Select(item => item.Value.seismicName.ToString()).ToArray();
         }
@@ -66,7 +66,7 @@ public partial class UISystem : SystemBase
         // 控制左上角 UI 显示
         if (!displayUI) return;
         // 显示 FPS
-        ImGui.Label($"{simulation.GetExistingSystem<FPSSystem>().curFPS} FPS", in textStyle);
+        ImGui.Label($"{simulation.GetExistingSystemManaged<FPSSystem>().curFPS} FPS", in textStyle);
 
 
         // 显示通知
@@ -84,15 +84,15 @@ public partial class UISystem : SystemBase
         // 显示PGA
         ImGui.Label($"PGA: {data.curPGA:0.00}g", in textStyle);
 
-        // DisplayNotificationForever(simulation.GetExistingSystem<MultiRoundStatisticsSystem>().Enabled.ToString());
-        if (simulation.GetExistingSystem<AccTimerSystem>().Enabled | simulation.GetExistingSystem<MultiRoundStatisticsSystem>().Enabled)
+        // DisplayNotificationForever(simulation.GetExistingSystemManaged<MultiRoundStatisticsSystem>().Enabled.ToString());
+        if (simulation.GetExistingSystemManaged<AccTimerSystem>().Enabled | simulation.GetExistingSystemManaged<MultiRoundStatisticsSystem>().Enabled)
         {
             showConfiguration = false;
             var simulationSetting = GetSingleton<SimulationLayerConfigurationData>();
             if (simulationSetting.isSimulateFlowField)
             {
                 // 选择 FlowField 可视化效果
-                simulation.GetExistingSystem<FlowFieldVisulizeSystem>()._curDisplayType = (FlowFieldDisplayType)ImGui.Dropdown("FlowField", flowFieldDisplayType, in dropStyle);
+                simulation.GetExistingSystemManaged<FlowFieldVisulizeSystem>()._curDisplayType = (FlowFieldDisplayType)ImGui.Dropdown("FlowField", flowFieldDisplayType, in dropStyle);
             }
         }
         else
@@ -124,24 +124,24 @@ public partial class UISystem : SystemBase
                 if (simulationSetting.isSimulateFlowField = ImGui.Toggle("Simulate FlowField", in buttonStyle, true))
                 {
                     // 选择 FlowField 可视化效果
-                    simulation.GetExistingSystem<FlowFieldVisulizeSystem>()._curDisplayType = (FlowFieldDisplayType)ImGui.Dropdown("Visulize Type", flowFieldDisplayType, in dropStyle);
-                    simulation.GetExistingSystem<CalculateCostFieldSystem>().Enabled = true;
+                    simulation.GetExistingSystemManaged<FlowFieldVisulizeSystem>()._curDisplayType = (FlowFieldDisplayType)ImGui.Dropdown("Visulize Type", flowFieldDisplayType, in dropStyle);
+                    simulation.GetExistingSystemManaged<CalculateCostFieldSystem>().Enabled = true;
                     // 选择流场目标点
                     if (ImGui.Toggle("Choose Destination", in buttonStyle))
                     {
-                        simulation.GetExistingSystem<FlowFieldVisulizeSystem>()._curDisplayType = FlowFieldDisplayType.FlowField;
-                        simulation.GetExistingSystem<SelectDestinationSystem>().Enabled = true;
+                        simulation.GetExistingSystemManaged<FlowFieldVisulizeSystem>()._curDisplayType = FlowFieldDisplayType.FlowField;
+                        simulation.GetExistingSystemManaged<SelectDestinationSystem>().Enabled = true;
                     }
                     else
                     {
-                        simulation.GetExistingSystem<SelectDestinationSystem>().Enabled = false;
+                        simulation.GetExistingSystemManaged<SelectDestinationSystem>().Enabled = false;
                     }
 
                     if (ImGui.Toggle("Modify Display Height", in buttonStyle))
                     {
-                        if (simulation.GetExistingSystem<FlowFieldVisulizeSystem>()._curDisplayType.Equals(FlowFieldDisplayType.None))
+                        if (simulation.GetExistingSystemManaged<FlowFieldVisulizeSystem>()._curDisplayType.Equals(FlowFieldDisplayType.None))
                         {
-                            simulation.GetExistingSystem<FlowFieldVisulizeSystem>()._curDisplayType = FlowFieldDisplayType.IntegrationHeatMap;
+                            simulation.GetExistingSystemManaged<FlowFieldVisulizeSystem>()._curDisplayType = FlowFieldDisplayType.IntegrationHeatMap;
                         }
                         var heightOffset = ImGui.Slider("", -1f, 4f, in sliderStyle, 0.2f);// 不添加空label，该slider不生效
                         var flowFieldData = GetSingleton<FlowFieldSettingData>();
@@ -187,7 +187,7 @@ public partial class UISystem : SystemBase
             if (ImGui.Button("Start Single Simulation", in buttonStyle))
             {
                 // 获得选择的地震 Index. 开始仿真
-                simulation.GetExistingSystem<AccTimerSystem>().StartSingleSimulation(index, targetPGA);
+                simulation.GetExistingSystemManaged<AccTimerSystem>().StartSingleSimulation(index, targetPGA);
             }
 
             // 选择多轮统计
@@ -203,7 +203,7 @@ public partial class UISystem : SystemBase
             if (ImGui.Button("Start MultiRound Simulation", in buttonStyle))
             {
                 // 获得选择的地震 Index. 开始仿真
-                simulation.GetExistingSystem<MultiRoundStatisticsSystem>().StartMultiRoundStatistics(pgaThreshold, pgaStep);
+                simulation.GetExistingSystemManaged<MultiRoundStatisticsSystem>().StartMultiRoundStatistics(pgaThreshold, pgaStep);
             }
 
             // 调整字体大小

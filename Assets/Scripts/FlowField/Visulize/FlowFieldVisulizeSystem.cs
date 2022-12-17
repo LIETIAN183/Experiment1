@@ -44,7 +44,8 @@ public partial class FlowFieldVisulizeSystem : SystemBase
                     break;
                 case FlowFieldDisplayType.IntegrationField:
                     draw.WireGrid(center, Quaternion.identity, setting.gridSize, gridLength.xz, Color.black);
-                    data.ForEach(cell => draw.Label2D(cell.worldPos + heightOffset, cell.bestCost == ushort.MaxValue ? "M" : cell.bestCost.ToString(), 40, LabelAlignment.Center));
+                    // data.ForEach(cell => draw.Label2D(cell.worldPos + heightOffset, cell.bestCost == ushort.MaxValue ? "M" : cell.bestCost.ToString(), 40, LabelAlignment.Center));
+                    data.ForEach(cell => draw.Label2D(cell.worldPos + heightOffset, cell.tempCost == float.MaxValue ? "M" : cell.tempCost.ToString(), 40, LabelAlignment.Center));
                     break;
                 case FlowFieldDisplayType.CostHeatMap:
                     //https://stackoverflow.com/questions/10901085/range-values-to-pseudocolor
@@ -64,14 +65,28 @@ public partial class FlowFieldVisulizeSystem : SystemBase
                     }
                     break;
                 case FlowFieldDisplayType.IntegrationHeatMap:
-                    float maxBestCost = data.Where(i => i.bestCost != ushort.MaxValue).Max(i => i.bestCost);
+                    // float maxBestCost = data.Where(i => i.bestCost != ushort.MaxValue).Max(i => i.bestCost);
+
+                    // foreach (var cell in data)
+                    // {
+                    //     float intHeat = (maxBestCost - cell.bestCost) / maxBestCost;
+                    //     Color drawColor = cell.bestCost == ushort.MaxValue ? Color.black : Color.HSVToRGB(intHeat / 3, 1, 1);
+                    //     drawColor = cell.bestCost == 0 ? Color.blue : drawColor;
+                    //     var height = cell.bestCost == ushort.MaxValue ? 1 : cell.bestCost / maxBestCost;
+                    //     var tempPos = cell.worldPos;
+                    //     tempPos.y += height / 2;
+                    //     var tempSize = setting.cellRadius * 2;
+                    //     tempSize.y = height;
+                    //     draw.SolidBox(tempPos + heightOffset, tempSize, drawColor);
+                    // }
+                    float maxBestCost = data.Where(i => i.tempCost != float.MaxValue).Max(i => i.tempCost);
 
                     foreach (var cell in data)
                     {
-                        float intHeat = (maxBestCost - cell.bestCost) / maxBestCost;
-                        Color drawColor = cell.bestCost == ushort.MaxValue ? Color.black : Color.HSVToRGB(intHeat / 3, 1, 1);
-                        drawColor = cell.bestCost == 0 ? Color.blue : drawColor;
-                        var height = cell.bestCost == ushort.MaxValue ? 1 : cell.bestCost / maxBestCost;
+                        float intHeat = (maxBestCost - cell.tempCost) / maxBestCost;
+                        Color drawColor = cell.tempCost == float.MaxValue ? Color.black : Color.HSVToRGB(intHeat / 3, 1, 1);
+                        drawColor = cell.tempCost == 0 ? Color.blue : drawColor;
+                        var height = cell.tempCost == float.MaxValue ? 1 : cell.tempCost / maxBestCost;
                         var tempPos = cell.worldPos;
                         tempPos.y += height / 2;
                         var tempSize = setting.cellRadius * 2;
@@ -82,11 +97,12 @@ public partial class FlowFieldVisulizeSystem : SystemBase
                 case FlowFieldDisplayType.FlowField:
                     foreach (var cell in data)
                     {
-                        if (cell.cost == 0) draw.CircleXZ(cell.worldPos + heightOffset, setting.cellRadius.x * 0.8f, Color.yellow);
-                        else if (cell.bestDirection.Equals(GridDirection.None)) drawCross45(draw, cell.worldPos + heightOffset, setting.cellRadius * 0.8f, Color.red);
+                        if (cell.tempCost == 0) draw.CircleXZ(cell.worldPos + heightOffset, setting.cellRadius.x * 0.8f, Color.yellow);
+                        // else if (cell.bestDirection.Equals(GridDirection.None)) drawCross45(draw, cell.worldPos + heightOffset, setting.cellRadius * 0.8f, Color.red);
+                        else if (cell.bestDir.Equals(float2.zero)) drawCross45(draw, cell.worldPos + heightOffset, setting.cellRadius * 0.8f, Color.red);
                         else
                         {
-                            var dir = math.normalize(new float3(cell.bestDirection.x, 0, cell.bestDirection.y));
+                            var dir = math.normalize(new float3(cell.bestDir.x, 0, cell.bestDir.y));
                             var halfLength = setting.cellRadius.x * 0.8f;
                             var originPos = cell.worldPos + heightOffset;
                             draw.Arrow(originPos - halfLength * dir, originPos + halfLength * dir, Color.black);
@@ -108,5 +124,5 @@ public partial class FlowFieldVisulizeSystem : SystemBase
         builder.PopColor();
     }
 
-    public void UpdateData() => data = GetBuffer<CellBufferElement>(GetSingletonEntity<FlowFieldSettingData>()).Reinterpret<CellData>().AsNativeArray().ToList();
+    public void UpdateData() => data = GetBuffer<CellBuffer>(GetSingletonEntity<FlowFieldSettingData>()).Reinterpret<CellData>().AsNativeArray().ToList();
 }

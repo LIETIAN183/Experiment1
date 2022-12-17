@@ -26,7 +26,8 @@ public partial class MCMotionSystem : SystemBase
     {
 
         // 获得时间间隔，地震加速度，当前垂直重力加速度
-        var time = Time.DeltaTime;
+        var time = SystemAPI.Time.DeltaTime;
+        //TODO: 测试返回值是否正确
         var accTimerData = GetSingleton<AccTimerData>();
         var seismicAcc = accTimerData.acc;
         var currentGravity = basicGravity - seismicAcc.y;

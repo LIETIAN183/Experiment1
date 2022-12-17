@@ -24,7 +24,7 @@ public class GenerateFluid : MonoBehaviour
     {
         foreach (World world in World.All)
         {
-            ReplaceSystem replaceSystem = world.GetExistingSystem<ReplaceSystem>();
+            ReplaceSystem replaceSystem = world.GetExistingSystemManaged<ReplaceSystem>();
             if (replaceSystem != null && replaceSystem.fluidSolver == null)
             {
                 replaceSystem.fluidSolver = this.gameObject;

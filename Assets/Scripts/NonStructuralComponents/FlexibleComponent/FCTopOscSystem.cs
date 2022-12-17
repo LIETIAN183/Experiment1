@@ -12,8 +12,8 @@ public partial class FCTopOscSystem : SystemBase
 
     protected override void OnStartRunning()
     {
-        World.DefaultGameObjectInjectionWorld.GetExistingSystem<FCSubMotionSystem>().Enabled = true;
-        Entities.WithAll<FCData>().WithName("FCInitialize").ForEach((ref FCData curData, in Translation translation, in Rotation rotation) =>
+        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<FCSubMotionSystem>().Enabled = true;
+        Entities.WithAll<FCData>().WithName("FCInitialize").ForEach((ref FCData curData) =>
         {
             curData.topAcc = curData.topDis = curData.topVel = 0;
         }).ScheduleParallel();
@@ -22,14 +22,14 @@ public partial class FCTopOscSystem : SystemBase
     }
     protected override void OnStopRunning()
     {
-        World.DefaultGameObjectInjectionWorld.GetExistingSystem<FCSubMotionSystem>().Enabled = false;
+        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<FCSubMotionSystem>().Enabled = false;
     }
 
     protected override void OnUpdate()
     {
         var accTimerData = GetSingleton<AccTimerData>();
         var acc = accTimerData.acc * accTimerData.envEnhanceFactor;
-        var time = Time.DeltaTime;
+        var time = SystemAPI.Time.DeltaTime;
 
         Entities.WithAll<FCData>().WithName("FCTopOsc").ForEach((ref FCData data, in LocalToWorld ltd) =>
         {

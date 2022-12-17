@@ -13,23 +13,23 @@ public partial class TrajectoryRecordSystem : SystemBase
     protected override void OnStartRunning()
     {
         // 放到AnalysisCircyleSystem中重置，否则Display系统会没等初始化重置就显示上一次的轨迹
-        Entities.WithAll<AgentMovementData>().ForEach((ref DynamicBuffer<TrajectoryBufferElement> trajectory) =>
+        Entities.WithAll<AgentMovementData>().ForEach((ref DynamicBuffer<TrajectoryBuffer> trajectory) =>
         {
             trajectory.Clear();
         }).ScheduleParallel();
         // 初始化完成后才能开始下一步
         this.CompleteDependency();
-        World.DefaultGameObjectInjectionWorld.GetExistingSystem<TrajectoryDisplaySystem>().Enabled = true;
+        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<TrajectoryDisplaySystem>().Enabled = true;
     }
     protected override void OnStopRunning()
     {
-        World.DefaultGameObjectInjectionWorld.GetExistingSystem<TrajectoryDisplaySystem>().Enabled = false;
+        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<TrajectoryDisplaySystem>().Enabled = false;
     }
     protected override void OnUpdate()
     {
-        Entities.WithAll<Escaping>().ForEach((ref DynamicBuffer<TrajectoryBufferElement> trajectory, in Translation translation) =>
+        Entities.WithAll<Escaping>().ForEach((ref DynamicBuffer<TrajectoryBuffer> trajectory, in LocalTransform localTransform) =>
         {
-            var temp = translation.Value;
+            var temp = localTransform.Position;
             temp.y = 1;
             trajectory.Add(temp);
         }).Schedule();

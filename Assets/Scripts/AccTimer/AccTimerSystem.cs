@@ -12,25 +12,25 @@ public partial class AccTimerSystem : SystemBase
     {
         // 初始化时设置时间间隔0.04f，防止太卡
         simulation = World.DefaultGameObjectInjectionWorld;
-        simulation.GetExistingSystem<FixedStepSimulationSystemGroup>().Timestep = 0.04f;
+        simulation.GetExistingSystemManaged<FixedStepSimulationSystemGroup>().Timestep = 0.04f;
         this.Enabled = false;
     }
 
     protected override void OnStartRunning()
     {
-        if (!simulation.GetExistingSystem<SetupBlobSystem>().dataReadSuccessed)
+        if (!simulation.GetExistingSystemManaged<SetupBlobSystem>().dataReadSuccessed)
         {
-            simulation.GetExistingSystem<UISystem>().DisplayNotificationForever("Data Read Error, Cant Exceed Simulation");
+            simulation.GetExistingSystemManaged<UISystem>().DisplayNotificationForever("Data Read Error, Cant Exceed Simulation");
             this.Enabled = false;
             return;
         }
         // 设置仿真系统 Update 时间间隔
-        // var fixedSimulationGroup = simulation?.GetExistingSystem<FixedStepSimulationSystemGroup>();
+        // var fixedSimulationGroup = simulation?.GetExistingSystemManaged<FixedStepSimulationSystemGroup>();
         // fixedSimulationGroup.Timestep = timeStep;
         var accTimer = GetSingleton<AccTimerData>();
         // 防止物理仿真 deltaTime 太小
         if (accTimer.simulationDeltaTime < 0.01f | accTimer.simulationDeltaTime > 0.06f) accTimer.simulationDeltaTime = 0.04f;
-        simulation.GetExistingSystem<FixedStepSimulationSystemGroup>().Timestep = accTimer.simulationDeltaTime;
+        simulation.GetExistingSystemManaged<FixedStepSimulationSystemGroup>().Timestep = accTimer.simulationDeltaTime;
 
         // 初始化单例数据
         accTimer.seismicName = SetupBlobSystem.seismicBlobRefs[accTimer.seismicIndex].Value.seismicName.ToString();
@@ -93,7 +93,7 @@ public partial class AccTimerSystem : SystemBase
             {
                 // if (simulationSetting.isPerformStatistics)
                 // {
-                //     simulation.GetExistingSystem<SingleStatisticSystem>().GetSummary();
+                //     simulation.GetExistingSystemManaged<SingleStatisticSystem>().GetSummary();
                 // }
                 this.Enabled = false;
             }
@@ -113,7 +113,7 @@ public partial class AccTimerSystem : SystemBase
         {
             spawnerData.canSpawn = true;
             SetSingleton(spawnerData);
-            simulation.GetExistingSystem<UISystem>().DisplayNotification2s("Spawning Agents");
+            simulation.GetExistingSystemManaged<UISystem>().DisplayNotification2s("Spawning Agents");
             await Task.Delay(2000);
         }
         var accTimer = GetSingleton<AccTimerData>();
@@ -135,45 +135,45 @@ public partial class AccTimerSystem : SystemBase
         if (setting.isSimulateEnvironment)
         {
             // 环境系统
-            simulation.GetExistingSystem<MCMotionSystem>().Enabled = state;
-            simulation.GetExistingSystem<FCTopOscSystem>().Enabled = state;
+            simulation.GetExistingSystemManaged<MCMotionSystem>().Enabled = state;
+            simulation.GetExistingSystemManaged<FCTopOscSystem>().Enabled = state;
 
             if (setting.isItemBreakable)
             {
-                simulation.GetExistingSystem<ReplaceSystem>().Enabled = state;
+                simulation.GetExistingSystemManaged<ReplaceSystem>().Enabled = state;
             }
         }
 
         if (setting.isSimulateFlowField)
         {
             // 路径算法
-            simulation.GetExistingSystem<CalculateCostFieldSystem>().Enabled = state;
+            simulation.GetExistingSystemManaged<CalculateCostFieldSystem>().Enabled = state;
         }
 
         if (setting.isSimulateAgent)
         {
             // 行人状态切换
-            simulation.GetExistingSystem<SeismicActiveSystem>().Enabled = state;
-            simulation.GetExistingSystem<CheckReachedDestinationSystem>().Enabled = state;
+            simulation.GetExistingSystemManaged<SeismicActiveSystem>().Enabled = state;
+            simulation.GetExistingSystemManaged<CheckReachedDestinationSystem>().Enabled = state;
 
             // 人群算法
-            simulation.GetExistingSystem<AgentMovementSystem>().Enabled = state;
-            // simulation.GetExistingSystem<SFMmovementSystem>().Enabled = state;
-            // simulation.GetExistingSystem<SFMmovementSystem2>().Enabled = state;
-            // simulation.GetExistingSystem<SFMmovementSystem3>().Enabled = state;
+            simulation.GetExistingSystemManaged<AgentMovementSystem>().Enabled = state;
+            // simulation.GetExistingSystemManaged<SFMmovementSystem>().Enabled = state;
+            // simulation.GetExistingSystemManaged<SFMmovementSystem2>().Enabled = state;
+            // simulation.GetExistingSystemManaged<SFMmovementSystem3>().Enabled = state;
 
             if (setting.isDisplayTrajectories)
             {
                 // 行人轨迹记录
-                simulation.GetExistingSystem<TrajectoryRecordSystem>().Enabled = state;
+                simulation.GetExistingSystemManaged<TrajectoryRecordSystem>().Enabled = state;
             }
         }
 
         if (setting.isPerformStatistics)
         {
             // 统计系统
-            simulation.GetExistingSystem<SingleStatisticSystem>().Enabled = state;
-            simulation.GetExistingSystem<RecordSystem>().Enabled = state;
+            simulation.GetExistingSystemManaged<SingleStatisticSystem>().Enabled = state;
+            simulation.GetExistingSystemManaged<RecordSystem>().Enabled = state;
         }
     }
 }

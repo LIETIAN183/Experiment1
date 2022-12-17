@@ -20,23 +20,23 @@ namespace Obi
      *  These characteristics make it extremely flexible, memory efficient, and fast. 
      *  Its implementation is also fairly simple and concise. 
      */
-    public unsafe struct NativeMultilevelGrid<T> : IDisposable where T : struct, IEquatable<T>
+    public unsafe struct NativeMultilevelGrid<T> : IDisposable where T : unmanaged, IEquatable<T>
     {
 
-        public const float minSize = 0.01f; 
+        public const float minSize = 0.01f;
 
         /**
          * A cell in the multilevel grid. Coords are 4-dimensional, the 4th component is the grid level.
          */
-        public struct Cell<K> where K : struct, IEquatable<K>
+        public struct Cell<K> where K : unmanaged, IEquatable<K>
         {
             int4 coords;
-            UnsafeList contents;
+            UnsafeList<K> contents;
 
             public Cell(int4 coords)
             {
                 this.coords = coords;
-                contents = new UnsafeList(Allocator.Persistent);
+                contents = new UnsafeList<K>(4, Allocator.Persistent);
             }
 
             public int4 Coords
@@ -58,7 +58,7 @@ namespace Obi
             {
                 get
                 {
-                    return UnsafeUtility.ReadArrayElement<K>(contents.Ptr, index);
+                    return contents.ElementAt(index);
                 }
             }
 
@@ -69,10 +69,10 @@ namespace Obi
 
             public bool Remove(K entity)
             {
-                int index = contents.IndexOf<K>(entity);
+                int index = contents.IndexOf(entity);
                 if (index >= 0)
                 {
-                    contents.RemoveAtSwapBack<K>(index);
+                    contents.RemoveAtSwapBack(index);
                     return true;
                 }
                 return false;
@@ -84,15 +84,15 @@ namespace Obi
             }
         }
 
-        public NativeParallelHashMap<int4, int> grid;
+        public NativeHashMap<int4, int> grid;
         public NativeList<Cell<T>> usedCells;
-        public NativeParallelHashMap<int, int> populatedLevels;
+        public NativeHashMap<int, int> populatedLevels;
 
         public NativeMultilevelGrid(int capacity, Allocator label)
         {
-            grid = new NativeParallelHashMap<int4, int>(capacity, label);
+            grid = new NativeHashMap<int4, int>(capacity, label);
             usedCells = new NativeList<Cell<T>>(label);
-            populatedLevels = new NativeParallelHashMap<int, int>(10, label);
+            populatedLevels = new NativeHashMap<int, int>(10, label);
         }
 
         public int CellCount
@@ -146,7 +146,7 @@ namespace Obi
         public void RemoveEmpty()
         {
             // remove empty cells from the used cells list and the grid:
-            for (int i = usedCells.Length - 1; i >= 0 ; --i)
+            for (int i = usedCells.Length - 1; i >= 0; --i)
             {
                 if (usedCells[i].Length == 0)
                 {
@@ -169,7 +169,7 @@ namespace Obi
         public static int GridLevelForSize(float size)
         {
             // the magic number is 1/log(2)
-            return (int)math.ceil(math.log(math.max(size,minSize)) * 1.44269504089f);
+            return (int)math.ceil(math.log(math.max(size, minSize)) * 1.44269504089f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -12,9 +12,9 @@ public partial class RecordSystem : SystemBase
 
     protected override void OnStartRunning()
     {
-        Entities.WithAll<Escaping>().ForEach((ref RecordData recordData, in Translation translation) =>
+        Entities.WithAll<Escaping>().ForEach((ref RecordData recordData, in LocalTransform localTransform) =>
         {
-            recordData.lastposition = translation.Value;
+            recordData.lastposition = localTransform.Position;
             recordData.escapeTime = 0;
             recordData.escapeLength = 0;
             recordData.escapeAveVel = 0;
@@ -23,15 +23,15 @@ public partial class RecordSystem : SystemBase
     }
     protected override void OnUpdate()
     {
-        Entities.WithAll<Escaping>().ForEach((ref RecordData recordData, in Translation translation) =>
+        Entities.WithAll<Escaping>().ForEach((ref RecordData recordData, in LocalTransform localTransform) =>
         {
-            recordData.escapeLength += math.length(translation.Value.xz - recordData.lastposition.xz);
-            recordData.accumulatedY += math.abs(translation.Value.y - recordData.lastposition.y);
-            recordData.lastposition = translation.Value;
+            recordData.escapeLength += math.length(localTransform.Position.xz - recordData.lastposition.xz);
+            recordData.accumulatedY += math.abs(localTransform.Position.y - recordData.lastposition.y);
+            recordData.lastposition = localTransform.Position;
         }).ScheduleParallel();
 
         var elapsedTime = GetSingleton<AccTimerData>().elapsedTime;
-        Entities.WithAll<Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabled).ForEach((ref RecordData recordData) =>
+        Entities.WithAll<Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabledEntities).ForEach((ref RecordData recordData) =>
         {
             if (recordData.escapeTime.Equals(0))
             {

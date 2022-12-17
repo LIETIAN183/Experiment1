@@ -13,21 +13,21 @@ public partial class FCSubMotionSystem : SystemBase
 
     protected override void OnStartRunning()
     {
-        Entities.WithAll<SubFCData>().WithName("FCSubInitialize").ForEach((ref SubFCData curData, in Translation translation, in Rotation rotation) =>
+        Entities.WithAll<SubFCData>().WithName("FCSubInitialize").ForEach((ref SubFCData curData, in LocalTransform localTransform) =>
         {
-            curData.originLocalPosition = translation.Value;
-            curData.originalRotation = rotation.Value;
+            curData.originLocalPosition = localTransform.Position;
+            curData.originalRotation = localTransform.Rotation;
         }).ScheduleParallel();
         // 初始化完成后才能开始下一步
         this.CompleteDependency();
     }
     protected override void OnUpdate()
     {
-        var time = Time.DeltaTime;
+        var time = SystemAPI.Time.DeltaTime;
 
-        Entities.WithAll<SubFCData>().WithName("FCSubMotion").ForEach((ref PhysicsVelocity velocity, in SubFCData curData, in Translation translation, in Rotation rotation, in PhysicsMass mass) =>
+        Entities.WithAll<SubFCData>().WithName("FCSubMotion").ForEach((ref PhysicsVelocity velocity, in SubFCData curData, in LocalTransform localTransform, in PhysicsMass mass) =>
         {
-            FCData parentData = GetComponentDataFromEntity<FCData>(true)[curData.parent];
+            FCData parentData = GetComponentLookup<FCData>(true)[curData.parent];
             // w(h) = Δx*h^2(3L-h)/2L^3
 
             // set k = Δx/2L^3
@@ -46,7 +46,7 @@ public partial class FCSubMotionSystem : SystemBase
 
             RigidTransform rgtransform = new RigidTransform(math.mul(curData.originalRotation, quaternion.Euler(radius, 0, 0)), curData.originLocalPosition + parentData.forward * curmovement);
 
-            velocity = PhysicsVelocity.CalculateVelocityToTarget(mass, translation, rotation, rgtransform, 1 / time);
+            velocity = PhysicsVelocity.CalculateVelocityToTarget(mass, localTransform.Position, localTransform.Rotation, rgtransform, 1 / time);
         }).ScheduleParallel();
     }
 }

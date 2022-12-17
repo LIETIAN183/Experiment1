@@ -18,7 +18,7 @@ public partial class SetupBlobSystem : SystemBase
         // 判断目标路径的文件夹是否存在
         if (!Directory.Exists(seismicDataPath))
         {
-            World.DefaultGameObjectInjectionWorld.GetExistingSystem<UISystem>().DisplayNotificationForever("SeismicData Folder don't exist in StreamingAsset Folder");
+            World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<UISystem>().DisplayNotificationForever("SeismicData Folder don't exist in StreamingAsset Folder");
             dataReadSuccessed = false;
             return;
         }
@@ -33,7 +33,7 @@ public partial class SetupBlobSystem : SystemBase
         // SeismicData文件夹内没有地震事件子文件夹
         if (events.ToArray().Length == 0)
         {
-            World.DefaultGameObjectInjectionWorld.GetExistingSystem<UISystem>().DisplayNotificationForever("No Seismic Event in SeismicData Folder");
+            World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<UISystem>().DisplayNotificationForever("No Seismic Event in SeismicData Folder");
             dataReadSuccessed = false;
             return;
         }
@@ -48,7 +48,7 @@ public partial class SetupBlobSystem : SystemBase
             if (accData.Equals(null))
             {
 
-                World.DefaultGameObjectInjectionWorld.GetExistingSystem<UISystem>().DisplayNotificationForever("Read AT2 File Error");
+                World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<UISystem>().DisplayNotificationForever("Read AT2 File Error");
                 dataReadSuccessed = false;
                 return;
             }

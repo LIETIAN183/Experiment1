@@ -14,25 +14,29 @@ public partial class CalculateCostFieldSystem : SystemBase
 
     protected override void OnCreate()
     {
-        buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
+        // buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
         this.Enabled = false;
     }
     protected override void OnUpdate()
     {
-        DynamicBuffer<CellData> cellBuffer = GetBuffer<CellBufferElement>(GetSingletonEntity<FlowFieldSettingData>()).Reinterpret<CellData>();
+        DynamicBuffer<CellData> cellBuffer = GetBuffer<CellBuffer>(GetSingletonEntity<FlowFieldSettingData>()).Reinterpret<CellData>();
 
         var job = new CalculateCostJob()
         {
             cells = cellBuffer.AsNativeArray(),
-            physicsWorld = buildPhysicsWorld.PhysicsWorld,
+            physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
             pgaInms2 = GetSingleton<AccTimerData>().curPGA * 9.8f,
             cellRadius = GetSingleton<FlowFieldSettingData>().cellRadius,
-            translationArray = GetComponentDataFromEntity<Translation>(true),
-            massArray = GetComponentDataFromEntity<PhysicsMass>(true)
+            translationArray = GetComponentLookup<LocalTransform>(true),
+            // translationArray = GetComponentDataFromEntity<LocalTransform>(true),
+            // massArray = GetComponentDataFromEntity<PhysicsMass>(true)
+            massArray = GetComponentLookup<PhysicsMass>(true)
         };
 
         job.Schedule(cellBuffer.Length, 64).Complete();
-        World.DefaultGameObjectInjectionWorld.GetExistingSystem<CalculateFlowFieldSystem>().Enabled = true;
+        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<CalculateIntegrationFieldSystem>().Enabled = true;
+
+        // World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<CalculateFlowFieldSystem>().Enabled = true;
     }
 
     [BurstCompile]
@@ -42,8 +46,8 @@ public partial class CalculateCostFieldSystem : SystemBase
         [ReadOnly] public PhysicsWorld physicsWorld;
         [ReadOnly] public float pgaInms2;
         [ReadOnly] public float3 cellRadius;
-        [ReadOnly] public ComponentDataFromEntity<Translation> translationArray;
-        [ReadOnly] public ComponentDataFromEntity<PhysicsMass> massArray;
+        [ReadOnly] public ComponentLookup<LocalTransform> translationArray;
+        [ReadOnly] public ComponentLookup<PhysicsMass> massArray;
         public void Execute(int index)
         {
             var curCell = cells[index];
@@ -60,7 +64,7 @@ public partial class CalculateCostFieldSystem : SystemBase
                         break;
                     }
 
-                    var entityPos = translationArray[hit.Entity].Value;
+                    var entityPos = translationArray[hit.Entity].Position;
                     if ((hit.Material.CustomTags & 0b_0000_0011) != 0)
                     {
                         // 小障碍物的customtags值为1，所以无影响，中等障碍物的customtags值为2，所以计算高度时为其坐标×2
@@ -71,11 +75,14 @@ public partial class CalculateCostFieldSystem : SystemBase
                     }
                 }
             }
-            cost += math.exp(-pgaInms2) * sum_mass * max_height * 2 + math.exp(max_height);
+            // cost += math.exp(-pgaInms2) * sum_mass * max_height * 2 + math.exp(max_height);
+            cost += math.exp(-pgaInms2) * sum_mass * max_height * 2;
             if (cost > 255) cost = 255;
             curCell.cost = (byte)cost;
             curCell.bestCost = ushort.MaxValue;
             curCell.updated = false;
+            curCell.bestDir = float2.zero;
+            curCell.tempCost = float.MaxValue;
             cells[index] = curCell;
             outHits.Dispose();
         }
@@ -160,6 +167,6 @@ public partial class CalculateCostFieldSystem : SystemBase
 //             outHits.Dispose();
 //         }).Run();
 
-//         World.DefaultGameObjectInjectionWorld.GetExistingSystem<CalculateFlowFieldSystem>().timer = 0.2f;
+//         World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<CalculateFlowFieldSystem>().timer = 0.2f;
 //     }
 // }

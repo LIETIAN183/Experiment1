@@ -21,7 +21,7 @@ public partial class SelectDestinationSystem : SystemBase
                 End = screenRay.GetPoint(100),
                 Filter = CollisionFilter.Default
             };
-            World.GetOrCreateSystem<BuildPhysicsWorld>().PhysicsWorld.CastRay(RaycastInput, out RaycastHit hit);
+            SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld.CastRay(RaycastInput, out RaycastHit hit);
             float3 worldMousePos = hit.Position;
 
             //判断鼠标点击的点是否在网格内

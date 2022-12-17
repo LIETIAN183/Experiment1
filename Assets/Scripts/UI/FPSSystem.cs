@@ -8,13 +8,13 @@ public partial class FPSSystem : SystemBase
 
     public int curFPS { get; private set; }
 
-    protected override void OnStartRunning() => m_FpsNextPeriod = Time.ElapsedTime + fpsMeasurePeriod;
+    protected override void OnStartRunning() => m_FpsNextPeriod = SystemAPI.Time.ElapsedTime + fpsMeasurePeriod;
 
     protected override void OnUpdate()
     {
         // measure average frames per second
         m_FpsAccumulator++;
-        if (Time.ElapsedTime > m_FpsNextPeriod)
+        if (SystemAPI.Time.ElapsedTime > m_FpsNextPeriod)
         {
             curFPS = (int)(m_FpsAccumulator / fpsMeasurePeriod);
             m_FpsAccumulator = 0;

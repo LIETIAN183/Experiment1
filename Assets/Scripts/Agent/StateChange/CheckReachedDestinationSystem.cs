@@ -11,7 +11,7 @@ public partial class CheckReachedDestinationSystem : SystemBase
 
     protected override void OnCreate()
     {
-        m_EndSimECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_EndSimECBSystem = World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         this.Enabled = false;
     }
 
@@ -22,9 +22,9 @@ public partial class CheckReachedDestinationSystem : SystemBase
 
         var destinationPos = GetSingleton<FlowFieldSettingData>().destination.xz;
 
-        var escapedHadle = Entities.WithAll<Escaping>().ForEach((Entity e, int entityInQueryIndex, in Translation translation) =>
+        var escapedHadle = Entities.WithAll<Escaping>().ForEach((Entity e, int entityInQueryIndex, in LocalTransform localTransform) =>
         {
-            var distanceSq = math.lengthsq(destinationPos - translation.Value.xz);
+            var distanceSq = math.lengthsq(destinationPos - localTransform.Position.xz);
             if (distanceSq < 0.25f)// 距离出口0.5m时逃生结束
             {
                 ecb.RemoveComponent<Escaping>(entityInQueryIndex, e);

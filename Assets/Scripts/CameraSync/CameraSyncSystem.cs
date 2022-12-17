@@ -13,7 +13,7 @@ public partial class CameraSyncSystem : SystemBase
     protected override void OnUpdate()
     {
         this.Enabled = false;
-        var time = Time.DeltaTime;
+        var time = SystemAPI.Time.DeltaTime;
         Vector3 acc = GetSingleton<AccTimerData>().acc;
         vel -= acc * time;
         CameraTransformInGO.position += vel * time * 2;

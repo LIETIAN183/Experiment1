@@ -9,7 +9,7 @@ using Unity.Jobs;
 
 namespace Obi
 {
-    public class ConstraintSorter<T> where T : struct, IConstraint
+    public class ConstraintSorter<T> where T : unmanaged, IConstraint
     {
 
         public struct ConstraintComparer<K> : IComparer<K> where K : IConstraint
@@ -68,7 +68,7 @@ namespace Obi
         [BurstCompile]
         public struct CountSortPerFirstParticleJob : IJob
         {
-            [ReadOnly] [NativeDisableContainerSafetyRestriction] public NativeArray<T> input;
+            [ReadOnly][NativeDisableContainerSafetyRestriction] public NativeArray<T> input;
             public NativeArray<T> output;
 
             [NativeDisableContainerSafetyRestriction] public NativeArray<int> digitCount;
@@ -117,7 +117,7 @@ namespace Obi
             [NativeDisableContainerSafetyRestriction] public NativeArray<T> InOutArray;
 
             // Typically lastDigitIndex is resulting RadixSortPerBodyAJob.digitCount. nextElementIndex[i] = index of first element with bodyA index == i + 1
-            [NativeDisableContainerSafetyRestriction] [DeallocateOnJobCompletion] public NativeArray<int> NextElementIndex;
+            [NativeDisableContainerSafetyRestriction][DeallocateOnJobCompletion] public NativeArray<int> NextElementIndex;
 
             [ReadOnly] public ConstraintComparer<T> comparer;
 

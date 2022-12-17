@@ -23,7 +23,7 @@ public partial class InputManger : SystemBase
         // 按 H 键隐藏UI界面
         if (Input.GetKeyUp(KeyCode.H))
         {
-            simulation.GetExistingSystem<UISystem>().displayUI = !simulation.GetExistingSystem<UISystem>().displayUI;
+            simulation.GetExistingSystemManaged<UISystem>().displayUI = !simulation.GetExistingSystemManaged<UISystem>().displayUI;
         }
 
         // 暂停
@@ -35,34 +35,34 @@ public partial class InputManger : SystemBase
         // 启动单次仿真
         if (Input.GetKeyUp(KeyCode.N))
         {
-            simulation.GetExistingSystem<AccTimerSystem>().StartSingleSimulation(0, 0);
+            simulation.GetExistingSystemManaged<AccTimerSystem>().StartSingleSimulation(0, 0);
         }
 
         // 启动多次仿真
         if (Input.GetKeyUp(KeyCode.M))
         {
-            simulation.GetExistingSystem<MultiRoundStatisticsSystem>().StartMultiRoundStatistics(0, 0);
+            simulation.GetExistingSystemManaged<MultiRoundStatisticsSystem>().StartMultiRoundStatistics(0, 0);
         }
 
         // 截图快捷键
         if (Input.GetKeyUp(KeyCode.L))
         {
-            var debugtype = simulation.GetExistingSystem<FlowFieldVisulizeSystem>()._curDisplayType;
+            var debugtype = simulation.GetExistingSystemManaged<FlowFieldVisulizeSystem>()._curDisplayType;
             ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + debugtype.ToString() + "_" + UnityEngine.Time.time + ".png");
         }
 
         if (Input.GetKeyUp(KeyCode.R))
         {
-            // var sceneSystem = World.GetExistingSystem<SceneSystem>();
+            // var sceneSystem = World.GetExistingSystemManaged<SceneSystem>();
             // var guid = sceneSystem.GetSceneGUID("Assets/Scenes/SubScene/EnvironmentWithFluid.unity");
             // sceneSystem.UnloadScene(guid);
             // sceneSystem.LoadSceneAsync(guid, new SceneSystem.LoadParameters() { AutoLoad = true });
-            simulation.GetExistingSystem<InitialSystem>().ReloadSubScene();
+            simulation.GetExistingSystemManaged<InitialSystem>().ReloadSubScene();
         }
 
         // if (Input.GetKeyUp(KeyCode.T))
         // {
-        //     var sceneSystem = World.GetExistingSystem<SceneSystem>();
+        //     var sceneSystem = World.GetExistingSystemManaged<SceneSystem>();
         //     var guid = sceneSystem.GetSceneGUID("Assets/Scenes/SubScene/EnvironmentWithFluid.unity");
 
         //     sceneSystem.LoadSceneAsync(guid, new SceneSystem.LoadParameters() { AutoLoad = true });// Flags = SceneLoadFlags.NewInstance,

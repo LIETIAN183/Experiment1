@@ -11,13 +11,13 @@ public partial class StepOverSystem : SystemBase
 {
     private BuildPhysicsWorld buildPhysicsWorld;
 
-    protected override void OnCreate() => buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
+    // protected override void OnCreate() => buildPhysicsWorld = World.GetOrCreateSystem<BuildPhysicsWorld>();
     protected override void OnUpdate()
     {
-        var physicsWorld = buildPhysicsWorld.PhysicsWorld;
-        var deltaTime = Time.DeltaTime;
+        var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+        var deltaTime = SystemAPI.Time.DeltaTime;
         // 让人物不摔倒，同时跨越地面的障碍物
-        Entities.WithAll<Escaping>().WithReadOnly(physicsWorld).ForEach((ref Translation translation, ref PhysicsGravityFactor physicsGravity, ref StepDurationData stepDurationData, in PhysicsVelocity velocity) =>
+        Entities.WithAll<Escaping>().WithReadOnly(physicsWorld).ForEach((ref LocalTransform localTransform, ref PhysicsGravityFactor physicsGravity, ref StepDurationData stepDurationData, in PhysicsVelocity velocity) =>
         {
             // 保持Agent不摔倒
             // rotation.Value = quaternion.Euler(0, 0, 0);
@@ -29,7 +29,7 @@ public partial class StepOverSystem : SystemBase
             if (math.lengthsq(vel) < 0.04) return;
 
             // 人物半径 0.25f
-            float3 origin = translation.Value + (math.normalize(vel) * 0.27f);
+            float3 origin = localTransform.Position + (math.normalize(vel) * 0.27f);
             // origin.y += 1.1f;
             var bottom = origin.y - 0.9f;
             RaycastInput cast = new RaycastInput
@@ -40,10 +40,10 @@ public partial class StepOverSystem : SystemBase
             };
             physicsWorld.CastRay(cast, out RaycastHit hit);
             var deltaDis = hit.Position.y - bottom;
-            if (deltaDis > 0 && deltaDis < 0.4f && translation.Value.y < 1.5f)
+            if (deltaDis > 0 && deltaDis < 0.4f && localTransform.Position.y < 1.5f)
             {
                 physicsGravity.Value = 0;
-                translation.Value.y += deltaDis * 1.5f;
+                localTransform.Position.y += deltaDis * 1.5f;
                 stepDurationData.Value = 0.2f;
             }
             else if (stepDurationData.Value > 0)

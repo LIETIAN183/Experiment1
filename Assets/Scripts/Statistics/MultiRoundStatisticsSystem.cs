@@ -25,7 +25,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
     protected override void OnCreate()
     {
         simulation = World.DefaultGameObjectInjectionWorld;
-        m_EndSimECBSystem = World.GetExistingSystem<EndSimulationEntityCommandBufferSystem>();
+        m_EndSimECBSystem = World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         this.Enabled = false;
     }
 
@@ -55,8 +55,8 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 // 仿真下标超过地震事件数目，结束仿真
                 if (analysisCircledata.curSeismicIndex >= analysisCircledata.seismicEventsCount)
                 {
-                    simulation.GetExistingSystem<SingleStatisticSystem>().ExportData();
-                    simulation.GetExistingSystem<UISystem>().DisplayNotificationForever("Simulation Finished");
+                    simulation.GetExistingSystemManaged<SingleStatisticSystem>().ExportData();
+                    simulation.GetExistingSystemManaged<UISystem>().DisplayNotificationForever("Simulation Finished");
                     this.Enabled = false;
                     return;
                 }
@@ -67,7 +67,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                     if (analysisCircledata.pgaThreshold.Equals(0) | analysisCircledata.pgaStep.Equals(0))
                     {
                         // 设置当前仿真参数
-                        simulation.GetExistingSystem<AccTimerSystem>().StartSingleSimulation(analysisCircledata.curSeismicIndex++, analysisCircledata.pgaThreshold);
+                        simulation.GetExistingSystemManaged<AccTimerSystem>().StartSingleSimulation(analysisCircledata.curSeismicIndex++, analysisCircledata.pgaThreshold);
                     }
                     else
                     {
@@ -81,14 +81,14 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                             break;
                         }
                         // 设置当前仿真参数
-                        simulation.GetExistingSystem<AccTimerSystem>().StartSingleSimulation(analysisCircledata.curSeismicIndex, analysisCircledata.curSimulationTargetPGA);
+                        simulation.GetExistingSystemManaged<AccTimerSystem>().StartSingleSimulation(analysisCircledata.curSeismicIndex, analysisCircledata.curSimulationTargetPGA);
                     }
                     // 启动
                     analysisCircledata.curStage = AnalysisStage.Simulation;
                 }
                 break;
             case AnalysisStage.Simulation:
-                if (!simulation.GetExistingSystem<AccTimerSystem>().Enabled)
+                if (!simulation.GetExistingSystemManaged<AccTimerSystem>().Enabled)
                 {
                     analysisCircledata.curStage = AnalysisStage.Recover;
                 }
@@ -112,7 +112,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
         {
             spawnerData.canSpawn = true;
             SetSingleton(spawnerData);
-            simulation.GetExistingSystem<UISystem>().DisplayNotification2s("Spawning Agents");
+            simulation.GetExistingSystemManaged<UISystem>().DisplayNotification2s("Spawning Agents");
             await Task.Delay(2000);
         }
         // 开始仿真
@@ -127,7 +127,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
     public JobHandle DataBuckup()
     {
         // 最开始需要做的初始化
-        simulation.GetExistingSystem<SingleStatisticSystem>().ClearDataStorage();
+        simulation.GetExistingSystemManaged<SingleStatisticSystem>().ClearDataStorage();
 
         var ecb = m_EndSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 
@@ -144,9 +144,9 @@ public partial class MultiRoundStatisticsSystem : SystemBase
         // {
         //     ecb.AddComponent<BackupData>(entityInQueryIndex, e, new BackupData { originPosition = translation.Value, originRotation = rotation.Value });
         // }).ScheduleParallel(Dependency);
-        var handle2 = Entities.WithAny<AgentMovementData>().ForEach((Entity e, int entityInQueryIndex, in Translation translation, in Rotation rotation) =>
+        var handle2 = Entities.WithAny<AgentMovementData>().ForEach((Entity e, int entityInQueryIndex, in LocalTransform localTransform) =>
         {
-            ecb.AddComponent<BackupData>(entityInQueryIndex, e, new BackupData { originPosition = translation.Value, originRotation = rotation.Value });
+            ecb.AddComponent<BackupData>(entityInQueryIndex, e, new BackupData { originPosition = localTransform.Position, originRotation = localTransform.Rotation });
         }).ScheduleParallel(Dependency);
 
         var sumHandle = JobHandle.CombineDependencies(handle1, handle2);
@@ -162,8 +162,8 @@ public partial class MultiRoundStatisticsSystem : SystemBase
     public JobHandle RecoverData()
     {
         // 重置环境
-        simulation.GetExistingSystem<InitialSystem>().ReloadSubScene();
-        simulation.GetExistingSystem<ReplaceSystem>().RemoveAllFluid();
+        simulation.GetExistingSystemManaged<InitialSystem>().ReloadSubScene();
+        simulation.GetExistingSystemManaged<ReplaceSystem>().RemoveAllFluid();
         // 重置行人数据
         var accTimer = GetSingleton<AccTimerData>();
         accTimer.targetPGA = 0;
@@ -171,15 +171,15 @@ public partial class MultiRoundStatisticsSystem : SystemBase
 
         var ecb = m_EndSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 
-        var handle1 = Entities.WithAll<BackupData>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabled).ForEach((ref Translation translation, ref Rotation rotation, ref PhysicsVelocity velocity, in BackupData backup) =>
+        var handle1 = Entities.WithAll<BackupData>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabledEntities).ForEach((ref LocalTransform localTransform, ref PhysicsVelocity velocity, in BackupData backup) =>
         {
-            translation.Value = backup.originPosition;
-            rotation.Value = backup.originRotation;
+            localTransform.Position = backup.originPosition;
+            localTransform.Rotation = backup.originRotation;
             velocity.Linear = float3.zero;
             velocity.Angular = float3.zero;
         }).ScheduleParallel(Dependency);
 
-        var handle2 = Entities.WithAll<Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabled).ForEach((Entity e, int entityInQueryIndex) =>
+        var handle2 = Entities.WithAll<Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabledEntities).ForEach((Entity e, int entityInQueryIndex) =>
         {
             ecb.AddComponent<Idle>(entityInQueryIndex, e);
             ecb.RemoveComponent<Escaped>(entityInQueryIndex, e);

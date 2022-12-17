@@ -5,18 +5,21 @@ using Unity.Entities;
 using Obi;
 
 // 挂载该脚本的 Entity 不能放在 SubScene 内部
-public class CreateGroundInGO : MonoBehaviour, IConvertGameObjectToEntity
+public class CreateGroundInGO : MonoBehaviour { }
+
+public class CreateGroundInGOBaker : Baker<CreateGroundInGO>
 {
-    public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
+    public override void Bake(CreateGroundInGO authoring)
     {
         // 创建物体并设置尺寸
         GameObject go = new GameObject("GroundInGo");
-        go.transform.position = this.transform.position;
-        go.transform.localScale = this.transform.localScale;
+
+        go.transform.position = authoring.transform.position;
+        go.transform.localScale = authoring.transform.localScale;
 
         // 配置 Collider
         var colliderInGo = go.AddComponent<BoxCollider>();
-        var colliderWaitToRemove = this.GetComponent<BoxCollider>();
+        var colliderWaitToRemove = authoring.GetComponent<BoxCollider>();
         colliderInGo.center = colliderWaitToRemove.center;
         colliderInGo.size = colliderWaitToRemove.size;
 
@@ -25,7 +28,7 @@ public class CreateGroundInGO : MonoBehaviour, IConvertGameObjectToEntity
         obiColliderInGO.sourceCollider = colliderInGo;
 
         // 删除原物体的 Collider 和 ObiCollider
-        DestroyImmediate(this.GetComponent<ObiCollider>());
-        DestroyImmediate(colliderWaitToRemove);
+        Object.DestroyImmediate(authoring.GetComponent<ObiCollider>());
+        Object.DestroyImmediate(colliderWaitToRemove);
     }
 }
