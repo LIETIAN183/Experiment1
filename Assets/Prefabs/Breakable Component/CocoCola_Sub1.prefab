@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4560180185111360361}
   - component: {fileID: 7943774708462656089}
   m_Layer: 0
-  m_Name: Coca_Cola_Bottle.013
+  m_Name: CocoCola_Sub1.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -295,7 +295,7 @@ GameObject:
   - component: {fileID: 5788677779509125508}
   - component: {fileID: 5849188942293579312}
   m_Layer: 0
-  m_Name: Coca_Cola_Bottle.002
+  m_Name: CocoCola_Sub1.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -575,7 +575,7 @@ GameObject:
   - component: {fileID: 7572915135565617124}
   - component: {fileID: 5452165717988045742}
   m_Layer: 0
-  m_Name: Coca_Cola_Bottle.015
+  m_Name: CocoCola_Sub1.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -854,7 +854,7 @@ GameObject:
   - component: {fileID: 2199437088541511139}
   - component: {fileID: 90772445215050669}
   m_Layer: 0
-  m_Name: Coca_Cola_Bottle.014
+  m_Name: CocoCola_Sub1.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1134,7 +1134,7 @@ GameObject:
   - component: {fileID: 3835623701804192461}
   - component: {fileID: 9004925440483880674}
   m_Layer: 0
-  m_Name: Coca_Cola_Bottle.012
+  m_Name: CocoCola_Sub1.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1435,5 +1435,5 @@ Transform:
   - {fileID: 2392362290893147966}
   - {fileID: 1296764035704305183}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

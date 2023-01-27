@@ -8,6 +8,11 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 
 namespace Drawing {
+	/// <summary>
+	/// Methods for easily drawing things in the editor and in standalone games.
+	///
+	/// See: getstarted (view in online documentation for working links)
+	/// </summary>
 	public static class Draw {
 		internal static CommandBuilder builder;
 		internal static CommandBuilder ingame_builder;
@@ -38,7 +43,7 @@ namespace Drawing {
 
 #if UNITY_EDITOR
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WithMatrix(Matrix4x4)
+		/// \copydocref{Drawing::CommandBuilder::WithMatrix(Matrix4x4)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -57,7 +62,7 @@ namespace Drawing {
 
 #if UNITY_EDITOR
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WithColor(Color)
+		/// \copydocref{Drawing::CommandBuilder::WithColor(Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -76,7 +81,7 @@ namespace Drawing {
 
 #if UNITY_EDITOR
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WithDuration(float)
+		/// \copydocref{Drawing::CommandBuilder::WithDuration(float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -94,7 +99,7 @@ namespace Drawing {
 
 #if UNITY_EDITOR
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WithLineWidth(float,bool)
+		/// \copydocref{Drawing::CommandBuilder::WithLineWidth(float,bool)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -112,7 +117,7 @@ namespace Drawing {
 
 #if UNITY_EDITOR
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::InLocalSpace(Transform)
+		/// \copydocref{Drawing::CommandBuilder::InLocalSpace(Transform)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -130,7 +135,7 @@ namespace Drawing {
 
 #if UNITY_EDITOR
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::InScreenSpace(Camera)
+		/// \copydocref{Drawing::CommandBuilder::InScreenSpace(Camera)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -147,7 +152,7 @@ namespace Drawing {
 #endif
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PushMatrix(Matrix4x4)
+		/// \copydocref{Drawing::CommandBuilder::PushMatrix(Matrix4x4)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -159,7 +164,19 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PushSetMatrix(Matrix4x4)
+		/// \copydocref{Drawing::CommandBuilder::PushMatrix(float4x4)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void PushMatrix (float4x4 matrix) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.PushMatrix(matrix);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::PushSetMatrix(Matrix4x4)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -171,7 +188,19 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PopMatrix()
+		/// \copydocref{Drawing::CommandBuilder::PushSetMatrix(float4x4)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void PushSetMatrix (float4x4 matrix) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.PushSetMatrix(matrix);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::PopMatrix()}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -183,7 +212,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PushColor(Color)
+		/// \copydocref{Drawing::CommandBuilder::PushColor(Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -195,7 +224,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PopColor()
+		/// \copydocref{Drawing::CommandBuilder::PopColor()}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -207,7 +236,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PushDuration(float)
+		/// \copydocref{Drawing::CommandBuilder::PushDuration(float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -219,7 +248,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PopDuration()
+		/// \copydocref{Drawing::CommandBuilder::PopDuration()}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -231,7 +260,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PushPersist(float)
+		/// \copydocref{Drawing::CommandBuilder::PushPersist(float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -244,7 +273,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PopPersist()
+		/// \copydocref{Drawing::CommandBuilder::PopPersist()}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -257,7 +286,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PushLineWidth(float,bool)
+		/// \copydocref{Drawing::CommandBuilder::PushLineWidth(float,bool)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -269,7 +298,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PopLineWidth()
+		/// \copydocref{Drawing::CommandBuilder::PopLineWidth()}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -281,7 +310,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Line(float3,float3)
+		/// \copydocref{Drawing::CommandBuilder::Line(float3,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -293,7 +322,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Line(Vector3,Vector3)
+		/// \copydocref{Drawing::CommandBuilder::Line(Vector3,Vector3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -305,7 +334,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Line(Vector3,Vector3,Color)
+		/// \copydocref{Drawing::CommandBuilder::Line(Vector3,Vector3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -317,7 +346,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Ray(float3,float3)
+		/// \copydocref{Drawing::CommandBuilder::Ray(float3,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -329,7 +358,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Ray(Ray,float)
+		/// \copydocref{Drawing::CommandBuilder::Ray(Ray,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -341,7 +370,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arc(float3,float3,float3)
+		/// \copydocref{Drawing::CommandBuilder::Arc(float3,float3,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -353,7 +382,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CircleXZ(float3,float,float,float)
+		/// \copydocref{Drawing::CommandBuilder::CircleXZ(float3,float,float,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -365,7 +394,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CircleXY(float3,float,float,float)
+		/// \copydocref{Drawing::CommandBuilder::CircleXY(float3,float,float,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -377,7 +406,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Circle(float3,float3,float)
+		/// \copydocref{Drawing::CommandBuilder::Circle(float3,float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -389,7 +418,55 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SphereOutline(float3,float)
+		/// \copydocref{Drawing::CommandBuilder::SolidArc(float3,float3,float3)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidArc (float3 center, float3 start, float3 end) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidArc(center, start, end);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SolidCircleXZ(float3,float,float,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidCircleXZ (float3 center, float radius, float startAngle = 0f, float endAngle = 2 * Mathf.PI) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidCircleXZ(center, radius, startAngle, endAngle);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SolidCircleXY(float3,float,float,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidCircleXY (float3 center, float radius, float startAngle = 0f, float endAngle = 2 * Mathf.PI) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidCircleXY(center, radius, startAngle, endAngle);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SolidCircle(float3,float3,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidCircle (float3 center, float3 normal, float radius) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidCircle(center, normal, radius);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SphereOutline(float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -401,7 +478,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireCylinder(float3,float3,float)
+		/// \copydocref{Drawing::CommandBuilder::WireCylinder(float3,float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -413,7 +490,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireCylinder(float3,float3,float,float)
+		/// \copydocref{Drawing::CommandBuilder::WireCylinder(float3,float3,float,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -425,7 +502,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireCapsule(float3,float3,float)
+		/// \copydocref{Drawing::CommandBuilder::WireCapsule(float3,float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -437,7 +514,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireCapsule(float3,float3,float,float)
+		/// \copydocref{Drawing::CommandBuilder::WireCapsule(float3,float3,float,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -449,7 +526,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireSphere(float3,float)
+		/// \copydocref{Drawing::CommandBuilder::WireSphere(float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -461,7 +538,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(List<Vector3>,bool)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(List&lt;Vector3&gt;,bool)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -473,7 +550,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(Vector3[],bool)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(Vector3[],bool)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -485,7 +562,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(float3[],bool)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(float3[],bool)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -497,7 +574,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(NativeArray<float3>,bool)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(NativeArray&lt;float3&gt;,bool)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -509,7 +586,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireBox(float3,float3)
+		/// \copydocref{Drawing::CommandBuilder::WireBox(float3,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -521,11 +598,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireBox(float3,Quaternion,float3)
+		/// \copydocref{Drawing::CommandBuilder::WireBox(float3,quaternion,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireBox (float3 center, Quaternion rotation, float3 size) {
+		public static void WireBox (float3 center, quaternion rotation, float3 size) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireBox(center, rotation, size);
@@ -533,7 +610,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireBox(Bounds)
+		/// \copydocref{Drawing::CommandBuilder::WireBox(Bounds)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -545,7 +622,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireMesh(Mesh)
+		/// \copydocref{Drawing::CommandBuilder::WireMesh(Mesh)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -557,7 +634,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidMesh(Mesh)
+		/// \copydocref{Drawing::CommandBuilder::SolidMesh(Mesh)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -569,7 +646,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidMesh(List<Vector3>,List<int>,List<Color>)
+		/// \copydocref{Drawing::CommandBuilder::SolidMesh(List&lt;Vector3&gt;,List&lt;int&gt;,List&lt;Color&gt;)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -581,7 +658,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidMesh(Vector3[],int[],Color[],int,int)
+		/// \copydocref{Drawing::CommandBuilder::SolidMesh(Vector3[],int[],Color[],int,int)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -593,7 +670,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Cross(float3,float)
+		/// \copydocref{Drawing::CommandBuilder::Cross(float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -605,7 +682,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CrossXZ(float3,float)
+		/// \copydocref{Drawing::CommandBuilder::CrossXZ(float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -617,7 +694,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CrossXY(float3,float)
+		/// \copydocref{Drawing::CommandBuilder::CrossXY(float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -629,7 +706,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Bezier(float3,float3,float3,float3)
+		/// \copydocref{Drawing::CommandBuilder::Bezier(float3,float3,float3,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -641,7 +718,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CatmullRom(List<Vector3>)
+		/// \copydocref{Drawing::CommandBuilder::CatmullRom(List&lt;Vector3&gt;)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -653,7 +730,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CatmullRom(float3,float3,float3,float3)
+		/// \copydocref{Drawing::CommandBuilder::CatmullRom(float3,float3,float3,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -665,7 +742,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arrow(float3,float3)
+		/// \copydocref{Drawing::CommandBuilder::Arrow(float3,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -677,7 +754,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arrow(float3,float3,float3,float)
+		/// \copydocref{Drawing::CommandBuilder::Arrow(float3,float3,float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -689,7 +766,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::ArrowRelativeSizeHead(float3,float3,float3,float)
+		/// \copydocref{Drawing::CommandBuilder::ArrowRelativeSizeHead(float3,float3,float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -701,7 +778,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arrowhead(float3,float3,float)
+		/// \copydocref{Drawing::CommandBuilder::Arrowhead(float3,float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -713,7 +790,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arrowhead(float3,float3,float3,float)
+		/// \copydocref{Drawing::CommandBuilder::Arrowhead(float3,float3,float3,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -725,7 +802,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::ArrowheadArc(float3,float3,float,float)
+		/// \copydocref{Drawing::CommandBuilder::ArrowheadArc(float3,float3,float,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -737,11 +814,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireGrid(float3,Quaternion,int2,float2)
+		/// \copydocref{Drawing::CommandBuilder::WireGrid(float3,quaternion,int2,float2)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireGrid (float3 center, Quaternion rotation, int2 cells, float2 totalSize) {
+		public static void WireGrid (float3 center, quaternion rotation, int2 cells, float2 totalSize) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireGrid(center, rotation, cells, totalSize);
@@ -749,7 +826,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireTriangle(float3,float3,float3)
+		/// \copydocref{Drawing::CommandBuilder::WireTriangle(float3,float3,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -761,7 +838,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireRectangleXZ(float3,float2)
+		/// \copydocref{Drawing::CommandBuilder::WireRectangleXZ(float3,float2)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -773,11 +850,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireRectangle(float3,Quaternion,float2)
+		/// \copydocref{Drawing::CommandBuilder::WireRectangle(float3,quaternion,float2)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireRectangle (float3 center, Quaternion rotation, float2 size) {
+		public static void WireRectangle (float3 center, quaternion rotation, float2 size) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireRectangle(center, rotation, size);
@@ -785,7 +862,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireRectangle(Rect)
+		/// \copydocref{Drawing::CommandBuilder::WireRectangle(Rect)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -797,11 +874,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireTriangle(float3,Quaternion,float)
+		/// \copydocref{Drawing::CommandBuilder::WireTriangle(float3,quaternion,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireTriangle (float3 center, Quaternion rotation, float radius) {
+		public static void WireTriangle (float3 center, quaternion rotation, float radius) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireTriangle(center, rotation, radius);
@@ -809,11 +886,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WirePentagon(float3,Quaternion,float)
+		/// \copydocref{Drawing::CommandBuilder::WirePentagon(float3,quaternion,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WirePentagon (float3 center, Quaternion rotation, float radius) {
+		public static void WirePentagon (float3 center, quaternion rotation, float radius) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WirePentagon(center, rotation, radius);
@@ -821,11 +898,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireHexagon(float3,Quaternion,float)
+		/// \copydocref{Drawing::CommandBuilder::WireHexagon(float3,quaternion,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireHexagon (float3 center, Quaternion rotation, float radius) {
+		public static void WireHexagon (float3 center, quaternion rotation, float radius) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireHexagon(center, rotation, radius);
@@ -833,11 +910,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WirePolygon(float3,int,Quaternion,float)
+		/// \copydocref{Drawing::CommandBuilder::WirePolygon(float3,int,quaternion,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WirePolygon (float3 center, int vertices, Quaternion rotation, float radius) {
+		public static void WirePolygon (float3 center, int vertices, quaternion rotation, float radius) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WirePolygon(center, vertices, rotation, radius);
@@ -845,7 +922,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidRectangle(Rect)
+		/// \copydocref{Drawing::CommandBuilder::SolidRectangle(Rect)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -857,7 +934,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidPlane(float3,float3,float2)
+		/// \copydocref{Drawing::CommandBuilder::SolidPlane(float3,float3,float2)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -869,11 +946,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidPlane(float3,Quaternion,float2)
+		/// \copydocref{Drawing::CommandBuilder::SolidPlane(float3,quaternion,float2)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void SolidPlane (float3 center, Quaternion rotation, float2 size) {
+		public static void SolidPlane (float3 center, quaternion rotation, float2 size) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.SolidPlane(center, rotation, size);
@@ -881,7 +958,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WirePlane(float3,float3,float2)
+		/// \copydocref{Drawing::CommandBuilder::WirePlane(float3,float3,float2)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -893,11 +970,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WirePlane(float3,Quaternion,float2)
+		/// \copydocref{Drawing::CommandBuilder::WirePlane(float3,quaternion,float2)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WirePlane (float3 center, Quaternion rotation, float2 size) {
+		public static void WirePlane (float3 center, quaternion rotation, float2 size) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WirePlane(center, rotation, size);
@@ -905,7 +982,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PlaneWithNormal(float3,float3,float2)
+		/// \copydocref{Drawing::CommandBuilder::PlaneWithNormal(float3,float3,float2)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -917,11 +994,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PlaneWithNormal(float3,Quaternion,float2)
+		/// \copydocref{Drawing::CommandBuilder::PlaneWithNormal(float3,quaternion,float2)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void PlaneWithNormal (float3 center, Quaternion rotation, float2 size) {
+		public static void PlaneWithNormal (float3 center, quaternion rotation, float2 size) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.PlaneWithNormal(center, rotation, size);
@@ -929,7 +1006,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidBox(float3,float3)
+		/// \copydocref{Drawing::CommandBuilder::SolidBox(float3,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -941,7 +1018,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidBox(Bounds)
+		/// \copydocref{Drawing::CommandBuilder::SolidBox(Bounds)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -953,11 +1030,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidBox(float3,Quaternion,float3)
+		/// \copydocref{Drawing::CommandBuilder::SolidBox(float3,quaternion,float3)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void SolidBox (float3 center, Quaternion rotation, float3 size) {
+		public static void SolidBox (float3 center, quaternion rotation, float3 size) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.SolidBox(center, rotation, size);
@@ -965,7 +1042,31 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Label2D(float3,string,float)
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,string,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, string text, float size) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, text, size);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,string,float,LabelAlignment)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, string text, float size, LabelAlignment alignment) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, text, size, alignment);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,string,float)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -977,7 +1078,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Label2D(float3,string,float,LabelAlignment)
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,string,float,LabelAlignment)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -989,7 +1090,199 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Line(float3,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString32Bytes,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString32Bytes text, float sizeInPixels = 14) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString64Bytes,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString64Bytes text, float sizeInPixels = 14) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString128Bytes,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString128Bytes text, float sizeInPixels = 14) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString512Bytes,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString512Bytes text, float sizeInPixels = 14) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString32Bytes,float,LabelAlignment)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString32Bytes text, float sizeInPixels, LabelAlignment alignment) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, alignment);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString64Bytes,float,LabelAlignment)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString64Bytes text, float sizeInPixels, LabelAlignment alignment) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, alignment);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString128Bytes,float,LabelAlignment)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString128Bytes text, float sizeInPixels, LabelAlignment alignment) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, alignment);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString512Bytes,float,LabelAlignment)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString512Bytes text, float sizeInPixels, LabelAlignment alignment) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, alignment);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString32Bytes,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString32Bytes text, float size) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString64Bytes,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString64Bytes text, float size) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString128Bytes,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString128Bytes text, float size) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString512Bytes,float)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString512Bytes text, float size) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString32Bytes,float,LabelAlignment)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString32Bytes text, float size, LabelAlignment alignment) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, alignment);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString64Bytes,float,LabelAlignment)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString64Bytes text, float size, LabelAlignment alignment) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, alignment);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString128Bytes,float,LabelAlignment)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString128Bytes text, float size, LabelAlignment alignment) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, alignment);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString512Bytes,float,LabelAlignment)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString512Bytes text, float size, LabelAlignment alignment) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, alignment);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Line(float3,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1001,7 +1294,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Ray(float3,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::Ray(float3,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1013,7 +1306,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Ray(Ray,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::Ray(Ray,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1025,7 +1318,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arc(float3,float3,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::Arc(float3,float3,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1037,7 +1330,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CircleXZ(float3,float,float,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::CircleXZ(float3,float,float,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1049,7 +1342,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CircleXZ(float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::CircleXZ(float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1061,7 +1354,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CircleXY(float3,float,float,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::CircleXY(float3,float,float,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1073,7 +1366,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CircleXY(float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::CircleXY(float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1085,7 +1378,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Circle(float3,float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::Circle(float3,float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1097,7 +1390,79 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SphereOutline(float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::SolidArc(float3,float3,float3,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidArc (float3 center, float3 start, float3 end, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidArc(center, start, end, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SolidCircleXZ(float3,float,float,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidCircleXZ (float3 center, float radius, float startAngle, float endAngle, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidCircleXZ(center, radius, startAngle, endAngle, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SolidCircleXZ(float3,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidCircleXZ (float3 center, float radius, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidCircleXZ(center, radius, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SolidCircleXY(float3,float,float,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidCircleXY (float3 center, float radius, float startAngle, float endAngle, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidCircleXY(center, radius, startAngle, endAngle, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SolidCircleXY(float3,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidCircleXY (float3 center, float radius, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidCircleXY(center, radius, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SolidCircle(float3,float3,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void SolidCircle (float3 center, float3 normal, float radius, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.SolidCircle(center, normal, radius, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::SphereOutline(float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1109,7 +1474,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireCylinder(float3,float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireCylinder(float3,float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1121,7 +1486,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireCylinder(float3,float3,float,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireCylinder(float3,float3,float,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1133,7 +1498,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireCapsule(float3,float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireCapsule(float3,float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1145,7 +1510,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireCapsule(float3,float3,float,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireCapsule(float3,float3,float,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1157,7 +1522,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireSphere(float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireSphere(float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1169,7 +1534,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(List<Vector3>,bool,Color)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(List&lt;Vector3&gt;,bool,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1181,7 +1546,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(List<Vector3>,Color)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(List&lt;Vector3&gt;,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1193,7 +1558,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(Vector3[],bool,Color)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(Vector3[],bool,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1205,7 +1570,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(Vector3[],Color)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(Vector3[],Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1217,7 +1582,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(float3[],bool,Color)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(float3[],bool,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1229,7 +1594,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(float3[],Color)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(float3[],Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1241,7 +1606,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(NativeArray<float3>,bool,Color)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(NativeArray&lt;float3&gt;,bool,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1253,7 +1618,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Polyline(NativeArray<float3>,Color)
+		/// \copydocref{Drawing::CommandBuilder::Polyline(NativeArray&lt;float3&gt;,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1265,7 +1630,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireBox(float3,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireBox(float3,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1277,11 +1642,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireBox(float3,Quaternion,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireBox(float3,quaternion,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireBox (float3 center, Quaternion rotation, float3 size, Color color) {
+		public static void WireBox (float3 center, quaternion rotation, float3 size, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireBox(center, rotation, size, color);
@@ -1289,7 +1654,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireBox(Bounds,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireBox(Bounds,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1301,7 +1666,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireMesh(Mesh,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireMesh(Mesh,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1313,7 +1678,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidMesh(Mesh,Color)
+		/// \copydocref{Drawing::CommandBuilder::SolidMesh(Mesh,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1325,7 +1690,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Cross(float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::Cross(float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1337,7 +1702,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Cross(float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::Cross(float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1349,7 +1714,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CrossXZ(float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::CrossXZ(float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1361,7 +1726,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CrossXZ(float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::CrossXZ(float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1373,7 +1738,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CrossXY(float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::CrossXY(float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1385,7 +1750,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CrossXY(float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::CrossXY(float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1397,7 +1762,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Bezier(float3,float3,float3,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::Bezier(float3,float3,float3,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1409,7 +1774,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CatmullRom(List<Vector3>,Color)
+		/// \copydocref{Drawing::CommandBuilder::CatmullRom(List&lt;Vector3&gt;,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1421,7 +1786,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::CatmullRom(float3,float3,float3,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::CatmullRom(float3,float3,float3,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1433,7 +1798,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arrow(float3,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::Arrow(float3,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1445,7 +1810,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arrow(float3,float3,float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::Arrow(float3,float3,float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1457,7 +1822,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::ArrowRelativeSizeHead(float3,float3,float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::ArrowRelativeSizeHead(float3,float3,float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1469,7 +1834,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arrowhead(float3,float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::Arrowhead(float3,float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1481,7 +1846,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Arrowhead(float3,float3,float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::Arrowhead(float3,float3,float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1493,7 +1858,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::ArrowheadArc(float3,float3,float,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::ArrowheadArc(float3,float3,float,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1505,7 +1870,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::ArrowheadArc(float3,float3,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::ArrowheadArc(float3,float3,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1517,11 +1882,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireGrid(float3,Quaternion,int2,float2,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireGrid(float3,quaternion,int2,float2,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireGrid (float3 center, Quaternion rotation, int2 cells, float2 totalSize, Color color) {
+		public static void WireGrid (float3 center, quaternion rotation, int2 cells, float2 totalSize, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireGrid(center, rotation, cells, totalSize, color);
@@ -1529,7 +1894,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireTriangle(float3,float3,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireTriangle(float3,float3,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1541,7 +1906,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireRectangleXZ(float3,float2,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireRectangleXZ(float3,float2,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1553,11 +1918,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireRectangle(float3,Quaternion,float2,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireRectangle(float3,quaternion,float2,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireRectangle (float3 center, Quaternion rotation, float2 size, Color color) {
+		public static void WireRectangle (float3 center, quaternion rotation, float2 size, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireRectangle(center, rotation, size, color);
@@ -1565,7 +1930,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireRectangle(Rect,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireRectangle(Rect,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1577,11 +1942,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireTriangle(float3,Quaternion,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireTriangle(float3,quaternion,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireTriangle (float3 center, Quaternion rotation, float radius, Color color) {
+		public static void WireTriangle (float3 center, quaternion rotation, float radius, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireTriangle(center, rotation, radius, color);
@@ -1589,11 +1954,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WirePentagon(float3,Quaternion,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::WirePentagon(float3,quaternion,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WirePentagon (float3 center, Quaternion rotation, float radius, Color color) {
+		public static void WirePentagon (float3 center, quaternion rotation, float radius, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WirePentagon(center, rotation, radius, color);
@@ -1601,11 +1966,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WireHexagon(float3,Quaternion,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::WireHexagon(float3,quaternion,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WireHexagon (float3 center, Quaternion rotation, float radius, Color color) {
+		public static void WireHexagon (float3 center, quaternion rotation, float radius, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WireHexagon(center, rotation, radius, color);
@@ -1613,11 +1978,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WirePolygon(float3,int,Quaternion,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::WirePolygon(float3,int,quaternion,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WirePolygon (float3 center, int vertices, Quaternion rotation, float radius, Color color) {
+		public static void WirePolygon (float3 center, int vertices, quaternion rotation, float radius, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WirePolygon(center, vertices, rotation, radius, color);
@@ -1625,7 +1990,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidRectangle(Rect,Color)
+		/// \copydocref{Drawing::CommandBuilder::SolidRectangle(Rect,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1637,7 +2002,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidPlane(float3,float3,float2,Color)
+		/// \copydocref{Drawing::CommandBuilder::SolidPlane(float3,float3,float2,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1649,11 +2014,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidPlane(float3,Quaternion,float2,Color)
+		/// \copydocref{Drawing::CommandBuilder::SolidPlane(float3,quaternion,float2,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void SolidPlane (float3 center, Quaternion rotation, float2 size, Color color) {
+		public static void SolidPlane (float3 center, quaternion rotation, float2 size, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.SolidPlane(center, rotation, size, color);
@@ -1661,7 +2026,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WirePlane(float3,float3,float2,Color)
+		/// \copydocref{Drawing::CommandBuilder::WirePlane(float3,float3,float2,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1673,11 +2038,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::WirePlane(float3,Quaternion,float2,Color)
+		/// \copydocref{Drawing::CommandBuilder::WirePlane(float3,quaternion,float2,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void WirePlane (float3 center, Quaternion rotation, float2 size, Color color) {
+		public static void WirePlane (float3 center, quaternion rotation, float2 size, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.WirePlane(center, rotation, size, color);
@@ -1685,7 +2050,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PlaneWithNormal(float3,float3,float2,Color)
+		/// \copydocref{Drawing::CommandBuilder::PlaneWithNormal(float3,float3,float2,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1697,11 +2062,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::PlaneWithNormal(float3,Quaternion,float2,Color)
+		/// \copydocref{Drawing::CommandBuilder::PlaneWithNormal(float3,quaternion,float2,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void PlaneWithNormal (float3 center, Quaternion rotation, float2 size, Color color) {
+		public static void PlaneWithNormal (float3 center, quaternion rotation, float2 size, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.PlaneWithNormal(center, rotation, size, color);
@@ -1709,7 +2074,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidBox(float3,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::SolidBox(float3,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1721,7 +2086,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidBox(Bounds,Color)
+		/// \copydocref{Drawing::CommandBuilder::SolidBox(Bounds,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1733,11 +2098,11 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::SolidBox(float3,Quaternion,float3,Color)
+		/// \copydocref{Drawing::CommandBuilder::SolidBox(float3,quaternion,float3,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
-		public static void SolidBox (float3 center, Quaternion rotation, float3 size, Color color) {
+		public static void SolidBox (float3 center, quaternion rotation, float3 size, Color color) {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.SolidBox(center, rotation, size, color);
@@ -1745,7 +2110,31 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Label2D(float3,string,float,Color)
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,string,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, string text, float size, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, text, size, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,string,float,LabelAlignment,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, string text, float size, LabelAlignment alignment, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, text, size, alignment, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,string,float,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1757,7 +2146,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Label2D(float3,string,Color)
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,string,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1769,7 +2158,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// \copydoc Drawing::CommandBuilder::Label2D(float3,string,float,LabelAlignment,Color)
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,string,float,LabelAlignment,Color)}
 		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
 		/// </summary>
 		[BurstDiscard]
@@ -1777,6 +2166,246 @@ namespace Drawing {
 #if UNITY_EDITOR
 			DrawingManager.Init();
 			builder.Label2D(position, text, sizeInPixels, alignment, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString32Bytes,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString32Bytes text, float sizeInPixels, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString32Bytes,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString32Bytes text, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString64Bytes,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString64Bytes text, float sizeInPixels, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString64Bytes,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString64Bytes text, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString128Bytes,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString128Bytes text, float sizeInPixels, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString128Bytes,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString128Bytes text, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString512Bytes,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString512Bytes text, float sizeInPixels, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString512Bytes,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString512Bytes text, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString32Bytes,float,LabelAlignment,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString32Bytes text, float sizeInPixels, LabelAlignment alignment, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, alignment, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString64Bytes,float,LabelAlignment,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString64Bytes text, float sizeInPixels, LabelAlignment alignment, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, alignment, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString128Bytes,float,LabelAlignment,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString128Bytes text, float sizeInPixels, LabelAlignment alignment, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, alignment, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label2D(float3,FixedString512Bytes,float,LabelAlignment,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label2D (float3 position, ref FixedString512Bytes text, float sizeInPixels, LabelAlignment alignment, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label2D(position, ref text, sizeInPixels, alignment, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString32Bytes,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString32Bytes text, float size, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString64Bytes,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString64Bytes text, float size, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString128Bytes,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString128Bytes text, float size, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString512Bytes,float,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString512Bytes text, float size, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString32Bytes,float,LabelAlignment,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString32Bytes text, float size, LabelAlignment alignment, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, alignment, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString64Bytes,float,LabelAlignment,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString64Bytes text, float size, LabelAlignment alignment, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, alignment, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString128Bytes,float,LabelAlignment,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString128Bytes text, float size, LabelAlignment alignment, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, alignment, color);
+#endif
+		}
+
+		/// <summary>
+		/// \copydocref{Drawing::CommandBuilder::Label3D(float3,quaternion,FixedString512Bytes,float,LabelAlignment,Color)}
+		/// Warning: This method cannot be used inside of Burst jobs. See job-system (view in online documentation for working links) instead.
+		/// </summary>
+		[BurstDiscard]
+		public static void Label3D (float3 position, quaternion rotation, ref FixedString512Bytes text, float size, LabelAlignment alignment, Color color) {
+#if UNITY_EDITOR
+			DrawingManager.Init();
+			builder.Label3D(position, rotation, ref text, size, alignment, color);
 #endif
 		}
 	}

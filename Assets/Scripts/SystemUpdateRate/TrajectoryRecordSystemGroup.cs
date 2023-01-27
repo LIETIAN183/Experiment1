@@ -8,7 +8,7 @@ using UnityEngine.Scripting;
 
 namespace Unity.Entities
 {
-    [ExecuteAlways]
+    [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
     [UpdateAfter(typeof(BeginSimulationEntityCommandBufferSystem))]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(AgentSimulationSystemGroup))]

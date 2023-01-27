@@ -23,9 +23,9 @@ public partial class SFMmovementSystem2 : SystemBase
         // 用于物体检测
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
-        float2 SFMtarget = GetSingleton<FlowFieldSettingData>().destination.xz;
+        float2 SFMtarget = SystemAPI.GetSingleton<FlowFieldSettingData>().destination.xz;
 
-        var groundAcc = GetSingleton<AccTimerData>().acc.xz;
+        var groundAcc = SystemAPI.GetSingleton<TimerData>().curAcc.xz;
 
         Entities.WithAll<Escaping>().WithReadOnly(physicsWorld).ForEach((Entity entity, ref PhysicsVelocity velocity, in AgentMovementData movementData, in LocalTransform localTransform, in PhysicsMass mass) =>
         {

@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 1838323613942971865}
   - component: {fileID: 4496842989592152350}
   - component: {fileID: 4496842989592152351}
-  - component: {fileID: 4496842989592152336}
   - component: {fileID: 4496842989592152337}
   - component: {fileID: 4496842989592152338}
   m_Layer: 0
@@ -36,7 +35,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4496842989592152339
 MeshFilter:
@@ -282,24 +281,6 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
---- !u!114 &4496842989592152336
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 181258780127255564}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0453d1b4c5f8ed84bbdd0d116382dc7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  replaceItems:
-  - {fileID: 8134057909732148068, guid: 68b6315846405f147adf18a89b0ea54e, type: 3}
-  - {fileID: 6137368971670931949, guid: dfb15ad99f6a2f842a487b5d39e586c7, type: 3}
-  - {fileID: 9091776307555831762, guid: 813aa56f68a62934481d0de642b65880, type: 3}
-  - {fileID: 2010152907785486762, guid: e5d8bc935ade52e4e93db551a34ca679, type: 3}
-  - {fileID: 8104918276157937138, guid: e43fde249a8c51748a7800a60e5e1197, type: 3}
 --- !u!114 &4496842989592152337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -313,6 +294,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluidInside: 0
+  replaceItems:
+  - {fileID: 8134057909732148068, guid: 68b6315846405f147adf18a89b0ea54e, type: 3}
+  - {fileID: 6137368971670931949, guid: dfb15ad99f6a2f842a487b5d39e586c7, type: 3}
+  - {fileID: 9091776307555831762, guid: 813aa56f68a62934481d0de642b65880, type: 3}
+  - {fileID: 2010152907785486762, guid: e5d8bc935ade52e4e93db551a34ca679, type: 3}
+  - {fileID: 8104918276157937138, guid: e43fde249a8c51748a7800a60e5e1197, type: 3}
 --- !u!114 &4496842989592152338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,5 +312,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  previousVelinY: 0
-  inAir: 0

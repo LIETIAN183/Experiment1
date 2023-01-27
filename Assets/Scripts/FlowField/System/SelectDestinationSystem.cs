@@ -25,12 +25,12 @@ public partial class SelectDestinationSystem : SystemBase
             float3 worldMousePos = hit.Position;
 
             //判断鼠标点击的点是否在网格内
-            FlowFieldSettingData data = GetSingleton<FlowFieldSettingData>();
-            if ((worldMousePos.x > data.originPoint.x && worldMousePos.x < data.originPoint.x + data.gridSize.x * 2 * data.cellRadius.x) &&
-            (worldMousePos.z > data.originPoint.z && worldMousePos.z < data.originPoint.z + data.gridSize.y * 2 * data.cellRadius.z))
+            FlowFieldSettingData data = SystemAPI.GetSingleton<FlowFieldSettingData>();
+            if ((worldMousePos.x > data.originPoint.x && worldMousePos.x < data.originPoint.x + data.gridSetSize.x * 2 * data.cellRadius.x) &&
+            (worldMousePos.z > data.originPoint.z && worldMousePos.z < data.originPoint.z + data.gridSetSize.y * 2 * data.cellRadius.z))
             {
                 data.destination = worldMousePos;
-                SetSingleton<FlowFieldSettingData>(data);
+                SystemAPI.SetSingleton<FlowFieldSettingData>(data);
             }
         }
     }

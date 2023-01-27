@@ -1,4 +1,0 @@
-NO SeismicName simulationPGA fullEscapeTime finalDropCount itmeCount escapeTime_ave escapeLength_ave escapeVel_ave
-1 RSN1063_NORTHR 1.076745 16.2 26 26 15.76 10.29019 0.6529306
-2 RSN1101_KOBE 0.3786401 5.88 26 26 5.24 8.903991 1.699235
-3 RSN6_IMPVALL 0.287425 9.88 26 26 9.24 8.935768 0.9670745

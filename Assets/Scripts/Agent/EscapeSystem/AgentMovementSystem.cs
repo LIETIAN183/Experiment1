@@ -29,9 +29,9 @@ public partial class AgentMovementSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        DynamicBuffer<CellData> cellBuffer = GetBuffer<CellBuffer>(GetSingletonEntity<FlowFieldSettingData>()).Reinterpret<CellData>();
+        DynamicBuffer<CellData> cellBuffer = SystemAPI.GetBuffer<CellBuffer>(SystemAPI.GetSingletonEntity<FlowFieldSettingData>()).Reinterpret<CellData>();
         if (cellBuffer.Length == 0) return;
-        var settingData = GetSingleton<FlowFieldSettingData>();
+        var settingData = SystemAPI.GetSingleton<FlowFieldSettingData>();
 
         // 用于计算最终的加速度，作为时间尺度
         float deltaTime = SystemAPI.Time.DeltaTime;
@@ -39,23 +39,23 @@ public partial class AgentMovementSystem : SystemBase
         // var physicsWorld = buildPhysicsWorld.PhysicsWorld;
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
-        var accData = GetSingleton<AccTimerData>();
+        var accData = SystemAPI.GetSingleton<TimerData>();
 
-        float2 SFMtarget = GetSingleton<FlowFieldSettingData>().destination.xz;
+        float2 SFMtarget = SystemAPI.GetSingleton<FlowFieldSettingData>().destination.xz;
 
         Entities.WithAll<Escaping>().WithReadOnly(cellBuffer).WithReadOnly(physicsWorld).ForEach((Entity entity, ref PhysicsVelocity velocity, ref AgentMovementData movementData, in LocalTransform localTransform, in PhysicsMass mass) =>
         {
             // 获得当前所在位置的网格 Index
-            int2 localCellIndex = FlowFieldUtility.GetCellIndexFromWorldPos(localTransform.Position, settingData.originPoint, settingData.gridSize, settingData.cellRadius * 2);
+            int2 localCellIndex = FlowFieldUtility.GetCellIndexFromWorldPos(localTransform.Position, settingData.originPoint, settingData.gridSetSize, settingData.cellRadius * 2);
             // 获得当前的期望方向
-            int flatLocalCellIndex = FlowFieldUtility.ToFlatIndex(localCellIndex, settingData.gridSize.y);
+            int flatLocalCellIndex = FlowFieldUtility.ToFlatIndex(localCellIndex, settingData.gridSetSize.y);
 
             // var SFMDirection = math.normalizesafe(SFMtarget - translation.Value.xz);
-            float2 desireDirection = math.normalizesafe(cellBuffer[flatLocalCellIndex].bestDirection);
+            float2 desireDirection = math.normalizesafe(cellBuffer[flatLocalCellIndex].bestDir);
             if (localTransform.Position.z > 5 || localTransform.Position.x < -5)
             {
-                int2 neighberIndex = FlowFieldUtility.GetIndexAtRelativePosition(localCellIndex, cellBuffer[flatLocalCellIndex].bestDirection, settingData.gridSize);
-                int flatNeigborIndex = FlowFieldUtility.ToFlatIndex(neighberIndex, settingData.gridSize.y);
+                int2 neighberIndex = FlowFieldUtility.GetIndexAtRelativePosition(localCellIndex, (int2)cellBuffer[flatLocalCellIndex].bestDir, settingData.gridSetSize);
+                int flatNeigborIndex = FlowFieldUtility.ToFlatIndex(neighberIndex, settingData.gridSetSize.y);
                 if (cellBuffer[flatNeigborIndex].cost == 1)
                 {
                     desireDirection = math.normalizesafe(SFMtarget - localTransform.Position.xz);
@@ -92,11 +92,11 @@ public partial class AgentMovementSystem : SystemBase
 
                 outHits.Dispose();
             }
-            var desireSpeed = math.exp(-localTransform.Position.y + movementData.originPosition.y - math.length(accData.acc)) * movementData.stdVel;// originPosition.y 取代 1.05f
+            var desireSpeed = math.exp(-localTransform.Position.y + movementData.originPosition.y - math.length(accData.curAcc)) * movementData.stdVel;// originPosition.y 取代 1.05f
             movementData.desireSpeed = desireSpeed;
             movementData.curSpeed = math.length(velocity.Linear.xz);
 
-            velocity.Linear.xz += ((desireDirection * desireSpeed - velocity.Linear.xz) / 0.5f - accData.acc.xz + interactionForce * mass.InverseMass) * deltaTime;
+            velocity.Linear.xz += ((desireDirection * desireSpeed - velocity.Linear.xz) / 0.5f - accData.curAcc.xz + interactionForce * mass.InverseMass) * deltaTime;
             movementData.nextSpeed = math.length(velocity.Linear.xz);
 
         }).ScheduleParallel();

@@ -10,7 +10,7 @@ using Unity.Jobs;
 
 namespace Drawing {
 	public partial struct CommandBuilder {
-		/// <summary>\copydoc Line(float3,float3)</summary>
+		/// <summary>\copydocref{Line(float3,float3)}</summary>
 		public void Line (float3 a, float3 b, Color color) {
 			Reserve<Color32, LineData>();
 			Add(Command.Line | Command.PushColorInline);
@@ -18,17 +18,17 @@ namespace Drawing {
 			Add(new LineData { a = a, b = b });
 		}
 
-		/// <summary>\copydoc Ray(float3,float3)</summary>
+		/// <summary>\copydocref{Ray(float3,float3)}</summary>
 		public void Ray (float3 origin, float3 direction, Color color) {
 			Line(origin, origin + direction, color);
 		}
 
-		/// <summary>\copydoc Ray(Ray,float)</summary>
+		/// <summary>\copydocref{Ray(Ray,float)}</summary>
 		public void Ray (Ray ray, float length, Color color) {
 			Line(ray.origin, ray.origin + ray.direction * length, color);
 		}
 
-		/// <summary>\copydoc Arc(float3,float3,float3)</summary>
+		/// <summary>\copydocref{Arc(float3,float3,float3)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Arc (float3 center, float3 start, float3 end, Color color) {
 			PushColor(color);
@@ -45,7 +45,7 @@ namespace Drawing {
 			}
 			PopColor();
 		}
-		/// <summary>\copydoc CircleXZ(float3,float,float,float)</summary>
+		/// <summary>\copydocref{CircleXZ(float3,float,float,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void CircleXZ (float3 center, float radius, float startAngle, float endAngle, Color color) {
 			Reserve<Color32, CircleXZData>();
@@ -54,13 +54,13 @@ namespace Drawing {
 			Add(new CircleXZData { center = center, radius = radius, startAngle = startAngle, endAngle = endAngle });
 		}
 
-		/// <summary>\copydoc CircleXZ(float3,float,float,float)</summary>
+		/// <summary>\copydocref{CircleXZ(float3,float,float,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void CircleXZ (float3 center, float radius, Color color) {
 			CircleXZ(center, radius, 0f, 2 * Mathf.PI, color);
 		}
 
-		/// <summary>\copydoc CircleXY(float3,float,float,float)</summary>
+		/// <summary>\copydocref{CircleXY(float3,float,float,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void CircleXY (float3 center, float radius, float startAngle, float endAngle, Color color) {
 			PushColor(color);
@@ -69,52 +69,114 @@ namespace Drawing {
 			PopMatrix();
 			PopColor();
 		}
-		/// <summary>\copydoc CircleXY(float3,float,float,float)</summary>
+		/// <summary>\copydocref{CircleXY(float3,float,float,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void CircleXY (float3 center, float radius, Color color) {
 			CircleXY(center, radius, 0f, 2 * Mathf.PI, color);
 		}
-		/// <summary>\copydoc Circle(float3,float3,float)</summary>
+		/// <summary>\copydocref{Circle(float3,float3,float)}</summary>
 		public void Circle (float3 center, float3 normal, float radius, Color color) {
 			Reserve<Color32, CircleData>();
 			Add(Command.Circle | Command.PushColorInline);
 			Add((Color32)color);
 			Add(new CircleData { center = center, normal = normal, radius = radius });
 		}
-		/// <summary>\copydoc SphereOutline(float3,float)</summary>
+		/// <summary>\copydocref{SolidArc(float3,float3,float3)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void SolidArc (float3 center, float3 start, float3 end, Color color) {
+			PushColor(color);
+			var d1 = start - center;
+			var d2 = end - center;
+			var normal = math.cross(d2, d1);
+
+			if (math.any(normal)) {
+				var m = Matrix4x4.TRS(center, Quaternion.LookRotation(d1, normal), Vector3.one);
+				var angle = Vector3.SignedAngle(d1, d2, normal) * Mathf.Deg2Rad;
+				PushMatrix(m);
+				SolidCircleXZ(float3.zero, math.length(d1), 90 * Mathf.Deg2Rad, 90 * Mathf.Deg2Rad - angle);
+				PopMatrix();
+			}
+			PopColor();
+		}
+		/// <summary>\copydocref{SolidCircleXZ(float3,float,float,float)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void SolidCircleXZ (float3 center, float radius, float startAngle, float endAngle, Color color) {
+			Reserve<Color32, CircleXZData>();
+			Add(Command.DiscXZ | Command.PushColorInline);
+			Add((Color32)color);
+			Add(new CircleXZData { center = center, radius = radius, startAngle = startAngle, endAngle = endAngle });
+		}
+		/// <summary>\copydocref{SolidCircleXZ(float3,float,float,float)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void SolidCircleXZ (float3 center, float radius, Color color) {
+			SolidCircleXZ(center, radius, 0f, 2 * Mathf.PI, color);
+		}
+		/// <summary>\copydocref{SolidCircleXY(float3,float,float,float)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void SolidCircleXY (float3 center, float radius, float startAngle, float endAngle, Color color) {
+			PushColor(color);
+			PushMatrix(XZtoXYPlaneMatrix);
+			SolidCircleXZ(new float3(center.x, -center.z, center.y), radius, startAngle, endAngle);
+			PopMatrix();
+			PopColor();
+		}
+		/// <summary>\copydocref{SolidCircleXY(float3,float,float,float)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void SolidCircleXY (float3 center, float radius, Color color) {
+			SolidCircleXY(center, radius, 0f, 2 * Mathf.PI, color);
+		}
+		/// <summary>\copydocref{SolidCircle(float3,float3,float)}</summary>
+		public void SolidCircle (float3 center, float3 normal, float radius, Color color) {
+			Reserve<Color32, CircleData>();
+			Add(Command.Disc | Command.PushColorInline);
+			Add((Color32)color);
+			Add(new CircleData { center = center, normal = normal, radius = radius });
+		}
+		/// <summary>\copydocref{SphereOutline(float3,float)}</summary>
 		public void SphereOutline (float3 center, float radius, Color color) {
 			Reserve<Color32, SphereData>();
 			Add(Command.SphereOutline | Command.PushColorInline);
 			Add((Color32)color);
 			Add(new SphereData { center = center, radius = radius });
 		}
-		/// <summary>\copydoc WireCylinder(float3,float3,float)</summary>
+		/// <summary>\copydocref{WireCylinder(float3,float3,float)}</summary>
 		public void WireCylinder (float3 bottom, float3 top, float radius, Color color) {
 			WireCylinder(bottom, top - bottom, math.length(top - bottom), radius, color);
 		}
 
-		/// <summary>\copydoc WireCylinder(float3,float3,float,float)</summary>
+		/// <summary>\copydocref{WireCylinder(float3,float3,float,float)}</summary>
+		/// <param name="color">Color of the object</param>
 		public void WireCylinder (float3 position, float3 up, float height, float radius, Color color) {
 			PushColor(color);
-			var tangent = math.normalizesafe(math.cross(up, new float3(1, 1, 1)));
+			var tangent = math.cross(up, new float3(1, 1, 1));
 
-			// Note: second parameter is normalized (-1,1,1)
-			if (math.all(tangent == float3.zero)) tangent = math.cross(up, new float3(-0.577350269f, 0.577350269f, 0.577350269f));
+			if (math.all(tangent == float3.zero)) tangent = math.cross(up, new float3(-1, 1, 1));
 
-			PushMatrix(Matrix4x4.TRS(position, Quaternion.LookRotation(tangent, up), new Vector3(radius, height, radius)));
-			CircleXZ(float3.zero, 1);
-			if (height > 0) {
-				CircleXZ(new float3(0, 1, 0), 1);
-				Line(new float3(1, 0, 0), new float3(1, 1, 0));
-				Line(new float3(-1, 0, 0), new float3(-1, 1, 0));
-				Line(new float3(0, 0, 1), new float3(0, 1, 1));
-				Line(new float3(0, 0, -1), new float3(0, 1, -1));
+			tangent = math.normalizesafe(tangent);
+			up = math.normalizesafe(up);
+			var rotation = math.quaternion(math.float3x3(math.cross(up, tangent), up, tangent));
+
+			// If we get a NaN here then either
+			// * one of the input parameters contained nans (bad)
+			// * up is zero, or very close to zero
+			//
+			// In any case, we cannot draw anything.
+			if (!math.any(math.isnan(rotation.value))) {
+				PushMatrix(float4x4.TRS(position, rotation, new float3(radius, height, radius)));
+				CircleXZ(float3.zero, 1);
+				if (height > 0) {
+					CircleXZ(new float3(0, 1, 0), 1);
+					Line(new float3(1, 0, 0), new float3(1, 1, 0));
+					Line(new float3(-1, 0, 0), new float3(-1, 1, 0));
+					Line(new float3(0, 0, 1), new float3(0, 1, 1));
+					Line(new float3(0, 0, -1), new float3(0, 1, -1));
+				}
+				PopMatrix();
 			}
-			PopMatrix();
 			PopColor();
 		}
 
-		/// <summary>\copydoc WireCapsule(float3,float3,float)</summary>
+		/// <summary>\copydocref{WireCapsule(float3,float3,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void WireCapsule (float3 start, float3 end, float radius, Color color) {
 			PushColor(color);
@@ -133,47 +195,56 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc WireCapsule(float3,float3,float,float)</summary>
+		/// <summary>\copydocref{WireCapsule(float3,float3,float,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void WireCapsule (float3 position, float3 direction, float length, float radius, Color color) {
 			PushColor(color);
 			direction = math.normalizesafe(direction);
+
 			if (radius <= 0) {
 				Line(position, position + direction * length);
 			} else {
-				// Note; second parameter is normalized (1,1,1)
-				var tangent = math.cross(direction, new float3(0.577350269f, 0.577350269f, 0.577350269f));
+				var tangent = math.cross(direction, new float3(1, 1, 1));
 
-				// Note: second parameter is normalized (-1,1,1)
-				if (math.all(tangent == float3.zero)) tangent = math.cross(direction, new float3(-0.577350269f, 0.577350269f, 0.577350269f));
+				if (math.all(tangent == float3.zero)) tangent = math.cross(direction, new float3(-1, 1, 1));
 
 				length = math.max(length, radius*2);
 
-				PushMatrix(Matrix4x4.TRS(position, Quaternion.LookRotation(tangent, direction), Vector3.one));
-				CircleXZ(new float3(0, radius, 0), radius);
-				CircleXY(new float3(0, radius, 0), radius, Mathf.PI, 2 * Mathf.PI);
-				PushMatrix(XZtoYZPlaneMatrix);
-				CircleXZ(new float3(radius, 0, 0), radius, Mathf.PI*0.5f, Mathf.PI*1.5f);
-				PopMatrix();
-				if (length > 0) {
-					var upperY = length - radius;
-					var lowerY = radius;
-					CircleXZ(new float3(0, upperY, 0), radius);
-					CircleXY(new float3(0, upperY, 0), radius, 0, Mathf.PI);
+				tangent = math.normalizesafe(tangent);
+				var rotation = math.quaternion(math.float3x3(tangent, direction, math.cross(tangent, direction)));
+
+				// If we get a NaN here then either
+				// * one of the input parameters contained nans (bad)
+				// * direction is zero, or very close to zero
+				//
+				// In any case, we cannot draw anything.
+				if (!math.any(math.isnan(rotation.value))) {
+					PushMatrix(float4x4.TRS(position, rotation, 1));
+					CircleXZ(new float3(0, radius, 0), radius);
+					CircleXY(new float3(0, radius, 0), radius, Mathf.PI, 2 * Mathf.PI);
 					PushMatrix(XZtoYZPlaneMatrix);
-					CircleXZ(new float3(upperY, 0, 0), radius, -Mathf.PI*0.5f, Mathf.PI*0.5f);
+					CircleXZ(new float3(radius, 0, 0), radius, Mathf.PI*0.5f, Mathf.PI*1.5f);
 					PopMatrix();
-					Line(new float3(radius, lowerY, 0), new float3(radius, upperY, 0));
-					Line(new float3(-radius, lowerY, 0), new float3(-radius, upperY, 0));
-					Line(new float3(0, lowerY, radius), new float3(0, upperY, radius));
-					Line(new float3(0, lowerY, -radius), new float3(0, upperY, -radius));
+					if (length > 0) {
+						var upperY = length - radius;
+						var lowerY = radius;
+						CircleXZ(new float3(0, upperY, 0), radius);
+						CircleXY(new float3(0, upperY, 0), radius, 0, Mathf.PI);
+						PushMatrix(XZtoYZPlaneMatrix);
+						CircleXZ(new float3(upperY, 0, 0), radius, -Mathf.PI*0.5f, Mathf.PI*0.5f);
+						PopMatrix();
+						Line(new float3(radius, lowerY, 0), new float3(radius, upperY, 0));
+						Line(new float3(-radius, lowerY, 0), new float3(-radius, upperY, 0));
+						Line(new float3(0, lowerY, radius), new float3(0, upperY, radius));
+						Line(new float3(0, lowerY, -radius), new float3(0, upperY, -radius));
+					}
+					PopMatrix();
 				}
-				PopMatrix();
 			}
 			PopColor();
 		}
 
-		/// <summary>\copydoc WireSphere(float3,float)</summary>
+		/// <summary>\copydocref{WireSphere(float3,float)}</summary>
 		public void WireSphere (float3 position, float radius, Color color) {
 			PushColor(color);
 			SphereOutline(position, radius);
@@ -183,7 +254,7 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc Polyline(List<Vector3>,bool)</summary>
+		/// <summary>\copydocref{Polyline(List&lt;Vector3&gt;,bool)}</summary>
 		/// <param name="color">Color of the object</param>
 		[BurstDiscard]
 		public void Polyline (List<Vector3> points, bool cycle, Color color) {
@@ -195,14 +266,14 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc Polyline(List<Vector3>,bool)</summary>
+		/// <summary>\copydocref{Polyline(List&lt;Vector3&gt;,bool)}</summary>
 		/// <param name="color">Color of the object</param>
 		[BurstDiscard]
 		public void Polyline (List<Vector3> points, Color color) {
 			Polyline(points, false, color);
 		}
 
-		/// <summary>\copydoc Polyline(Vector3[],bool)</summary>
+		/// <summary>\copydocref{Polyline(Vector3[],bool)}</summary>
 		/// <param name="color">Color of the object</param>
 		[BurstDiscard]
 		public void Polyline (Vector3[] points, bool cycle, Color color) {
@@ -214,14 +285,14 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc Polyline(Vector3[],bool)</summary>
+		/// <summary>\copydocref{Polyline(Vector3[],bool)}</summary>
 		/// <param name="color">Color of the object</param>
 		[BurstDiscard]
 		public void Polyline (Vector3[] points, Color color) {
 			Polyline(points, false, color);
 		}
 
-		/// <summary>\copydoc Polyline(float3[],bool)</summary>
+		/// <summary>\copydocref{Polyline(float3[],bool)}</summary>
 		/// <param name="color">Color of the object</param>
 		[BurstDiscard]
 		public void Polyline (float3[] points, bool cycle, Color color) {
@@ -233,14 +304,14 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc Polyline(float3[],bool)</summary>
+		/// <summary>\copydocref{Polyline(float3[],bool)}</summary>
 		/// <param name="color">Color of the object</param>
 		[BurstDiscard]
 		public void Polyline (float3[] points, Color color) {
 			Polyline(points, false, color);
 		}
 
-		/// <summary>\copydoc Polyline(NativeArray<float3>,bool)</summary>
+		/// <summary>\copydocref{Polyline(NativeArray&lt;float3&gt;,bool)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Polyline (NativeArray<float3> points, bool cycle, Color color) {
 			PushColor(color);
@@ -251,29 +322,29 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc Polyline(NativeArray<float3>,bool)</summary>
+		/// <summary>\copydocref{Polyline(NativeArray&lt;float3&gt;,bool)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Polyline (NativeArray<float3> points, Color color) {
 			Polyline(points, false, color);
 		}
 
-		/// <summary>\copydoc WireBox(float3,float3)</summary>
+		/// <summary>\copydocref{WireBox(float3,float3)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void WireBox (float3 center, float3 size, Color color) {
 			WireBox(new Bounds(center, size), color);
 		}
 
-		/// <summary>\copydoc WireBox(float3,Quaternion,float3)</summary>
+		/// <summary>\copydocref{WireBox(float3,quaternion,float3)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void WireBox (float3 center, Quaternion rotation, float3 size, Color color) {
+		public void WireBox (float3 center, quaternion rotation, float3 size, Color color) {
 			PushColor(color);
-			PushMatrix(Matrix4x4.TRS(center, rotation, size));
+			PushMatrix(float4x4.TRS(center, rotation, size));
 			WireBox(new Bounds(Vector3.zero, Vector3.one));
 			PopMatrix();
 			PopColor();
 		}
 
-		/// <summary>\copydoc WireBox(Bounds)</summary>
+		/// <summary>\copydocref{WireBox(Bounds)}</summary>
 		public void WireBox (Bounds bounds, Color color) {
 			PushColor(color);
 			var min = bounds.min;
@@ -296,7 +367,7 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc WireMesh(Mesh)</summary>
+		/// <summary>\copydocref{WireMesh(Mesh)}</summary>
 		public void WireMesh (Mesh mesh, Color color) {
 #if UNITY_2020_1_OR_NEWER
 			if (mesh == null) throw new System.ArgumentNullException();
@@ -315,20 +386,11 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc SolidMesh(Mesh)</summary>
+		/// <summary>\copydocref{SolidMesh(Mesh)}</summary>
 		public void SolidMesh (Mesh mesh, Color color) {
-			PushColor(color);
-			var g = gizmos.Target as DrawingData;
-
-			g.data.Get(uniqueID).meshes.Add(mesh);
-			// Internally we need to make sure to capture the current state
-			// (which includes the current matrix and color) so that it
-			// can be applied to the mesh.
-			Reserve(4);
-			Add(Command.CaptureState);
-			PopColor();
+			SolidMeshInternal(mesh, false, color);
 		}
-		/// <summary>\copydoc Cross(float3,float)</summary>
+		/// <summary>\copydocref{Cross(float3,float)}</summary>
 		public void Cross (float3 position, float size, Color color) {
 			PushColor(color);
 			size *= 0.5f;
@@ -337,11 +399,11 @@ namespace Drawing {
 			Line(position - new float3(0, 0, size), position + new float3(0, 0, size));
 			PopColor();
 		}
-		/// <summary>\copydoc Cross(float3,float)</summary>
+		/// <summary>\copydocref{Cross(float3,float)}</summary>
 		public void Cross (float3 position, Color color) {
 			Cross(position, 1, color);
 		}
-		/// <summary>\copydoc CrossXZ(float3,float)</summary>
+		/// <summary>\copydocref{CrossXZ(float3,float)}</summary>
 		public void CrossXZ (float3 position, float size, Color color) {
 			PushColor(color);
 			size *= 0.5f;
@@ -350,12 +412,12 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc CrossXZ(float3,float)</summary>
+		/// <summary>\copydocref{CrossXZ(float3,float)}</summary>
 		public void CrossXZ (float3 position, Color color) {
 			CrossXZ(position, 1, color);
 		}
 
-		/// <summary>\copydoc CrossXY(float3,float)</summary>
+		/// <summary>\copydocref{CrossXY(float3,float)}</summary>
 		public void CrossXY (float3 position, float size, Color color) {
 			PushColor(color);
 			size *= 0.5f;
@@ -363,11 +425,13 @@ namespace Drawing {
 			Line(position - new float3(0, size, 0), position + new float3(0, size, 0));
 			PopColor();
 		}
-		/// <summary>\copydoc CrossXY(float3,float)</summary>
+
+		/// <summary>\copydocref{CrossXY(float3,float)}</summary>
 		public void CrossXY (float3 position, Color color) {
 			CrossXY(position, 1, color);
 		}
-		/// <summary>\copydoc Bezier(float3,float3,float3,float3)</summary>
+
+		/// <summary>\copydocref{Bezier(float3,float3,float3,float3)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Bezier (float3 p0, float3 p1, float3 p2, float3 p3, Color color) {
 			PushColor(color);
@@ -381,7 +445,7 @@ namespace Drawing {
 			}
 			PopColor();
 		}
-		/// <summary>\copydoc CatmullRom(List<Vector3>)</summary>
+		/// <summary>\copydocref{CatmullRom(List&lt;Vector3&gt;)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void CatmullRom (List<Vector3> points, Color color) {
 			if (points.Count < 2) return;
@@ -402,7 +466,7 @@ namespace Drawing {
 			}
 			PopColor();
 		}
-		/// <summary>\copydoc CatmullRom(float3,float3,float3,float3)</summary>
+		/// <summary>\copydocref{CatmullRom(float3,float3,float3,float3)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void CatmullRom (float3 p0, float3 p1, float3 p2, float3 p3, Color color) {
 			PushColor(color);
@@ -486,12 +550,13 @@ namespace Drawing {
 			Bezier(c0, c1, c2, c3);
 			PopColor();
 		}
-		/// <summary>\copydoc Arrow(float3,float3)</summary>
+		/// <summary>\copydocref{Arrow(float3,float3)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Arrow (float3 from, float3 to, Color color) {
 			ArrowRelativeSizeHead(from, to, new float3(0, 1, 0), 0.2f, color);
 		}
-		/// <summary>\copydoc Arrow(float3,float3,float3,float)</summary>
+
+		/// <summary>\copydocref{Arrow(float3,float3,float3,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Arrow (float3 from, float3 to, float3 up, float headSize, Color color) {
 			PushColor(color);
@@ -502,7 +567,8 @@ namespace Drawing {
 			}
 			PopColor();
 		}
-		/// <summary>\copydoc ArrowRelativeSizeHead(float3,float3,float3,float)</summary>
+
+		/// <summary>\copydocref{ArrowRelativeSizeHead(float3,float3,float3,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void ArrowRelativeSizeHead (float3 from, float3 to, float3 up, float headFraction, Color color) {
 			PushColor(color);
@@ -519,12 +585,13 @@ namespace Drawing {
 			Line(to, to - (dir - normal) * headFraction);
 			PopColor();
 		}
-		/// <summary>\copydoc Arrowhead(float3,float3,float)</summary>
+
+		/// <summary>\copydocref{Arrowhead(float3,float3,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Arrowhead (float3 center, float3 direction, float radius, Color color) {
 			Arrowhead(center, direction, new float3(0, 1, 0), radius, color);
 		}
-		/// <summary>\copydoc Arrowhead(float3,float3,float3,float)</summary>
+		/// <summary>\copydocref{Arrowhead(float3,float3,float3,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Arrowhead (float3 center, float3 direction, float3 up, float radius, Color color) {
 			if (math.all(direction == 0)) return;
@@ -543,7 +610,7 @@ namespace Drawing {
 			Line(p3, p1);
 			PopColor();
 		}
-		/// <summary>\copydoc ArrowheadArc(float3,float3,float,float)</summary>
+		/// <summary>\copydocref{ArrowheadArc(float3,float3,float,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void ArrowheadArc (float3 origin, float3 direction, float offset, float width, Color color) {
 			if (!math.any(direction)) return;
@@ -566,17 +633,17 @@ namespace Drawing {
 			PopMatrix();
 			PopColor();
 		}
-		/// <summary>\copydoc ArrowheadArc(float3,float3,float,float)</summary>
+		/// <summary>\copydocref{ArrowheadArc(float3,float3,float,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void ArrowheadArc (float3 origin, float3 direction, float offset, Color color) {
 			ArrowheadArc(origin, direction, offset, 60, color);
 		}
-		/// <summary>\copydoc WireGrid(float3,Quaternion,int2,float2)</summary>
+		/// <summary>\copydocref{WireGrid(float3,quaternion,int2,float2)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void WireGrid (float3 center, Quaternion rotation, int2 cells, float2 totalSize, Color color) {
+		public void WireGrid (float3 center, quaternion rotation, int2 cells, float2 totalSize, Color color) {
 			PushColor(color);
 			cells = math.max(cells, new int2(1, 1));
-			PushMatrix(Matrix4x4.TRS(center, rotation, new Vector3(totalSize.x, 0, totalSize.y)));
+			PushMatrix(float4x4.TRS(center, rotation, new Vector3(totalSize.x, 0, totalSize.y)));
 			int w = cells.x;
 			int h = cells.y;
 			for (int i = 0; i <= w; i++) Line(new float3(i/(float)w - 0.5f, 0, -0.5f), new float3(i/(float)w - 0.5f, 0, 0.5f));
@@ -585,7 +652,7 @@ namespace Drawing {
 			PopColor();
 		}
 
-		/// <summary>\copydoc WireTriangle(float3,float3,float3)</summary>
+		/// <summary>\copydocref{WireTriangle(float3,float3,float3)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void WireTriangle (float3 a, float3 b, float3 c, Color color) {
 			PushColor(color);
@@ -594,15 +661,15 @@ namespace Drawing {
 			Line(c, a);
 			PopColor();
 		}
-		/// <summary>\copydoc WireRectangleXZ(float3,float2)</summary>
+		/// <summary>\copydocref{WireRectangleXZ(float3,float2)}</summary>
 		public void WireRectangleXZ (float3 center, float2 size, Color color) {
-			WireRectangle(center, Quaternion.identity, size, color);
+			WireRectangle(center, quaternion.identity, size, color);
 		}
-		/// <summary>\copydoc WireRectangle(float3,Quaternion,float2)</summary>
-		public void WireRectangle (float3 center, Quaternion rotation, float2 size, Color color) {
+		/// <summary>\copydocref{WireRectangle(float3,quaternion,float2)}</summary>
+		public void WireRectangle (float3 center, quaternion rotation, float2 size, Color color) {
 			WirePlane(center, rotation, size, color);
 		}
-		/// <summary>\copydoc WireRectangle(Rect)</summary>
+		/// <summary>\copydocref{WireRectangle(Rect)}</summary>
 		public void WireRectangle (Rect rect, Color color) {
 			PushColor(color);
 			float2 min = rect.min;
@@ -614,26 +681,26 @@ namespace Drawing {
 			Line(new float3(min.x, max.y, 0), new float3(min.x, min.y, 0));
 			PopColor();
 		}
-		/// <summary>\copydoc WireTriangle(float3,Quaternion,float)</summary>
+		/// <summary>\copydocref{WireTriangle(float3,quaternion,float)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void WireTriangle (float3 center, Quaternion rotation, float radius, Color color) {
+		public void WireTriangle (float3 center, quaternion rotation, float radius, Color color) {
 			WirePolygon(center, 3, rotation, radius, color);
 		}
-		/// <summary>\copydoc WirePentagon(float3,Quaternion,float)</summary>
+		/// <summary>\copydocref{WirePentagon(float3,quaternion,float)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void WirePentagon (float3 center, Quaternion rotation, float radius, Color color) {
+		public void WirePentagon (float3 center, quaternion rotation, float radius, Color color) {
 			WirePolygon(center, 5, rotation, radius, color);
 		}
-		/// <summary>\copydoc WireHexagon(float3,Quaternion,float)</summary>
+		/// <summary>\copydocref{WireHexagon(float3,quaternion,float)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void WireHexagon (float3 center, Quaternion rotation, float radius, Color color) {
+		public void WireHexagon (float3 center, quaternion rotation, float radius, Color color) {
 			WirePolygon(center, 6, rotation, radius, color);
 		}
-		/// <summary>\copydoc WirePolygon(float3,int,Quaternion,float)</summary>
+		/// <summary>\copydocref{WirePolygon(float3,int,quaternion,float)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void WirePolygon (float3 center, int vertices, Quaternion rotation, float radius, Color color) {
+		public void WirePolygon (float3 center, int vertices, quaternion rotation, float radius, Color color) {
 			PushColor(color);
-			PushMatrix(Matrix4x4.TRS(center, rotation, Vector3.one * radius));
+			PushMatrix(float4x4.TRS(center, rotation, new float3(radius, radius, radius)));
 			float3 prev = new float3(0, 0, 1);
 			for (int i = 1; i <= vertices; i++) {
 				float a = 2 * math.PI * (i / (float)vertices);
@@ -644,11 +711,11 @@ namespace Drawing {
 			PopMatrix();
 			PopColor();
 		}
-		/// <summary>\copydoc SolidRectangle(Rect)</summary>
+		/// <summary>\copydocref{SolidRectangle(Rect)}</summary>
 		public void SolidRectangle (Rect rect, Color color) {
-			SolidPlane(new float3(rect.center.x, rect.center.y, 0.0f), Quaternion.Euler(-90, 0, 0), new float2(rect.width, rect.height), color);
+			SolidPlane(new float3(rect.center.x, rect.center.y, 0.0f), quaternion.Euler(-math.PI*0.5f, 0, 0), new float2(rect.width, rect.height), color);
 		}
-		/// <summary>\copydoc SolidPlane(float3,float3,float2)</summary>
+		/// <summary>\copydocref{SolidPlane(float3,float3,float2)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void SolidPlane (float3 center, float3 normal, float2 size, Color color) {
 			PushColor(color);
@@ -657,17 +724,17 @@ namespace Drawing {
 			}
 			PopColor();
 		}
-		/// <summary>\copydoc SolidPlane(float3,Quaternion,float2)</summary>
+		/// <summary>\copydocref{SolidPlane(float3,quaternion,float2)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void SolidPlane (float3 center, Quaternion rotation, float2 size, Color color) {
-			PushMatrix(Matrix4x4.TRS(center, rotation, new Vector3(size.x, 0, size.y)));
+		public void SolidPlane (float3 center, quaternion rotation, float2 size, Color color) {
+			PushMatrix(float4x4.TRS(center, rotation, new float3(size.x, 0, size.y)));
 			Reserve<Color32, BoxData>();
 			Add(Command.Box | Command.PushColorInline);
 			Add((Color32)color);
 			Add(new BoxData { center = 0, size = 1 });
 			PopMatrix();
 		}
-		/// <summary>\copydoc WirePlane(float3,float3,float2)</summary>
+		/// <summary>\copydocref{WirePlane(float3,float3,float2)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void WirePlane (float3 center, float3 normal, float2 size, Color color) {
 			PushColor(color);
@@ -676,19 +743,15 @@ namespace Drawing {
 			}
 			PopColor();
 		}
-		/// <summary>\copydoc WirePlane(float3,Quaternion,float2)</summary>
+		/// <summary>\copydocref{WirePlane(float3,quaternion,float2)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void WirePlane (float3 center, Quaternion rotation, float2 size, Color color) {
-			PushColor(color);
-			PushMatrix(Matrix4x4.TRS(center, rotation, new Vector3(0.5f * size.x, 0, 0.5f * size.y)));
-			Line(new float3(-1, 0, -1), new float3(1, 0, -1));
-			Line(new float3(1, 0, -1), new float3(1, 0, 1));
-			Line(new float3(1, 0, 1), new float3(-1, 0, 1));
-			Line(new float3(-1, 0, 1), new float3(-1, 0, -1));
-			PopMatrix();
-			PopColor();
+		public void WirePlane (float3 center, quaternion rotation, float2 size, Color color) {
+			Reserve<Color32, PlaneData>();
+			Add(Command.WirePlane | Command.PushColorInline);
+			Add((Color32)color);
+			Add(new PlaneData { center = center, rotation = rotation, size = size });
 		}
-		/// <summary>\copydoc PlaneWithNormal(float3,float3,float2)</summary>
+		/// <summary>\copydocref{PlaneWithNormal(float3,float3,float2)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void PlaneWithNormal (float3 center, float3 normal, float2 size, Color color) {
 			PushColor(color);
@@ -697,16 +760,16 @@ namespace Drawing {
 			}
 			PopColor();
 		}
-		/// <summary>\copydoc PlaneWithNormal(float3,Quaternion,float2)</summary>
+		/// <summary>\copydocref{PlaneWithNormal(float3,quaternion,float2)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void PlaneWithNormal (float3 center, Quaternion rotation, float2 size, Color color) {
+		public void PlaneWithNormal (float3 center, quaternion rotation, float2 size, Color color) {
 			PushColor(color);
 			SolidPlane(center, rotation, size);
 			WirePlane(center, rotation, size);
-			ArrowRelativeSizeHead(center, center + (float3)(rotation * Vector3.up) * 0.5f, (float3)(rotation * Vector3.forward), 0.2f);
+			ArrowRelativeSizeHead(center, center + math.mul(rotation, new float3(0, 1, 0)) * 0.5f, math.mul(rotation, new float3(0, 0, 1)), 0.2f);
 			PopColor();
 		}
-		/// <summary>\copydoc SolidBox(float3,float3)</summary>
+		/// <summary>\copydocref{SolidBox(float3,float3)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void SolidBox (float3 center, float3 size, Color color) {
 			Reserve<Color32, BoxData>();
@@ -715,33 +778,55 @@ namespace Drawing {
 			Add(new BoxData { center = center, size = size });
 		}
 
-		/// <summary>\copydoc SolidBox(Bounds)</summary>
+		/// <summary>\copydocref{SolidBox(Bounds)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void SolidBox (Bounds bounds, Color color) {
 			SolidBox(bounds.center, bounds.size, color);
 		}
 
-		/// <summary>\copydoc SolidBox(float3,Quaternion,float3)</summary>
+		/// <summary>\copydocref{SolidBox(float3,quaternion,float3)}</summary>
 		/// <param name="color">Color of the object</param>
-		public void SolidBox (float3 center, Quaternion rotation, float3 size, Color color) {
+		public void SolidBox (float3 center, quaternion rotation, float3 size, Color color) {
 			PushColor(color);
-			PushMatrix(Matrix4x4.TRS(center, rotation, size));
+			PushMatrix(float4x4.TRS(center, rotation, size));
 			SolidBox(float3.zero, Vector3.one);
 			PopMatrix();
 			PopColor();
 		}
 
-		/// <summary>\copydoc Label2D(float3,string,float)</summary>
+		/// <summary>\copydocref{Label3D(float3,quaternion,string,float)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void Label3D (float3 position, quaternion rotation, string text, float size, Color color) {
+			Label3D(position, rotation, text, size, LabelAlignment.MiddleLeft, color);
+		}
+		/// <summary>\copydocref{Label3D(float3,quaternion,string,float,LabelAlignment)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void Label3D (float3 position, quaternion rotation, string text, float size, LabelAlignment alignment, Color color) {
+			AssertBufferExists();
+			var g = gizmos.Target as DrawingData;
+			Reserve<Color32, TextData3D>();
+			Add(Command.Text3D | Command.PushColorInline);
+			Add((Color32)color);
+			Add(new TextData3D { center = position, rotation = rotation, numCharacters = text.Length, size = size, alignment = alignment });
+
+			Reserve(UnsafeUtility.SizeOf<System.UInt16>() * text.Length);
+			for (int i = 0; i < text.Length; i++) {
+				char c = text[i];
+				System.UInt16 index = (System.UInt16)g.fontData.GetIndex(c);
+				Add(index);
+			}
+		}
+		/// <summary>\copydocref{Label2D(float3,string,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Label2D (float3 position, string text, float sizeInPixels, Color color) {
 			Label2D(position, text, sizeInPixels, LabelAlignment.MiddleLeft, color);
 		}
-		/// <summary>\copydoc Label2D(float3,string,float)</summary>
+		/// <summary>\copydocref{Label2D(float3,string,float)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Label2D (float3 position, string text, Color color) {
 			Label2D(position, text, 14, color);
 		}
-		/// <summary>\copydoc Label2D(float3,string,float,LabelAlignment)</summary>
+		/// <summary>\copydocref{Label2D(float3,string,float,LabelAlignment)}</summary>
 		/// <param name="color">Color of the object</param>
 		public void Label2D (float3 position, string text, float sizeInPixels, LabelAlignment alignment, Color color) {
 			AssertBufferExists();
@@ -757,6 +842,155 @@ namespace Drawing {
 				System.UInt16 index = (System.UInt16)g.fontData.GetIndex(c);
 				Add(index);
 			}
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void Label2D (float3 position, ref FixedString32Bytes text, float sizeInPixels, Color color) {
+			Label2D(position, ref text, sizeInPixels, LabelAlignment.MiddleLeft, color);
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void Label2D (float3 position, ref FixedString32Bytes text, Color color) {
+			Label2D(position, ref text, 14, color);
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString64Bytes,float)}</summary>
+		public void Label2D (float3 position, ref FixedString64Bytes text, float sizeInPixels, Color color) {
+			Label2D(position, ref text, sizeInPixels, LabelAlignment.MiddleLeft, color);
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString64Bytes,float)}</summary>
+		public void Label2D (float3 position, ref FixedString64Bytes text, Color color) {
+			Label2D(position, ref text, 14, color);
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString128Bytes,float)}</summary>
+		public void Label2D (float3 position, ref FixedString128Bytes text, float sizeInPixels, Color color) {
+			Label2D(position, ref text, sizeInPixels, LabelAlignment.MiddleLeft, color);
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString128Bytes,float)}</summary>
+		public void Label2D (float3 position, ref FixedString128Bytes text, Color color) {
+			Label2D(position, ref text, 14, color);
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString512Bytes,float)}</summary>
+		public void Label2D (float3 position, ref FixedString512Bytes text, float sizeInPixels, Color color) {
+			Label2D(position, ref text, sizeInPixels, LabelAlignment.MiddleLeft, color);
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString512Bytes,float)}</summary>
+		public void Label2D (float3 position, ref FixedString512Bytes text, Color color) {
+			Label2D(position, ref text, 14, color);
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float,LabelAlignment)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void Label2D (float3 position, ref FixedString32Bytes text, float sizeInPixels, LabelAlignment alignment, Color color) {
+			PushColor(color);
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label2D(position, text.GetUnsafePtr(), text.Length, sizeInPixels, alignment);
+			}
+#else
+			Debug.LogError("The Label2D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+			PopColor();
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString64Bytes,float,LabelAlignment)}</summary>
+		public void Label2D (float3 position, ref FixedString64Bytes text, float sizeInPixels, LabelAlignment alignment, Color color) {
+			PushColor(color);
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label2D(position, text.GetUnsafePtr(), text.Length, sizeInPixels, alignment);
+			}
+#else
+			Debug.LogError("The Label2D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+			PopColor();
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString128Bytes,float,LabelAlignment)}</summary>
+		public void Label2D (float3 position, ref FixedString128Bytes text, float sizeInPixels, LabelAlignment alignment, Color color) {
+			PushColor(color);
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label2D(position, text.GetUnsafePtr(), text.Length, sizeInPixels, alignment);
+			}
+#else
+			Debug.LogError("The Label2D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+			PopColor();
+		}
+		/// <summary>\copydocref{Label2D(float3,FixedString512Bytes,float,LabelAlignment)}</summary>
+		public void Label2D (float3 position, ref FixedString512Bytes text, float sizeInPixels, LabelAlignment alignment, Color color) {
+			PushColor(color);
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label2D(position, text.GetUnsafePtr(), text.Length, sizeInPixels, alignment);
+			}
+#else
+			Debug.LogError("The Label2D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+			PopColor();
+		}
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString32Bytes,float)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString32Bytes text, float size, Color color) {
+			Label3D(position, rotation, ref text, size, LabelAlignment.MiddleLeft, color);
+		}
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString64Bytes,float)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString64Bytes text, float size, Color color) {
+			Label3D(position, rotation, ref text, size, LabelAlignment.MiddleLeft, color);
+		}
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString128Bytes,float)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString128Bytes text, float size, Color color) {
+			Label3D(position, rotation, ref text, size, LabelAlignment.MiddleLeft, color);
+		}
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString512Bytes,float)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString512Bytes text, float size, Color color) {
+			Label3D(position, rotation, ref text, size, LabelAlignment.MiddleLeft, color);
+		}
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString32Bytes,float,LabelAlignment)}</summary>
+		/// <param name="color">Color of the object</param>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString32Bytes text, float size, LabelAlignment alignment, Color color) {
+			PushColor(color);
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label3D(position, rotation, text.GetUnsafePtr(), text.Length, size, alignment);
+			}
+#else
+			Debug.LogError("The Label3D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+			PopColor();
+		}
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString64Bytes,float,LabelAlignment)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString64Bytes text, float size, LabelAlignment alignment, Color color) {
+			PushColor(color);
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label3D(position, rotation, text.GetUnsafePtr(), text.Length, size, alignment);
+			}
+#else
+			Debug.LogError("The Label3D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+			PopColor();
+		}
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString128Bytes,float,LabelAlignment)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString128Bytes text, float size, LabelAlignment alignment, Color color) {
+			PushColor(color);
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label3D(position, rotation, text.GetUnsafePtr(), text.Length, size, alignment);
+			}
+#else
+			Debug.LogError("The Label3D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+			PopColor();
+		}
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString512Bytes,float,LabelAlignment)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString512Bytes text, float size, LabelAlignment alignment, Color color) {
+			PushColor(color);
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label3D(position, rotation, text.GetUnsafePtr(), text.Length, size, alignment);
+			}
+#else
+			Debug.LogError("The Label3D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+			PopColor();
 		}
 	}
 }

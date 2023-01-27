@@ -13,7 +13,6 @@ namespace Drawing.Examples {
 		public int futurePathPlotSteps = 100;
 		public int plotStartStep = 10;
 		public int plotEveryNSteps = 10;
-		public Transform pointTo;
 
 		float seed;
 		Vector3 startPosition;
@@ -61,8 +60,8 @@ namespace Drawing.Examples {
 			using (Draw.InLocalSpace(transform)) {
 				Draw.WireCylinder(Vector3.zero, Vector3.up, 2, 0.5f, gizmoColor);
 				Draw.ArrowheadArc(Vector3.zero, Vector3.forward, 0.55f, gizmoColor);
+				Draw.Label2D(Vector3.zero, gameObject.name, 14, LabelAlignment.TopCenter.withPixelOffset(0, -20), gizmoColor2);
 			}
-			//if (pointTo != null) Draw.ArrowheadArc(transform.position, pointTo.position - transform.position, 0.55f, gizmoColor2);
 		}
 	}
 }

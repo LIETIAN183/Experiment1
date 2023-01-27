@@ -8,23 +8,29 @@ using Unity.Physics;
 using System.Threading.Tasks;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
+
 // [UpdateBefore(typeof(TransformSystemGroup))]
 public partial class SpawnerSystem : SystemBase
 {
 
     public static readonly float3 halfHumanSize3D = new float3(0.25f, 0.85f, 0.25f);
+    protected override void OnCreate()
+    {
+        RequireForUpdate<SpawnerData>();
+        this.Enabled = false;
+    }
 
     protected override void OnStartRunning()
     {
-        var spawnerData = GetSingleton<SpawnerData>();
+        var spawnerData = SystemAPI.GetSingleton<SpawnerData>();
         spawnerData.canSpawn = false;
-        SetSingleton(spawnerData);
+        SystemAPI.SetSingleton(spawnerData);
     }
 
     protected override void OnUpdate()
     {
-        var simulationSetting = GetSingleton<SimulationLayerConfigurationData>();
-        if (!simulationSetting.isSimulateAgent)
+        var simulationSetting = SystemAPI.GetSingleton<SimConfigData>();
+        if (!simulationSetting.simAgent)
         {
             return;
         }
@@ -71,7 +77,7 @@ public partial class SpawnerSystem : SystemBase
                 // commandBuffer.SetComponent<Translation>(spawnedEntity, new Translation { Value = position });
                 posBuffer.Add(position);
 
-                var mass = GetComponent<PhysicsMass>(spawner.Prefab);
+                var mass = SystemAPI.GetComponent<PhysicsMass>(spawner.Prefab);
                 mass.InverseInertia = float3.zero;
                 commandBuffer.SetComponent<PhysicsMass>(spawnedEntity, mass);
                 spawner.currentCount++;

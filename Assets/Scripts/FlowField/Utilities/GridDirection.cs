@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.Collections;
 
-public class GridDirection
+public struct GridDirection
 {
     public readonly int2 Vector;
     public static readonly GridDirection None = new GridDirection(0, 0);
@@ -13,8 +14,8 @@ public class GridDirection
     public static readonly GridDirection NorthWest = new GridDirection(-1, 1);
     public static readonly GridDirection SouthEast = new GridDirection(1, -1);
     public static readonly GridDirection SouthWest = new GridDirection(-1, -1);
-    public static readonly List<GridDirection> CardinalAndIntercardinalDirections = new List<GridDirection>
-    {
+
+    public static readonly GridDirection[] CardinalAndIntercardinalDirections = new GridDirection[8] {
         North,
         East,
         South,
@@ -23,6 +24,13 @@ public class GridDirection
         SouthEast,
         SouthWest,
         NorthWest
+    };
+    public static readonly GridDirection[] CardinalDirections = new GridDirection[4]
+    {
+        North,
+        East,
+        South,
+        West
     };
 
     private GridDirection(int x, int y) => Vector = new int2(x, y);

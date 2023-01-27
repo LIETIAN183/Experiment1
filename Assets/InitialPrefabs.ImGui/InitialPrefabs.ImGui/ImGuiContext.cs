@@ -10,9 +10,11 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 #endif
 
-namespace InitialPrefabs.NimGui {
+namespace InitialPrefabs.NimGui
+{
 
-    public static unsafe partial class ImGuiContext {
+    public static unsafe partial class ImGuiContext
+    {
 
         // ------------------------------------------------------------------------
         // Store multiple windows, by default 1 is generated automatically
@@ -29,16 +31,19 @@ namespace InitialPrefabs.NimGui {
         internal static MaterialPropertyBlock BuiltinPropertyBlock = new MaterialPropertyBlock();
 #endif
 
-        internal static ResultFlag CheckDependency() {
+        internal static ResultFlag CheckDependency()
+        {
             ResultFlag flag = ResultFlag.Success;
 #if URP_ENABLED
             var urp = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
-            if (urp == null) {
+            if (urp == null)
+            {
                 flag |= ResultFlag.MissingPipeline;
             }
 
             if (!PipelineUtils.TryGetRendererAssets<ImGuiRenderFeature, ImGuiRenderPass>(
-                out ImGuiRenderFeature)) {
+                out ImGuiRenderFeature))
+            {
                 flag |= ResultFlag.MissingRenderPass;
             }
 #else
@@ -47,7 +52,8 @@ namespace InitialPrefabs.NimGui {
             return flag;
         }
 
-        internal static void Initialize() {
+        internal static void Initialize()
+        {
             Windows.Clear();
             // ------------------------------------------------------------------------
             // Initialize the first window to be the screen's width/height
@@ -64,24 +70,28 @@ namespace InitialPrefabs.NimGui {
             // Grab the URP Asset
             // ------------------------------------------------------------------------
             var urp = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
-            if (urp == null) {
+            if (urp == null)
+            {
             }
 
             if (!PipelineUtils.TryGetRendererAssets<ImGuiRenderFeature, ImGuiRenderPass>(
-                out ImGuiRenderFeature)) {
+                out ImGuiRenderFeature))
+            {
             }
 #endif
             // TODO: Write an HDRP define logic
         }
 
-        internal static void Release() {
+        internal static void Release()
+        {
 #if UNITY_EDITOR
             Debug.Log($"<color=yellow>Releasing all windows.</color>");
 #endif
             // ------------------------------------------------------------------------
             // Dispose all draw data from the windows
             // ------------------------------------------------------------------------
-            foreach (var window in Windows) {
+            foreach (var window in Windows)
+            {
                 window.Dispose();
             }
             Windows.Clear();
@@ -91,14 +101,16 @@ namespace InitialPrefabs.NimGui {
         /// If for some reason we are tracking multiple windows, this allows you to reference and
         /// iterate through windows.
         /// </summary>
-        public static ReadOnlyCollection<ImWindow> All() {
+        public static ReadOnlyCollection<ImWindow> All()
+        {
             return new ReadOnlyCollection<ImWindow>(Windows);
         }
 
         /// <summary>
         /// Returns the first Window stored.
         /// </summary>
-        public static ImWindow GetCurrentWindow() {
+        public static ImWindow GetCurrentWindow()
+        {
             return Windows[0];
         }
     }

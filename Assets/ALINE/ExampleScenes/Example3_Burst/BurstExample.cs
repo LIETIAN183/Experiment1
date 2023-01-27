@@ -45,10 +45,6 @@ namespace Drawing.Examples {
 		public void Update () {
 			var builder = DrawingManager.GetBuilder(true);
 
-			// Not necessary, but we know we are going to draw a lot
-			// so preallocating some buffers makes things a tiny bit faster
-			builder.Preallocate(100 * 100 * 400);
-
 			// Create a new job struct and schedule it using the Unity Job System
 			var job = new DrawingJob {
 				builder = builder,

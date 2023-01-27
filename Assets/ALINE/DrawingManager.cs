@@ -121,7 +121,9 @@ namespace Drawing {
 		static DrawingManager _instance;
 		bool framePassed;
 		int lastFrameCount = int.MinValue;
+#if UNITY_EDITOR
 		bool builtGizmos;
+#endif
 
 		/// <summary>True if OnEnable has been called on this instance and OnDisable has not</summary>
 		[SerializeField]
@@ -180,10 +182,6 @@ namespace Drawing {
 			};
 			_instance = go.AddComponent<DrawingManager>();
 			if (Application.isPlaying) DontDestroyOnLoad(go);
-
-#if MODULE_RENDER_PIPELINES_HIGH_DEFINITION && MODULE_RENDER_PIPELINES_UNIVERSAL
-			Debug.LogError("You have both the universal and high definition render pipelines installed. They are known to conflict with each other in some cases. Please keep only one of them installed.");
-#endif
 		}
 
 		/// <summary>Detects which render pipeline is being used and configures them for rendering</summary>
@@ -200,19 +198,19 @@ namespace Drawing {
 						volume.injectionPoint = CustomPassInjectionPoint.AfterPostProcess;
 						volume.customPasses.Add(new AlineHDRPCustomPass());
 					}
+
+					var asset = GraphicsSettings.defaultRenderPipeline as HDRenderPipelineAsset;
+					if (asset != null) {
+						if (!asset.currentPlatformRenderPipelineSettings.supportCustomPass) {
+							Debug.LogWarning("ALINE: The current render pipeline has custom pass support disabled. ALINE will not be able to render anything. Please enable custom pass support on your HDRenderPipelineAsset.", asset);
+						}
+					}
 				}
 				return;
 			}
 #endif
 #if MODULE_RENDER_PIPELINES_UNIVERSAL
 			if (pipelineType == typeof(UniversalRenderPipeline)) {
-				// Note: Renderer2D is in internal class so we need to use the name for comparison
-				if (detectedRenderPipeline != DetectedRenderPipeline.URP && UniversalRenderPipeline.asset.scriptableRenderer.GetType().Name == "Renderer2D") {
-					Debug.LogWarning("ALINE does not fully support the URP Experimental 2D Renderer since the 2D renderer does not yet have an extensible post processing system.\n"
-						+ "If you want to use ALINE please use the non-experimental forward renderer, the HDRP pipeline or the built-in render pipeline instead.\n"
-						+ "The URP 2D renderer will be fully supported as soon as it is technically possible to do so.");
-				}
-
 				detectedRenderPipeline = DetectedRenderPipeline.URP;
 				return;
 			}
@@ -275,21 +273,13 @@ namespace Drawing {
 			if (detectedRenderPipeline == DetectedRenderPipeline.URP) {
 				for (int i = 0; i < cameras.Length; i++) {
 					var cam = cameras[i];
-					if (cam.TryGetComponent<UniversalAdditionalCameraData>(out UniversalAdditionalCameraData data)) {
+					var data = cam.GetUniversalAdditionalCameraData();
+					if (data != null) {
 						var renderer = data.scriptableRenderer;
-
-						// Ensure we don't add passes every frame, we only need to do this once
-						if (!scriptableRenderersWithPass.Contains(renderer)) {
-							// Use reflection to access the rendererFeatures on the scriptable renderer.
-							// That property is unfortunately protected and there is no other good way to add custom render passes from a script like this that I have found.
-							var rendererFeatures = renderer.GetType().GetProperty("rendererFeatures", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(renderer) as List<ScriptableRendererFeature>;
-							if (renderPassFeature == null) {
-								renderPassFeature = ScriptableObject.CreateInstance<AlineURPRenderPassFeature>();
-							}
-
-							rendererFeatures.Add(renderPassFeature);
-							scriptableRenderersWithPass.Add(renderer);
+						if (renderPassFeature == null) {
+							renderPassFeature = ScriptableObject.CreateInstance<AlineURPRenderPassFeature>();
 						}
+						renderPassFeature.AddRenderPasses(renderer);
 					}
 				}
 			}
@@ -405,7 +395,9 @@ namespace Drawing {
 
 			if (framePassed) {
 				gizmos.TickFrame();
+#if UNITY_EDITOR
 				builtGizmos = false;
+#endif
 				framePassed = false;
 			}
 		}
@@ -456,33 +448,54 @@ namespace Drawing {
 		}
 
 		void RemoveDestroyedGizmoDrawers () {
-			for (int i = gizmoDrawers.Count - 1; i >= 0; i--) {
+			UnityEngine.Profiling.Profiler.BeginSample("Filter destroyed objects");
+			int j = 0;
+			for (int i = 0; i < gizmoDrawers.Count; i++) {
 				var mono = gizmoDrawers[i] as MonoBehaviour;
-				if (!mono || (mono.hideFlags & HideFlags.HideInHierarchy) == HideFlags.HideInHierarchy) {
-					gizmoDrawers.RemoveAt(i);
+				if (mono) {
+					gizmoDrawers[j] = gizmoDrawers[i];
+					j++;
 				}
 			}
+			gizmoDrawers.RemoveRange(j, gizmoDrawers.Count - j);
+			UnityEngine.Profiling.Profiler.EndSample();
 		}
 
+#if UNITY_EDITOR
 		void DrawGizmos (bool usingRenderPipeline) {
 			UnityEngine.Profiling.Profiler.BeginSample("Refresh Selection Cache");
 			GizmoContext.Refresh();
 			UnityEngine.Profiling.Profiler.EndSample();
 			UnityEngine.Profiling.Profiler.BeginSample("GizmosAllowed");
 			typeToGizmosEnabled.Clear();
+#if !UNITY_2022_1_OR_NEWER
 			if (!usingRenderPipeline) {
-				// Fill the typeToGizmosEnabled dict with info about which classes should be drawn
-				// We take advantage of the fact that IsGizmosAllowedForObject only depends on the type of the object and if it is active and enabled
-				// and not the specific object instance.
-				// When using a render pipeline the ShouldDrawGizmos method cannot be used because it seems to occasionally crash Unity :(
-				// So we need these two separate cases.
-				for (int i = gizmoDrawers.Count - 1; i >= 0; i--) {
-					var tp = gizmoDrawers[i].GetType();
-					if (!typeToGizmosEnabled.ContainsKey(tp) && (gizmoDrawers[i] as MonoBehaviour).isActiveAndEnabled) {
+#endif
+			// Fill the typeToGizmosEnabled dict with info about which classes should be drawn
+			// We take advantage of the fact that IsGizmosAllowedForObject only depends on the type of the object and if it is active and enabled
+			// and not the specific object instance.
+			// When using a render pipeline the ShouldDrawGizmos method cannot be used because it seems to occasionally crash Unity :(
+			// So we need these two separate cases.
+			// In Unity 2022.1 we can use a new utility class which is more robust.
+			for (int i = gizmoDrawers.Count - 1; i >= 0; i--) {
+				var tp = gizmoDrawers[i].GetType();
+				if (!typeToGizmosEnabled.ContainsKey(tp)) {
+#if UNITY_2022_1_OR_NEWER
+					if (GizmoUtility.TryGetGizmoInfo(tp, out var gizmoInfo)) {
+						typeToGizmosEnabled[tp] = gizmoInfo.gizmoEnabled;
+					} else {
+						typeToGizmosEnabled[tp] = true;
+					}
+#else
+					if ((gizmoDrawers[i] as MonoBehaviour).isActiveAndEnabled) {
 						typeToGizmosEnabled[tp] = ShouldDrawGizmos((UnityEngine.Object)gizmoDrawers[i]);
 					}
+#endif
 				}
 			}
+#if !UNITY_2022_1_OR_NEWER
+		}
+#endif
 
 			UnityEngine.Profiling.Profiler.EndSample();
 
@@ -510,33 +523,40 @@ namespace Drawing {
 				GizmoContext.drawingGizmos = true;
 				if (usingRenderPipeline) {
 					for (int i = gizmoDrawers.Count - 1; i >= 0; i--) {
+						var mono = gizmoDrawers[i] as MonoBehaviour;
 #if UNITY_EDITOR && UNITY_2020_1_OR_NEWER
 						// True if the scene is in isolation mode (e.g. focusing on a single prefab) and this object is not part of that sub-stage
-						var disabledDueToIsolationMode = isInNonMainStage && StageUtility.GetStage((gizmoDrawers[i] as MonoBehaviour).gameObject) != currentStage;
+						var disabledDueToIsolationMode = isInNonMainStage && StageUtility.GetStage(mono.gameObject) != currentStage;
 #else
 						var disabledDueToIsolationMode = false;
 #endif
-						if ((gizmoDrawers[i] as MonoBehaviour).isActiveAndEnabled && !disabledDueToIsolationMode) {
+#if UNITY_2022_1_OR_NEWER
+						var gizmosEnabled = mono.isActiveAndEnabled && typeToGizmosEnabled[gizmoDrawers[i].GetType()];
+#else
+						var gizmosEnabled = mono.isActiveAndEnabled;
+#endif
+						if (gizmosEnabled && (mono.hideFlags & HideFlags.HideInHierarchy) == 0 && !disabledDueToIsolationMode) {
 							try {
 								gizmoDrawers[i].DrawGizmos();
 							} catch (System.Exception e) {
-								Debug.LogException(e, gizmoDrawers[i] as MonoBehaviour);
+								Debug.LogException(e, mono);
 							}
 						}
 					}
 				} else {
 					for (int i = gizmoDrawers.Count - 1; i >= 0; i--) {
+						var mono = gizmoDrawers[i] as MonoBehaviour;
 #if UNITY_EDITOR && UNITY_2020_1_OR_NEWER
 						// True if the scene is in isolation mode (e.g. focusing on a single prefab) and this object is not part of that sub-stage
-						var disabledDueToIsolationMode = isInNonMainStage && StageUtility.GetStage((gizmoDrawers[i] as MonoBehaviour).gameObject) != currentStage;
+						var disabledDueToIsolationMode = isInNonMainStage && StageUtility.GetStage(mono.gameObject) != currentStage;
 #else
 						var disabledDueToIsolationMode = false;
 #endif
-						if ((gizmoDrawers[i] as MonoBehaviour).isActiveAndEnabled && typeToGizmosEnabled[gizmoDrawers[i].GetType()] && !disabledDueToIsolationMode) {
+						if (mono.isActiveAndEnabled && (mono.hideFlags & HideFlags.HideInHierarchy) == 0 && typeToGizmosEnabled[gizmoDrawers[i].GetType()] && !disabledDueToIsolationMode) {
 							try {
 								gizmoDrawers[i].DrawGizmos();
 							} catch (System.Exception e) {
-								Debug.LogException(e, gizmoDrawers[i] as MonoBehaviour);
+								Debug.LogException(e, mono);
 							}
 						}
 					}
@@ -555,6 +575,7 @@ namespace Drawing {
 			// Schedule jobs that may have been scheduled while drawing gizmos
 			JobHandle.ScheduleBatchedJobs();
 		}
+#endif
 
 		/// <summary>Submit a camera for rendering.</summary>
 		/// <param name="allowCameraDefault">Indicates if built-in command builders and custom ones without a custom CommandBuilder.cameraTargets should render to this camera.</param>
@@ -563,20 +584,20 @@ namespace Drawing {
 			RemoveDestroyedGizmoDrawers();
 #if UNITY_EDITOR
 			bool drawGizmos = Handles.ShouldRenderGizmos() || drawToAllCameras;
-#else
-			bool drawGizmos = false;
-#endif
 			// Only build gizmos if a camera actually needs them.
 			// This is only done for the first camera that needs them each frame.
 			if (drawGizmos && !builtGizmos && allowCameraDefault) {
 				builtGizmos = true;
 				DrawGizmos(usingRenderPipeline);
 			}
+#else
+			bool drawGizmos = false;
+#endif
 
 			UnityEngine.Profiling.Profiler.BeginSample("Submit Gizmos");
 			Draw.builder.DisposeInternal();
 			Draw.ingame_builder.DisposeInternal();
-			gizmos.Render(camera, drawGizmos, cmd, allowCameraDefault, detectedRenderPipeline);
+			gizmos.Render(camera, drawGizmos, cmd, allowCameraDefault);
 			Draw.builder = gizmos.GetBuiltInBuilder(false);
 			Draw.ingame_builder = gizmos.GetBuiltInBuilder(true);
 			UnityEngine.Profiling.Profiler.EndSample();

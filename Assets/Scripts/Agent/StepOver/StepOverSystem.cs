@@ -7,6 +7,7 @@ using Unity.Transforms;
 using Unity.Physics.Systems;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+[DisableAutoCreation]
 public partial class StepOverSystem : SystemBase
 {
     private BuildPhysicsWorld buildPhysicsWorld;

@@ -6,9 +6,11 @@ using InitialPrefabs.NimGui.Text;
 using Unity.Collections;
 using UnityEngine;
 
-namespace InitialPrefabs.NimGui.Render {
+namespace InitialPrefabs.NimGui.Render
+{
 
-    public static class ImGuiRenderUtils {
+    public static class ImGuiRenderUtils
+    {
 
         internal const char Box = '█';
         internal const char Checkmark = '√';
@@ -26,13 +28,16 @@ namespace InitialPrefabs.NimGui.Render {
         static int XIndex;
         static int HamburgerMenuIndex;
 
-        internal static ResultFlag CheckDependency() {
+        internal static ResultFlag CheckDependency()
+        {
             var shader = Shader.Find("InitialPrefabs/SDF");
             return shader != null ? ResultFlag.Success : ResultFlag.MissingShader;
         }
 
-        internal static void Initialize(Texture2D texture, SerializedFontData fontData) {
-            if (Glyphs.IsCreated()) {
+        public static void Initialize(Texture2D texture, SerializedFontData fontData)
+        {
+            if (Glyphs.IsCreated())
+            {
                 Glyphs.Dispose();
                 Debug.LogWarning("Releasing allocated Glyphs for reinitializtion");
             }
@@ -46,7 +51,8 @@ namespace InitialPrefabs.NimGui.Render {
 
             Glyphs = new UnsafeArray<ImGlyph>(fontData.Glyphs.Length, Allocator.Persistent);
             // Copy
-            for (int i = 0; i < fontData.Glyphs.Length; ++i) {
+            for (int i = 0; i < fontData.Glyphs.Length; ++i)
+            {
                 Glyphs[i] = fontData.Glyphs[i];
             }
 
@@ -56,8 +62,10 @@ namespace InitialPrefabs.NimGui.Render {
             HamburgerMenuIndex = FindGlyphIndex(Expand);
         }
 
-        internal static void Release() {
-            if (Glyphs.IsCreated()) {
+        public static void Release()
+        {
+            if (Glyphs.IsCreated())
+            {
                 Glyphs.Dispose();
             }
         }
@@ -67,7 +75,8 @@ namespace InitialPrefabs.NimGui.Render {
         /// </summary>
         /// <returns>A reference to the material.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Material GetMaterial() {
+        public static Material GetMaterial()
+        {
             return Material;
         }
 
@@ -76,7 +85,8 @@ namespace InitialPrefabs.NimGui.Render {
         /// </summary>
         /// <returns>A reference to the FontFace.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ref ImFontFace GetFontFace() {
+        public static ref ImFontFace GetFontFace()
+        {
             return ref FontFace;
         }
 
@@ -86,10 +96,11 @@ namespace InitialPrefabs.NimGui.Render {
         /// </summary>
         /// <returns>The sorted glyphs.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static UnsafeArray<ImGlyph> GetGlyphs() {
+        public static UnsafeArray<ImGlyph> GetGlyphs()
+        {
             return Glyphs;
         }
-        
+
         /// <summary>
         /// Queues a draw command to draw a solid colored box.
         /// </summary>
@@ -99,7 +110,8 @@ namespace InitialPrefabs.NimGui.Render {
         /// <param name="cutoff">Optional cutoff, typically this should be set to 0 for no cutoff.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PushSolidBox(
-            this ImWindow window, in ImRect rect, in Color32 color, float cutoff = 0f) {
+            this ImWindow window, in ImRect rect, in Color32 color, float cutoff = 0f)
+        {
 
             var uvs = Glyphs[BoxIndex].Uvs;
             var unmanagedCmds = window.UnmanagedImWindow.DrawBuffer.Peek();
@@ -116,7 +128,8 @@ namespace InitialPrefabs.NimGui.Render {
         /// <param name="cutoff">Optional cutoff, typically this should be set to 0.5 for minimal cutoff.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PushCheckmark(
-            this ImWindow window, in ImRect rect, in Color32 color, float cutoff = 0.5f) {
+            this ImWindow window, in ImRect rect, in Color32 color, float cutoff = 0.5f)
+        {
 
             var uvs = Glyphs[CheckIndex].Uvs;
             var unmanagedCmds = window.UnmanagedImWindow.DrawBuffer.Peek();
@@ -133,7 +146,8 @@ namespace InitialPrefabs.NimGui.Render {
         /// <param name="cutoff">Optional cutoff, typically this should be set to 0.5 for minimal cutoff.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PushX(
-            this ImWindow window, in ImRect rect, in Color32 color, float cutoff = 0.5f) {
+            this ImWindow window, in ImRect rect, in Color32 color, float cutoff = 0.5f)
+        {
 
             var uvs = Glyphs[XIndex].Uvs;
             var unmanagedCmds = window.UnmanagedImWindow.DrawBuffer.Peek();
@@ -150,7 +164,8 @@ namespace InitialPrefabs.NimGui.Render {
         /// <param name="cutoff">Optional cutoff, typically this should be set to 0.5 for minimal cutoff.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void PushHamburgerMenu(
-            this ImWindow window, in ImRect rect, in Color32 color, float cutoff = 0.5f) {
+            this ImWindow window, in ImRect rect, in Color32 color, float cutoff = 0.5f)
+        {
 
             var uvs = Glyphs[HamburgerMenuIndex].Uvs;
             var unmanagedCmds = window.UnmanagedImWindow.DrawBuffer.Peek();
@@ -158,15 +173,18 @@ namespace InitialPrefabs.NimGui.Render {
             unmanagedCmds.Push(new ImSpriteData { InnerUV = uvs });
         }
 
-        static int FindGlyphIndex(char c) {
+        static int FindGlyphIndex(char c)
+        {
 #if UNITY_EDITOR
-            if (!Glyphs.IsCreated()) {
+            if (!Glyphs.IsCreated())
+            {
                 Debug.LogError("Glyphs has not been initialized!");
                 return 0;
             }
 #endif
             var idx = Glyphs.BinarySearch(c, default(GlyphComparer));
-            if (idx < 0) {
+            if (idx < 0)
+            {
                 Debug.LogError($"Cannot find Glyph for character: {c}!");
                 return 0;
             }

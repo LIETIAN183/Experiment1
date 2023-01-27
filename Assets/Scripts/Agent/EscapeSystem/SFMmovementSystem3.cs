@@ -8,6 +8,7 @@ using Unity.Physics.Systems;
 // 仿真时间 0.1f 可行
 // 我们的社会力模型，无流场
 [UpdateInGroup(typeof(AgentSimulationSystemGroup))]
+
 public partial class SFMmovementSystem3 : SystemBase
 {
     private BuildPhysicsWorld buildPhysicsWorld;
@@ -31,9 +32,9 @@ public partial class SFMmovementSystem3 : SystemBase
         // 用于物体检测
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
-        float2 SFMtarget = GetSingleton<FlowFieldSettingData>().destination.xz;
+        float2 SFMtarget = SystemAPI.GetSingleton<FlowFieldSettingData>().destination.xz;
 
-        var accData = GetSingleton<AccTimerData>();
+        var accData = SystemAPI.GetSingleton<TimerData>();
 
         Entities.WithAll<Escaping>().WithReadOnly(physicsWorld).ForEach((Entity entity, ref PhysicsVelocity velocity, in AgentMovementData movementData, in LocalTransform localTransform, in PhysicsMass mass) =>
         {
@@ -52,10 +53,10 @@ public partial class SFMmovementSystem3 : SystemBase
             }
 
             var SFMDirection = math.normalizesafe(SFMtarget - localTransform.Position.xz);
-            var desireSpeed = math.exp(-localTransform.Position.y + movementData.originPosition.y - math.length(accData.acc)) * movementData.stdVel;
+            var desireSpeed = math.exp(-localTransform.Position.y + movementData.originPosition.y - math.length(accData.curAcc)) * movementData.stdVel;
             // var desireSpeed = movementData.stdVel;
             // desireSpeed = math.max(desireSpeed, 0);
-            velocity.Linear.xz += ((SFMDirection * desireSpeed - velocity.Linear.xz) / 0.5f - accData.acc.xz + interactionForce * mass.InverseMass) * deltaTime;
+            velocity.Linear.xz += ((SFMDirection * desireSpeed - velocity.Linear.xz) / 0.5f - accData.curAcc.xz + interactionForce * mass.InverseMass) * deltaTime;
 
             outHits.Dispose();
         }).ScheduleParallel();

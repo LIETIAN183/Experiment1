@@ -33,6 +33,10 @@ namespace Drawing {
 
 		/// <summary>This method is called when setting up the renderer once per-camera</summary>
 		public override void AddRenderPasses (ScriptableRenderer renderer, ref RenderingData renderingData) {
+			AddRenderPasses(renderer);
+		}
+
+		public void AddRenderPasses (ScriptableRenderer renderer) {
 			renderer.EnqueuePass(m_ScriptablePass);
 		}
 	}

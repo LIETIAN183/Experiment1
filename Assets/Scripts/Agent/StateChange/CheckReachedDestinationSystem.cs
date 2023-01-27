@@ -20,7 +20,7 @@ public partial class CheckReachedDestinationSystem : SystemBase
         // Create an ECB to record modification to entities that will only be executed at the end of the simulation group.
         var ecb = m_EndSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 
-        var destinationPos = GetSingleton<FlowFieldSettingData>().destination.xz;
+        var destinationPos = SystemAPI.GetSingleton<FlowFieldSettingData>().destination.xz;
 
         var escapedHadle = Entities.WithAll<Escaping>().ForEach((Entity e, int entityInQueryIndex, in LocalTransform localTransform) =>
         {

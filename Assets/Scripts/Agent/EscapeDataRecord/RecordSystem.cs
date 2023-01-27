@@ -30,7 +30,7 @@ public partial class RecordSystem : SystemBase
             recordData.lastposition = localTransform.Position;
         }).ScheduleParallel();
 
-        var elapsedTime = GetSingleton<AccTimerData>().elapsedTime;
+        var elapsedTime = SystemAPI.GetSingleton<TimerData>().elapsedTime;
         Entities.WithAll<Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabledEntities).ForEach((ref RecordData recordData) =>
         {
             if (recordData.escapeTime.Equals(0))

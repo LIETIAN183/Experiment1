@@ -1,8 +1,6 @@
 using Unity.Entities;
 using UnityEngine;
-using Unity.Scenes;
-using System.Threading.Tasks;
-using Hash128 = Unity.Entities.Hash128;
+using Unity.Mathematics;
 
 public partial class InputManger : SystemBase
 {
@@ -15,6 +13,7 @@ public partial class InputManger : SystemBase
 
     protected override void OnUpdate()
     {
+        // 按 Ecs 退出程序
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             System.Diagnostics.Process.GetCurrentProcess().Kill();
@@ -23,7 +22,9 @@ public partial class InputManger : SystemBase
         // 按 H 键隐藏UI界面
         if (Input.GetKeyUp(KeyCode.H))
         {
-            simulation.GetExistingSystemManaged<UISystem>().displayUI = !simulation.GetExistingSystemManaged<UISystem>().displayUI;
+            var displaySetting = SystemAPI.GetSingleton<UIDisplayStateData>();
+            displaySetting.isDisplay = !displaySetting.isDisplay;
+            SystemAPI.SetSingleton(displaySetting);
         }
 
         // 暂停
@@ -35,19 +36,22 @@ public partial class InputManger : SystemBase
         // 启动单次仿真
         if (Input.GetKeyUp(KeyCode.N))
         {
-            simulation.GetExistingSystemManaged<AccTimerSystem>().StartSingleSimulation(0, 0);
+            var startEvent = SystemAPI.GetSingleton<StartSeismicEvent>();
+            startEvent.isActivate = true;
+            startEvent.targetPGA = startEvent.index = 0;
+            SystemAPI.SetSingleton(startEvent);
         }
 
         // 启动多次仿真
         if (Input.GetKeyUp(KeyCode.M))
         {
-            simulation.GetExistingSystemManaged<MultiRoundStatisticsSystem>().StartMultiRoundStatistics(0, 0);
+            // SystemAPI.SetSingleton<ClearFluidEvent>(new ClearFluidEvent { isActivate = true });
         }
 
         // 截图快捷键
         if (Input.GetKeyUp(KeyCode.L))
         {
-            var debugtype = simulation.GetExistingSystemManaged<FlowFieldVisulizeSystem>()._curDisplayType;
+            var debugtype = SystemAPI.GetSingleton<FFVisTypeStateData>().ffVisType;
             ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + debugtype.ToString() + "_" + UnityEngine.Time.time + ".png");
         }
 
@@ -57,15 +61,17 @@ public partial class InputManger : SystemBase
             // var guid = sceneSystem.GetSceneGUID("Assets/Scenes/SubScene/EnvironmentWithFluid.unity");
             // sceneSystem.UnloadScene(guid);
             // sceneSystem.LoadSceneAsync(guid, new SceneSystem.LoadParameters() { AutoLoad = true });
-            simulation.GetExistingSystemManaged<InitialSystem>().ReloadSubScene();
+            simulation.GetExistingSystemManaged<SimInitializeSystem>().ReloadSubScene();
         }
 
-        // if (Input.GetKeyUp(KeyCode.T))
-        // {
-        //     var sceneSystem = World.GetExistingSystemManaged<SceneSystem>();
-        //     var guid = sceneSystem.GetSceneGUID("Assets/Scenes/SubScene/EnvironmentWithFluid.unity");
+        if (Input.GetKeyUp(KeyCode.T))
+        {
+            // SimUtility.instance.InvokeSeismic(0, 0);
+            var settingData = SystemAPI.GetSingleton<FlowFieldSettingData>();
+            settingData.index = math.select(1, 2, settingData.index == 1);
+            SystemAPI.SetSingleton(settingData);
+        }
 
-        //     sceneSystem.LoadSceneAsync(guid, new SceneSystem.LoadParameters() { AutoLoad = true });// Flags = SceneLoadFlags.NewInstance,
-        // }
+
     }
 }

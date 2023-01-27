@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 4917099230865093135}
   - component: {fileID: 8211018087262175178}
   - component: {fileID: 7159963719297713279}
-  - component: {fileID: 2836951472677287067}
   - component: {fileID: 7840636046146270763}
   m_Layer: 0
   m_Name: CocoCola
@@ -36,7 +35,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &227685619657525002
 MeshFilter:
@@ -298,18 +297,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fluidInside: 1
---- !u!114 &2836951472677287067
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4597310886310941205}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0453d1b4c5f8ed84bbdd0d116382dc7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   replaceItems:
   - {fileID: 8621820391774517750, guid: ee1055ac7a8597e439e153b49a6f7244, type: 3}
   - {fileID: 1065855720851653750, guid: 1aa9bb199096fa743a8b95bce2fc40fe, type: 3}
@@ -328,5 +315,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  previousVelinY: 0
-  inAir: 0

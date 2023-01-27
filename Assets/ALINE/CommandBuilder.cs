@@ -16,24 +16,99 @@ namespace Drawing {
 	using BitPackedMeta = DrawingData.BuilderData.BitPackedMeta;
 	using Drawing.Text;
 
+	/// <summary>
+	/// Specifies text alignment relative to an anchor point.
+	///
+	/// <code>
+	/// Draw.Label2D(transform.position, "Hello World", 14, LabelAlignment.TopCenter);
+	/// </code>
+	/// <code>
+	/// // Draw the label 20 pixels below the object
+	/// Draw.Label2D(transform.position, "Hello World", 14, LabelAlignment.TopCenter.withPixelOffset(0, -20));
+	/// </code>
+	///
+	/// See: \reflink{Draw.Label2D}
+	/// See: \reflink{Draw.Label3D}
+	/// </summary>
 	public struct LabelAlignment {
+		/// <summary>
+		/// Where on the text's bounding box to anchor the text.
+		///
+		/// The pivot is specified in relative coordinates, where (0,0) is the bottom left corner and (1,1) is the top right corner.
+		/// </summary>
 		public float2 relativePivot;
+		/// <summary>How much to move the text in screen-space</summary>
 		public float2 pixelOffset;
 
-		public static readonly LabelAlignment TopLeft = new LabelAlignment { relativePivot = new float2(0.0f, 0.0f), pixelOffset = new float2(0, 0) };
+		public static readonly LabelAlignment TopLeft = new LabelAlignment { relativePivot = new float2(0.0f, 1.0f), pixelOffset = new float2(0, 0) };
 		public static readonly LabelAlignment MiddleLeft = new LabelAlignment { relativePivot = new float2(0.0f, 0.5f), pixelOffset = new float2(0, 0) };
-		public static readonly LabelAlignment BottomLeft = new LabelAlignment { relativePivot = new float2(0.0f, 1.0f), pixelOffset = new float2(0, 0) };
-		public static readonly LabelAlignment BottomCenter = new LabelAlignment { relativePivot = new float2(0.5f, 1.0f), pixelOffset = new float2(0, 0) };
-		public static readonly LabelAlignment BottomRight = new LabelAlignment { relativePivot = new float2(1.0f, 1.0f), pixelOffset = new float2(0, 0) };
+		public static readonly LabelAlignment BottomLeft = new LabelAlignment { relativePivot = new float2(0.0f, 0.0f), pixelOffset = new float2(0, 0) };
+		public static readonly LabelAlignment BottomCenter = new LabelAlignment { relativePivot = new float2(0.5f, 0.0f), pixelOffset = new float2(0, 0) };
+		public static readonly LabelAlignment BottomRight = new LabelAlignment { relativePivot = new float2(1.0f, 0.0f), pixelOffset = new float2(0, 0) };
 		public static readonly LabelAlignment MiddleRight = new LabelAlignment { relativePivot = new float2(1.0f, 0.5f), pixelOffset = new float2(0, 0) };
-		public static readonly LabelAlignment TopRight = new LabelAlignment { relativePivot = new float2(1.0f, 0.0f), pixelOffset = new float2(0, 0) };
-		public static readonly LabelAlignment TopCenter = new LabelAlignment { relativePivot = new float2(0.5f, 0.0f), pixelOffset = new float2(0, 0) };
+		public static readonly LabelAlignment TopRight = new LabelAlignment { relativePivot = new float2(1.0f, 1.0f), pixelOffset = new float2(0, 0) };
+		public static readonly LabelAlignment TopCenter = new LabelAlignment { relativePivot = new float2(0.5f, 1.0f), pixelOffset = new float2(0, 0) };
 		public static readonly LabelAlignment Center = new LabelAlignment { relativePivot = new float2(0.5f, 0.5f), pixelOffset = new float2(0, 0) };
+
+		/// <summary>
+		/// Moves the text by the specified amount of pixels in screen-space.
+		///
+		/// <code>
+		/// // Draw the label 20 pixels below the object
+		/// Draw.Label2D(transform.position, "Hello World", 14, LabelAlignment.TopCenter.withPixelOffset(0, -20));
+		/// </code>
+		/// </summary>
+		public LabelAlignment withPixelOffset (float x, float y) {
+			return new LabelAlignment {
+					   relativePivot = this.relativePivot,
+					   pixelOffset = new float2(x, y),
+			};
+		}
+	}
+
+	/// <summary>Maximum allowed delay for a job that is drawing to a command buffer</summary>
+	public enum AllowedDelay {
+		/// <summary>
+		/// If the job is not complete at the end of the frame, drawing will block until it is completed.
+		/// This is recommended for most jobs that are expected to complete within a single frame.
+		/// </summary>
+		EndOfFrame,
+		/// <summary>
+		/// Wait indefinitely for the job to complete, and only submit the results for rendering once it is done.
+		/// This is recommended for long running jobs that may take many frames to complete.
+		/// </summary>
+		Infinite,
+	}
+
+	/// <summary>Some static fields that need to be in a separate class because Burst doesn't support them</summary>
+	static class MeshLayouts {
+		internal static readonly VertexAttributeDescriptor[] MeshLayout = {
+			new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
+			new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3),
+			new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4),
+			new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2),
+		};
+
+		internal static readonly VertexAttributeDescriptor[] MeshLayoutText = {
+			new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
+			new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4),
+			new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2),
+		};
+	}
+
+	/// <summary>Some static fields that need to be in a separate class because Burst doesn't support them</summary>
+	static class CommandBuilderSamplers {
+		internal static readonly CustomSampler samplerConvert = CustomSampler.Create("Convert");
+		internal static readonly CustomSampler samplerLayout = CustomSampler.Create("SetLayout");
+		internal static readonly CustomSampler samplerUpdateVert = CustomSampler.Create("UpdateVertices");
+		internal static readonly CustomSampler samplerUpdateInd = CustomSampler.Create("UpdateIndices");
+		internal static readonly CustomSampler samplerSubmesh = CustomSampler.Create("Submesh");
+		internal static readonly CustomSampler samplerUpdateBuffer = CustomSampler.Create("UpdateComputeBuffer");
 	}
 
 	/// <summary>
 	/// Builder for drawing commands.
-	/// You can use this to queue many drawing commands. The commands will be queued for rendering when you call the Dipose method.
+	/// You can use this to queue many drawing commands. The commands will be queued for rendering when you call the Dispose method.
 	/// It is recommended that you use the <a href="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/using-statement">using statement</a> which automatically calls the Dispose method.
 	///
 	/// <code>
@@ -44,7 +119,7 @@ namespace Drawing {
 	/// }
 	/// </code>
 	///
-	/// Warning: You must call either <see cref="Dipose"/> or <see cref="DiscardAndDispose"/> when you are done with this object to avoid memory leaks.
+	/// Warning: You must call either <see cref="Dispose"/> or <see cref="DiscardAndDispose"/> when you are done with this object to avoid memory leaks.
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential)]
 	[BurstCompile]
@@ -139,19 +214,27 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// Diposes this command builder after the given job has completed.
+		/// Disposes this command builder after the given job has completed.
+		///
+		/// This is convenient if you are using the entity-component-system/burst in Unity and don't know exactly when the job will complete.
 		///
 		/// You will not be able to use this command builder on the main thread anymore.
+		///
+		/// See: job-system (view in online documentation for working links)
 		/// </summary>
-		public void DisposeAfter (JobHandle dependency) {
-			if (!gizmos.IsAllocated) throw new System.Exception("You cannot dispose an invalid command builder. Are you trying to dipose it twice?");
+		/// <param name="dependency">The job that must complete before this command builder is disposed.</param>
+		/// <param name="allowedDelay">Whether to block on this dependency before rendering the current frame or not.
+		///    If the job is expected to complete during a single frame, leave at the default of \reflink{AllowedDelay.EndOfFrame}.
+		///    But if the job is expected to take multiple frames to complete, you can set this to \reflink{AllowedDelay.Infinite}.</param>
+		public void DisposeAfter (JobHandle dependency, AllowedDelay allowedDelay = AllowedDelay.EndOfFrame) {
+			if (!gizmos.IsAllocated) throw new System.Exception("You cannot dispose an invalid command builder. Are you trying to dispose it twice?");
 			try {
 				if (gizmos.IsAllocated && gizmos.Target != null) {
 					var target = gizmos.Target as DrawingData;
 					if (!target.data.StillExists(uniqueID)) {
 						throw new System.Exception("Cannot dispose the command builder because the drawing manager has been destroyed");
 					}
-					target.data.Get(uniqueID).SubmitWithDependency(gizmos, dependency);
+					target.data.Get(uniqueID).SubmitWithDependency(gizmos, dependency, allowedDelay);
 				}
 			} finally {
 				this = default;
@@ -159,7 +242,7 @@ namespace Drawing {
 		}
 
 		internal void DisposeInternal () {
-			if (!gizmos.IsAllocated) throw new System.Exception("You cannot dispose an invalid command builder. Are you trying to dipose it twice?");
+			if (!gizmos.IsAllocated) throw new System.Exception("You cannot dispose an invalid command builder. Are you trying to dispose it twice?");
 			try {
 				if (gizmos.IsAllocated && gizmos.Target != null) {
 					var target = gizmos.Target as DrawingData;
@@ -199,6 +282,12 @@ namespace Drawing {
 			}
 		}
 
+		/// <summary>
+		/// Pre-allocates the internal buffer to an additional size bytes.
+		/// This can give you a minor performance boost if you are drawing a lot of things.
+		///
+		/// Note: Only resizes the buffer for the current thread.
+		/// </summary>
 		public void Preallocate (int size) {
 			Reserve(size);
 		}
@@ -214,12 +303,15 @@ namespace Drawing {
 			Line,
 			Circle,
 			CircleXZ,
+			Disc,
+			DiscXZ,
 			SphereOutline,
 			Box,
-			Plane,
+			WirePlane,
 			PushPersist,
 			PopPersist,
 			Text,
+			Text3D,
 			PushLineWidth,
 			PopLineWidth,
 			CaptureState,
@@ -259,6 +351,12 @@ namespace Drawing {
 			public float3 size;
 		}
 
+		private struct PlaneData {
+			public float3 center;
+			public quaternion rotation;
+			public float2 size;
+		}
+
 		private struct PersistData {
 			public float endTime;
 		}
@@ -277,6 +375,14 @@ namespace Drawing {
 			public int numCharacters;
 		}
 
+		private struct TextData3D {
+			public float3 center;
+			public quaternion rotation;
+			public LabelAlignment alignment;
+			public float size;
+			public int numCharacters;
+		}
+
 		/// <summary>Ensures the buffer has room for at least N more bytes</summary>
 		private void Reserve (int additionalSpace) {
 			unsafe {
@@ -284,8 +390,10 @@ namespace Drawing {
 				if (buffer == null) throw new System.Exception("CommandBuilder does not have a valid buffer. Is it properly initialized?");
 #endif
 				if (threadIndex != 0) {
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (threadIndex < 0 || threadIndex >= JobsUtility.MaxJobThreadCount) throw new System.Exception("Thread index outside the expected range");
 					if (uniqueID.isBuiltInCommandBuilder) throw new System.Exception("You should use a custom command builder when using the Unity Job System. Take a look at the documentation for more info.");
+#endif
 
 					//if (BufferSize + additionalSpace > buffer->Capacity) throw new System.Exception("Buffer is too small. Preallocate a larger buffer using the CommandBuffer.Preallocate method.");
 					buffer += threadIndex;
@@ -352,6 +460,9 @@ namespace Drawing {
 			int num = UnsafeUtility.SizeOf<T>();
 
 			unsafe {
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+				UnityEngine.Assertions.Assert.IsTrue(BufferSize + UnsafeUtility.SizeOf<T>() <= buffer->Capacity);
+#endif
 				UnsafeUtility.CopyStructureToPtr(ref value, (void*)((byte*)buffer->Ptr + BufferSize));
 				BufferSize += num;
 			}
@@ -576,12 +687,32 @@ namespace Drawing {
 
 		/// <summary>
 		/// Multiply all coordinates until the next PopMatrix with the given matrix.
+		/// This differs from <see cref="PushSetMatrix"/> in that this stacks with all previously pushed matrices while <see cref="PushSetMatrix"/> does not.
+		/// </summary>
+		public void PushMatrix (float4x4 matrix) {
+			Reserve<float4x4>();
+			Add(Command.PushMatrix);
+			Add(matrix);
+		}
+
+		/// <summary>
+		/// Multiply all coordinates until the next PopMatrix with the given matrix.
 		/// This differs from <see cref="PushMatrix"/> in that this sets the current matrix directly while <see cref="PushMatrix"/> stacks with all previously pushed matrices.
 		/// </summary>
 		public void PushSetMatrix (Matrix4x4 matrix) {
 			Reserve<float4x4>();
 			Add(Command.PushSetMatrix);
 			Add((float4x4)matrix);
+		}
+
+		/// <summary>
+		/// Multiply all coordinates until the next PopMatrix with the given matrix.
+		/// This differs from <see cref="PushMatrix"/> in that this sets the current matrix directly while <see cref="PushMatrix"/> stacks with all previously pushed matrices.
+		/// </summary>
+		public void PushSetMatrix (float4x4 matrix) {
+			Reserve<float4x4>();
+			Add(Command.PushSetMatrix);
+			Add(matrix);
 		}
 
 		/// <summary>Pops a matrix from the stack</summary>
@@ -659,13 +790,10 @@ namespace Drawing {
 		/// <param name="pixels">Line width in pixels</param>
 		/// <param name="automaticJoins">If true then sequences of lines that are adjacent will be automatically joined at their vertices. This typically produces nicer polylines without weird gaps.</param>
 		public void PushLineWidth (float pixels, bool automaticJoins = true) {
-			if (pixels <= 0) throw new System.ArgumentOutOfRangeException("pixels", "Line width must be positive");
+			if (pixels < 0) throw new System.ArgumentOutOfRangeException("pixels", "Line width must be positive");
 
 			Reserve<LineWidthData>();
 			Add(Command.PushLineWidth);
-			// We must use the BurstTime variable which is updated more rarely than Time.time.
-			// This is necessary because this code may be called from a burst job or from a different thread.
-			// Time.time can only be accessed in the main thread.
 			Add(new LineWidthData { pixels = pixels, automaticJoins = automaticJoins });
 		}
 
@@ -714,12 +842,16 @@ namespace Drawing {
 			var bufferSize = BufferSize;
 
 			unsafe {
+				var newLen = bufferSize + 4 + 24;
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+				UnityEngine.Assertions.Assert.IsTrue(newLen <= buffer->Capacity);
+#endif
 				var ptr = (byte*)buffer->Ptr + bufferSize;
 				*(Command*)ptr = Command.Line;
 				var lineData = (LineDataV3*)(ptr + 4);
 				lineData->a = a;
 				lineData->b = b;
-				buffer->SetLength(bufferSize + 4 + 24);
+				buffer->SetLength(newLen);
 			}
 		}
 
@@ -746,13 +878,17 @@ namespace Drawing {
 			var bufferSize = BufferSize;
 
 			unsafe {
+				var newLen = bufferSize + 4 + 24 + 4;
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+				UnityEngine.Assertions.Assert.IsTrue(newLen <= buffer->Capacity);
+#endif
 				var ptr = (byte*)buffer->Ptr + bufferSize;
 				*(Command*)ptr = Command.Line | Command.PushColorInline;
 				*(Color32*)(ptr + 4) = (Color32)color;
 				var lineData = (LineDataV3*)(ptr + 8);
 				lineData->a = a;
 				lineData->b = b;
-				buffer->SetLength(bufferSize + 4 + 24 + 4);
+				buffer->SetLength(newLen);
 			}
 		}
 
@@ -839,8 +975,8 @@ namespace Drawing {
 			Add(new CircleXZData { center = center, radius = radius, startAngle = startAngle, endAngle = endAngle });
 		}
 
-		static readonly Matrix4x4 XZtoXYPlaneMatrix = Matrix4x4.Rotate(Quaternion.Euler(new Vector3(-90, 0, 0)));
-		static readonly Matrix4x4 XZtoYZPlaneMatrix = Matrix4x4.Rotate(Quaternion.Euler(new Vector3(0, 0, 90)));
+		static readonly float4x4 XZtoXYPlaneMatrix = float4x4.RotateX(-math.PI*0.5f);
+		static readonly float4x4 XZtoYZPlaneMatrix = float4x4.RotateZ(math.PI*0.5f);
 
 		/// <summary>
 		/// Draws a circle in the XY plane.
@@ -877,6 +1013,96 @@ namespace Drawing {
 		}
 
 		/// <summary>
+		/// Draws a solid arc between two points.
+		///
+		/// The rendered arc is the shortest arc between the two points.
+		/// The radius of the arc will be equal to the distance between center and start.
+		///
+		/// [Open online documentation to see images]
+		/// <code>
+		/// float a1 = Mathf.PI*0.9f;
+		/// float a2 = Mathf.PI*0.1f;
+		/// var arcStart = new float3(Mathf.Cos(a1), 0, Mathf.Sin(a1));
+		/// var arcEnd = new float3(Mathf.Cos(a2), 0, Mathf.Sin(a2));
+		/// Draw.SolidArc(new float3(0, 0, 0), arcStart, arcEnd, color);
+		/// </code>
+		///
+		/// See: \reflink{SolidCircleXZ(float3,float,float,float)}
+		/// See: \reflink{SolidCircleXY(float3,float,float,float)}
+		/// </summary>
+		/// <param name="center">Center of the imaginary circle that the arc is part of.</param>
+		/// <param name="start">Starting point of the arc.</param>
+		/// <param name="end">End point of the arc.</param>
+		public void SolidArc (float3 center, float3 start, float3 end) {
+			var d1 = start - center;
+			var d2 = end - center;
+			var normal = math.cross(d2, d1);
+
+			if (math.any(normal)) {
+				var m = Matrix4x4.TRS(center, Quaternion.LookRotation(d1, normal), Vector3.one);
+				var angle = Vector3.SignedAngle(d1, d2, normal) * Mathf.Deg2Rad;
+				PushMatrix(m);
+				SolidCircleXZ(float3.zero, math.length(d1), 90 * Mathf.Deg2Rad, 90 * Mathf.Deg2Rad - angle);
+				PopMatrix();
+			}
+		}
+
+		/// <summary>
+		/// Draws a disc in the XZ plane.
+		///
+		/// You can draw an arc by supplying the startAngle and endAngle parameters.
+		///
+		/// [Open online documentation to see images]
+		///
+		/// See: \reflink{SolidCircle(float3,float3,float)}
+		/// See: \reflink{SolidCircleXY(float3,float,float,float)}
+		/// See: \reflink{SolidArc(float3,float3,float3)}
+		/// </summary>
+		/// <param name="center">Center of the disc or solid arc.</param>
+		/// <param name="radius">Radius of the disc or solid arc.</param>
+		/// <param name="startAngle">Starting angle in radians. 0 corrsponds to the positive X axis.</param>
+		/// <param name="endAngle">End angle in radians.</param>
+		public void SolidCircleXZ (float3 center, float radius, float startAngle = 0f, float endAngle = 2 * Mathf.PI) {
+			Reserve<CircleXZData>();
+			Add(Command.DiscXZ);
+			Add(new CircleXZData { center = center, radius = radius, startAngle = startAngle, endAngle = endAngle });
+		}
+
+		/// <summary>
+		/// Draws a disc in the XY plane.
+		///
+		/// You can draw an arc by supplying the startAngle and endAngle parameters.
+		///
+		/// [Open online documentation to see images]
+		///
+		/// See: \reflink{SolidCircle(float3,float3,float)}
+		/// See: \reflink{SolidCircleXZ(float3,float,float,float)}
+		/// See: \reflink{SolidArc(float3,float3,float3)}
+		/// </summary>
+		/// <param name="center">Center of the disc or solid arc.</param>
+		/// <param name="radius">Radius of the disc or solid arc.</param>
+		/// <param name="startAngle">Starting angle in radians. 0 corrsponds to the positive X axis.</param>
+		/// <param name="endAngle">End angle in radians.</param>
+		public void SolidCircleXY (float3 center, float radius, float startAngle = 0f, float endAngle = 2 * Mathf.PI) {
+			PushMatrix(XZtoXYPlaneMatrix);
+			SolidCircleXZ(new float3(center.x, -center.z, center.y), radius, startAngle, endAngle);
+			PopMatrix();
+		}
+
+		/// <summary>
+		/// Draws a disc.
+		///
+		/// [Open online documentation to see images]
+		///
+		/// Note: This overload does not allow you to draw an arc. For that purpose use <see cref="SolidArc"/>, <see cref="SolidCircleXY"/> or <see cref="SolidCircleXZ"/> instead.
+		/// </summary>
+		public void SolidCircle (float3 center, float3 normal, float radius) {
+			Reserve<CircleData>();
+			Add(Command.Disc);
+			Add(new CircleData { center = center, normal = normal, radius = radius });
+		}
+
+		/// <summary>
 		/// Draws a circle outline around a sphere.
 		///
 		/// Visually, this is a circle that always faces the camera, and is resized automatically to fit the sphere.
@@ -906,8 +1132,6 @@ namespace Drawing {
 
 		/// <summary>
 		/// Draws a cylinder.
-		/// The cylinder's bottom circle will be centered at the position parameter.
-		/// The cylinder's orientation will be determined by the up and height parameters.
 		///
 		/// <code>
 		/// // Draw a two meter tall cylinder at the world origin with a radius of 0.5
@@ -916,22 +1140,36 @@ namespace Drawing {
 		///
 		/// [Open online documentation to see images]
 		/// </summary>
+		/// <param name="position">The center of the cylinder's "bottom" circle.</param>
+		/// <param name="up">The cylinder's main axis. Does not have to be normalized. If zero, nothing will be drawn.</param>
+		/// <param name="height">The length of the cylinder, as measured along it's main axis.</param>
+		/// <param name="radius">The radius of the cylinder.</param>
 		public void WireCylinder (float3 position, float3 up, float height, float radius) {
-			var tangent = math.normalizesafe(math.cross(up, new float3(1, 1, 1)));
+			var tangent = math.cross(up, new float3(1, 1, 1));
 
-			// Note: second parameter is normalized (-1,1,1)
-			if (math.all(tangent == float3.zero)) tangent = math.cross(up, new float3(-0.577350269f, 0.577350269f, 0.577350269f));
+			if (math.all(tangent == float3.zero)) tangent = math.cross(up, new float3(-1, 1, 1));
 
-			PushMatrix(Matrix4x4.TRS(position, Quaternion.LookRotation(tangent, up), new Vector3(radius, height, radius)));
-			CircleXZ(float3.zero, 1);
-			if (height > 0) {
-				CircleXZ(new float3(0, 1, 0), 1);
-				Line(new float3(1, 0, 0), new float3(1, 1, 0));
-				Line(new float3(-1, 0, 0), new float3(-1, 1, 0));
-				Line(new float3(0, 0, 1), new float3(0, 1, 1));
-				Line(new float3(0, 0, -1), new float3(0, 1, -1));
+			tangent = math.normalizesafe(tangent);
+			up = math.normalizesafe(up);
+			var rotation = math.quaternion(math.float3x3(math.cross(up, tangent), up, tangent));
+
+			// If we get a NaN here then either
+			// * one of the input parameters contained nans (bad)
+			// * up is zero, or very close to zero
+			//
+			// In any case, we cannot draw anything.
+			if (!math.any(math.isnan(rotation.value))) {
+				PushMatrix(float4x4.TRS(position, rotation, new float3(radius, height, radius)));
+				CircleXZ(float3.zero, 1);
+				if (height > 0) {
+					CircleXZ(new float3(0, 1, 0), 1);
+					Line(new float3(1, 0, 0), new float3(1, 1, 0));
+					Line(new float3(-1, 0, 0), new float3(-1, 1, 0));
+					Line(new float3(0, 0, 1), new float3(0, 1, 1));
+					Line(new float3(0, 0, -1), new float3(0, 1, -1));
+				}
+				PopMatrix();
 			}
-			PopMatrix();
 		}
 
 		/// <summary>
@@ -976,42 +1214,51 @@ namespace Drawing {
 		/// [Open online documentation to see images]
 		/// </summary>
 		/// <param name="position">One endpoint of the capsule. This is at the edge of the capsule, not at the center of one of the hemispheres.</param>
-		/// <param name="direction">The main axis of the capsule.</param>
+		/// <param name="direction">The main axis of the capsule. Does not have to be normalized. If zero, nothing will be drawn.</param>
 		/// <param name="length">Distance between the two endpoints of the capsule. The length will be clamped to be at least 2*radius.</param>
 		/// <param name="radius">The radius of the capsule.</param>
 		public void WireCapsule (float3 position, float3 direction, float length, float radius) {
 			direction = math.normalizesafe(direction);
+
 			if (radius <= 0) {
 				Line(position, position + direction * length);
 			} else {
-				// Note; second parameter is normalized (1,1,1)
-				var tangent = math.cross(direction, new float3(0.577350269f, 0.577350269f, 0.577350269f));
+				var tangent = math.cross(direction, new float3(1, 1, 1));
 
-				// Note: second parameter is normalized (-1,1,1)
-				if (math.all(tangent == float3.zero)) tangent = math.cross(direction, new float3(-0.577350269f, 0.577350269f, 0.577350269f));
+				if (math.all(tangent == float3.zero)) tangent = math.cross(direction, new float3(-1, 1, 1));
 
 				length = math.max(length, radius*2);
 
-				PushMatrix(Matrix4x4.TRS(position, Quaternion.LookRotation(tangent, direction), Vector3.one));
-				CircleXZ(new float3(0, radius, 0), radius);
-				CircleXY(new float3(0, radius, 0), radius, Mathf.PI, 2 * Mathf.PI);
-				PushMatrix(XZtoYZPlaneMatrix);
-				CircleXZ(new float3(radius, 0, 0), radius, Mathf.PI*0.5f, Mathf.PI*1.5f);
-				PopMatrix();
-				if (length > 0) {
-					var upperY = length - radius;
-					var lowerY = radius;
-					CircleXZ(new float3(0, upperY, 0), radius);
-					CircleXY(new float3(0, upperY, 0), radius, 0, Mathf.PI);
+				tangent = math.normalizesafe(tangent);
+				var rotation = math.quaternion(math.float3x3(tangent, direction, math.cross(tangent, direction)));
+
+				// If we get a NaN here then either
+				// * one of the input parameters contained nans (bad)
+				// * direction is zero, or very close to zero
+				//
+				// In any case, we cannot draw anything.
+				if (!math.any(math.isnan(rotation.value))) {
+					PushMatrix(float4x4.TRS(position, rotation, 1));
+					CircleXZ(new float3(0, radius, 0), radius);
+					CircleXY(new float3(0, radius, 0), radius, Mathf.PI, 2 * Mathf.PI);
 					PushMatrix(XZtoYZPlaneMatrix);
-					CircleXZ(new float3(upperY, 0, 0), radius, -Mathf.PI*0.5f, Mathf.PI*0.5f);
+					CircleXZ(new float3(radius, 0, 0), radius, Mathf.PI*0.5f, Mathf.PI*1.5f);
 					PopMatrix();
-					Line(new float3(radius, lowerY, 0), new float3(radius, upperY, 0));
-					Line(new float3(-radius, lowerY, 0), new float3(-radius, upperY, 0));
-					Line(new float3(0, lowerY, radius), new float3(0, upperY, radius));
-					Line(new float3(0, lowerY, -radius), new float3(0, upperY, -radius));
+					if (length > 0) {
+						var upperY = length - radius;
+						var lowerY = radius;
+						CircleXZ(new float3(0, upperY, 0), radius);
+						CircleXY(new float3(0, upperY, 0), radius, 0, Mathf.PI);
+						PushMatrix(XZtoYZPlaneMatrix);
+						CircleXZ(new float3(upperY, 0, 0), radius, -Mathf.PI*0.5f, Mathf.PI*0.5f);
+						PopMatrix();
+						Line(new float3(radius, lowerY, 0), new float3(radius, upperY, 0));
+						Line(new float3(-radius, lowerY, 0), new float3(-radius, upperY, 0));
+						Line(new float3(0, lowerY, radius), new float3(0, upperY, radius));
+						Line(new float3(0, lowerY, -radius), new float3(0, upperY, -radius));
+					}
+					PopMatrix();
 				}
-				PopMatrix();
 			}
 		}
 
@@ -1110,7 +1357,7 @@ namespace Drawing {
 		}
 
 		/// <summary>
-		/// Draws the outline of an axis aligned box.
+		/// Draws the outline of a box which is axis-aligned.
 		///
 		/// [Open online documentation to see images]
 		/// </summary>
@@ -1128,8 +1375,8 @@ namespace Drawing {
 		/// <param name="center">Center of the box</param>
 		/// <param name="rotation">Rotation of the box</param>
 		/// <param name="size">Width of the box along all dimensions</param>
-		public void WireBox (float3 center, Quaternion rotation, float3 size) {
-			PushMatrix(Matrix4x4.TRS(center, rotation, size));
+		public void WireBox (float3 center, quaternion rotation, float3 size) {
+			PushMatrix(float4x4.TRS(center, rotation, size));
 			WireBox(new Bounds(Vector3.zero, Vector3.one));
 			PopMatrix();
 		}
@@ -1271,9 +1518,23 @@ namespace Drawing {
 		/// See: <see cref="WireMesh(Mesh)"/>
 		/// </summary>
 		public void SolidMesh (Mesh mesh) {
+			SolidMeshInternal(mesh, false);
+		}
+
+		void SolidMeshInternal (Mesh mesh, bool temporary, Color color) {
+			PushColor(color);
+			SolidMeshInternal(mesh, temporary);
+			PopColor();
+		}
+
+
+		void SolidMeshInternal (Mesh mesh, bool temporary) {
 			var g = gizmos.Target as DrawingData;
 
-			g.data.Get(uniqueID).meshes.Add(mesh);
+			g.data.Get(uniqueID).meshes.Add(new SubmittedMesh {
+				mesh = mesh,
+				temporary = temporary,
+			});
 			// Internally we need to make sure to capture the current state
 			// (which includes the current matrix and color) so that it
 			// can be applied to the mesh.
@@ -1293,7 +1554,7 @@ namespace Drawing {
 
 			// TODO: Is this mesh getting recycled at all?
 			var g = gizmos.Target as DrawingData;
-			var mesh = g.GetMesh();
+			var mesh = g.GetMesh(vertices.Count);
 
 			// Set all data on the mesh
 			mesh.Clear();
@@ -1302,7 +1563,7 @@ namespace Drawing {
 			mesh.SetColors(colors);
 			// Upload all data
 			mesh.UploadMeshData(false);
-			SolidMesh(mesh);
+			SolidMeshInternal(mesh, true);
 		}
 
 		/// <summary>
@@ -1317,7 +1578,7 @@ namespace Drawing {
 
 			// TODO: Is this mesh getting recycled at all?
 			var g = gizmos.Target as DrawingData;
-			var mesh = g.GetMesh();
+			var mesh = g.GetMesh(vertices.Length);
 
 			// Set all data on the mesh
 			mesh.Clear();
@@ -1326,7 +1587,7 @@ namespace Drawing {
 			mesh.SetColors(colors, 0, vertexCount);
 			// Upload all data
 			mesh.UploadMeshData(false);
-			SolidMesh(mesh);
+			SolidMeshInternal(mesh, true);
 		}
 
 		/// <summary>
@@ -1680,9 +1941,9 @@ namespace Drawing {
 		/// <param name="rotation">Rotation of the grid. The grid will be aligned to the X and Z axes of the rotation.</param>
 		/// <param name="cells">Number of cells of the grid. Should be greater than 0.</param>
 		/// <param name="totalSize">Total size of the grid along the X and Z axes.</param>
-		public void WireGrid (float3 center, Quaternion rotation, int2 cells, float2 totalSize) {
+		public void WireGrid (float3 center, quaternion rotation, int2 cells, float2 totalSize) {
 			cells = math.max(cells, new int2(1, 1));
-			PushMatrix(Matrix4x4.TRS(center, rotation, new Vector3(totalSize.x, 0, totalSize.y)));
+			PushMatrix(float4x4.TRS(center, rotation, new Vector3(totalSize.x, 0, totalSize.y)));
 			int w = cells.x;
 			int h = cells.y;
 			for (int i = 0; i <= w; i++) Line(new float3(i/(float)w - 0.5f, 0, -0.5f), new float3(i/(float)w - 0.5f, 0, 0.5f));
@@ -1698,7 +1959,7 @@ namespace Drawing {
 		/// </code>
 		/// [Open online documentation to see images]
 		///
-		/// See: \reflink{WirePlane(float3,Quaternion,float2)}
+		/// See: \reflink{WirePlane(float3,quaternion,float2)}
 		/// See: <see cref="WirePolygon"/>
 		/// </summary>
 		/// <param name="a">First corner of the triangle</param>
@@ -1722,7 +1983,7 @@ namespace Drawing {
 		/// See: <see cref="WirePolygon"/>
 		/// </summary>
 		public void WireRectangleXZ (float3 center, float2 size) {
-			WireRectangle(center, Quaternion.identity, size);
+			WireRectangle(center, quaternion.identity, size);
 		}
 
 		/// <summary>
@@ -1734,11 +1995,11 @@ namespace Drawing {
 		/// </code>
 		/// [Open online documentation to see images]
 		///
-		/// This is identical to \reflink{WirePlane(float3,Quaternion,float2)}, but this name is added for consistency.
+		/// This is identical to \reflink{WirePlane(float3,quaternion,float2)}, but this name is added for consistency.
 		///
 		/// See: <see cref="WirePolygon"/>
 		/// </summary>
-		public void WireRectangle (float3 center, Quaternion rotation, float2 size) {
+		public void WireRectangle (float3 center, quaternion rotation, float2 size) {
 			WirePlane(center, rotation, size);
 		}
 
@@ -1755,7 +2016,7 @@ namespace Drawing {
 		/// [Open online documentation to see images]
 		///
 		/// See: <see cref="WireRectangleXZ"/>
-		/// See: <see cref="WireRectangle(float3,Quaternion,float2)"/>
+		/// See: <see cref="WireRectangle(float3,quaternion,float2)"/>
 		/// See: <see cref="WirePolygon"/>
 		/// </summary>
 		public void WireRectangle (Rect rect) {
@@ -1777,14 +2038,14 @@ namespace Drawing {
 		/// </code>
 		/// [Open online documentation to see images]
 		///
-		/// Note: This is a convenience wrapper for <see cref="WirePolygon(float3,int,Quaternion,float)"/>
+		/// Note: This is a convenience wrapper for <see cref="WirePolygon(float3,int,quaternion,float)"/>
 		///
 		/// See: <see cref="WireTriangle(float3,float3,float3)"/>
 		/// </summary>
 		/// <param name="center">Center of the triangle.</param>
 		/// <param name="rotation">Rotation of the triangle. The first vertex will be radius units in front of center as seen from the rotation's point of view.</param>
 		/// <param name="radius">Distance from the center to each vertex.</param>
-		public void WireTriangle (float3 center, Quaternion rotation, float radius) {
+		public void WireTriangle (float3 center, quaternion rotation, float radius) {
 			WirePolygon(center, 3, rotation, radius);
 		}
 
@@ -1796,12 +2057,12 @@ namespace Drawing {
 		/// </code>
 		/// [Open online documentation to see images]
 		///
-		/// Note: This is a convenience wrapper for <see cref="WirePolygon(float3,int,Quaternion,float)"/>
+		/// Note: This is a convenience wrapper for <see cref="WirePolygon(float3,int,quaternion,float)"/>
 		/// </summary>
 		/// <param name="center">Center of the polygon.</param>
 		/// <param name="rotation">Rotation of the polygon. The first vertex will be radius units in front of center as seen from the rotation's point of view.</param>
 		/// <param name="radius">Distance from the center to each vertex.</param>
-		public void WirePentagon (float3 center, Quaternion rotation, float radius) {
+		public void WirePentagon (float3 center, quaternion rotation, float radius) {
 			WirePolygon(center, 5, rotation, radius);
 		}
 
@@ -1813,12 +2074,12 @@ namespace Drawing {
 		/// </code>
 		/// [Open online documentation to see images]
 		///
-		/// Note: This is a convenience wrapper for <see cref="WirePolygon(float3,int,Quaternion,float)"/>
+		/// Note: This is a convenience wrapper for <see cref="WirePolygon(float3,int,quaternion,float)"/>
 		/// </summary>
 		/// <param name="center">Center of the polygon.</param>
 		/// <param name="rotation">Rotation of the polygon. The first vertex will be radius units in front of center as seen from the rotation's point of view.</param>
 		/// <param name="radius">Distance from the center to each vertex.</param>
-		public void WireHexagon (float3 center, Quaternion rotation, float radius) {
+		public void WireHexagon (float3 center, quaternion rotation, float radius) {
 			WirePolygon(center, 6, rotation, radius);
 		}
 
@@ -1841,8 +2102,8 @@ namespace Drawing {
 		/// <param name="vertices">Number of corners (and sides) of the polygon.</param>
 		/// <param name="rotation">Rotation of the polygon. The first vertex will be radius units in front of center as seen from the rotation's point of view.</param>
 		/// <param name="radius">Distance from the center to each vertex.</param>
-		public void WirePolygon (float3 center, int vertices, Quaternion rotation, float radius) {
-			PushMatrix(Matrix4x4.TRS(center, rotation, Vector3.one * radius));
+		public void WirePolygon (float3 center, int vertices, quaternion rotation, float radius) {
+			PushMatrix(float4x4.TRS(center, rotation, new float3(radius, radius, radius)));
 			float3 prev = new float3(0, 0, 1);
 			for (int i = 1; i <= vertices; i++) {
 				float a = 2 * math.PI * (i / (float)vertices);
@@ -1868,11 +2129,11 @@ namespace Drawing {
 		/// [Open online documentation to see images]
 		///
 		/// See: <see cref="WireRectangleXZ"/>
-		/// See: <see cref="WireRectangle(float3,Quaternion,float2)"/>
+		/// See: <see cref="WireRectangle(float3,quaternion,float2)"/>
 		/// See: <see cref="SolidBox"/>
 		/// </summary>
 		public void SolidRectangle (Rect rect) {
-			SolidPlane(new float3(rect.center.x, rect.center.y, 0.0f), Quaternion.Euler(-90, 0, 0), new float2(rect.width, rect.height));
+			SolidPlane(new float3(rect.center.x, rect.center.y, 0.0f), quaternion.Euler(-math.PI*0.5f, 0, 0), new float2(rect.width, rect.height));
 		}
 
 		/// <summary>
@@ -1904,15 +2165,16 @@ namespace Drawing {
 		/// </summary>
 		/// <param name="center">Center of the visualized plane.</param>
 		/// <param name="size">Width and height of the visualized plane.</param>
-		public void SolidPlane (float3 center, Quaternion rotation, float2 size) {
-			PushMatrix(Matrix4x4.TRS(center, rotation, new Vector3(size.x, 0, size.y)));
+		public void SolidPlane (float3 center, quaternion rotation, float2 size) {
+			PushMatrix(float4x4.TRS(center, rotation, new float3(size.x, 0, size.y)));
 			Reserve<BoxData>();
 			Add(Command.Box);
 			Add(new BoxData { center = 0, size = 1 });
 			PopMatrix();
 		}
 
-		private float3 calculateTangent (float3 normal) {
+		/// <summary>Returns an arbitrary vector which is orthogonal to the given one</summary>
+		private static float3 calculateTangent (float3 normal) {
 			var tangent = math.cross(new float3(0, 1, 0), normal);
 
 			if (math.all(tangent == 0)) tangent = math.cross(new float3(1, 0, 0), normal);
@@ -1939,7 +2201,7 @@ namespace Drawing {
 		/// <summary>
 		/// Draws a wire plane.
 		///
-		/// This is identical to \reflink{WireRectangle(float3,Quaternion,float2)}, but it is included for consistency.
+		/// This is identical to \reflink{WireRectangle(float3,quaternion,float2)}, but it is included for consistency.
 		///
 		/// <code>
 		/// Draw.WirePlane(new float3(0, 0, 0), new float3(0, 1, 0), 1.0f, color);
@@ -1949,13 +2211,10 @@ namespace Drawing {
 		/// <param name="center">Center of the visualized plane.</param>
 		/// <param name="rotation">Rotation of the plane. The plane will lie in the XZ plane with respect to the rotation.</param>
 		/// <param name="size">Width and height of the visualized plane.</param>
-		public void WirePlane (float3 center, Quaternion rotation, float2 size) {
-			PushMatrix(Matrix4x4.TRS(center, rotation, new Vector3(0.5f * size.x, 0, 0.5f * size.y)));
-			Line(new float3(-1, 0, -1), new float3(1, 0, -1));
-			Line(new float3(1, 0, -1), new float3(1, 0, 1));
-			Line(new float3(1, 0, 1), new float3(-1, 0, 1));
-			Line(new float3(-1, 0, 1), new float3(-1, 0, -1));
-			PopMatrix();
+		public void WirePlane (float3 center, quaternion rotation, float2 size) {
+			Reserve<PlaneData>();
+			Add(Command.WirePlane);
+			Add(new PlaneData { center = center, rotation = rotation, size = size });
 		}
 
 		/// <summary>
@@ -1986,10 +2245,10 @@ namespace Drawing {
 		/// <param name="center">Center of the visualized plane.</param>
 		/// <param name="rotation">Rotation of the plane. The plane will lie in the XZ plane with respect to the rotation.</param>
 		/// <param name="size">Width and height of the visualized plane.</param>
-		public void PlaneWithNormal (float3 center, Quaternion rotation, float2 size) {
+		public void PlaneWithNormal (float3 center, quaternion rotation, float2 size) {
 			SolidPlane(center, rotation, size);
 			WirePlane(center, rotation, size);
-			ArrowRelativeSizeHead(center, center + (float3)(rotation * Vector3.up) * 0.5f, (float3)(rotation * Vector3.forward), 0.2f);
+			ArrowRelativeSizeHead(center, center + math.mul(rotation, new float3(0, 1, 0)) * 0.5f, math.mul(rotation, new float3(0, 0, 1)), 0.2f);
 		}
 
 		/// <summary>
@@ -2032,10 +2291,66 @@ namespace Drawing {
 		/// <param name="center">Center of the box</param>
 		/// <param name="rotation">Rotation of the box</param>
 		/// <param name="size">Width of the box along all dimensions</param>
-		public void SolidBox (float3 center, Quaternion rotation, float3 size) {
-			PushMatrix(Matrix4x4.TRS(center, rotation, size));
+		public void SolidBox (float3 center, quaternion rotation, float3 size) {
+			PushMatrix(float4x4.TRS(center, rotation, size));
 			SolidBox(float3.zero, Vector3.one);
 			PopMatrix();
+		}
+
+		/// <summary>
+		/// Draws a label in 3D space.
+		///
+		/// The default alignment is <see cref="Drawing.LabelAlignment.MiddleLeft"/>.
+		///
+		/// <code>
+		/// Draw.Label3D(new float3(0.2f, -1f, 0.2f), Quaternion.Euler(45, -110, -90), "Label", 1, LabelAlignment.Center, color);
+		/// </code>
+		/// [Open online documentation to see images]
+		///
+		/// See: Label3D(float3,quaternion,string,float,LabelAlignment)
+		///
+		/// Note: Only ASCII is supported since the built-in font texture only includes ASCII. Other characters will be rendered as question marks (?).
+		/// </summary>
+		/// <param name="position">Position in 3D space.</param>
+		/// <param name="rotation">Rotation in 3D space.</param>
+		/// <param name="text">Text to display.</param>
+		/// <param name="size">World size of the text. For large sizes an SDF (signed distance field) font is used and for small sizes a normal font texture is used.</param>
+		public void Label3D (float3 position, quaternion rotation, string text, float size) {
+			Label3D(position, rotation, text, size, LabelAlignment.MiddleLeft);
+		}
+
+		/// <summary>
+		/// Draws a label in 3D space.
+		///
+		/// <code>
+		/// Draw.Label3D(new float3(0.2f, -1f, 0.2f), Quaternion.Euler(45, -110, -90), "Label", 1, LabelAlignment.Center, color);
+		/// </code>
+		/// [Open online documentation to see images]
+		///
+		/// See: Label3D(float3,quaternion,string,float)
+		///
+		/// Note: Only ASCII is supported since the built-in font texture only includes ASCII. Other characters will be rendered as question marks (?).
+		///
+		/// Note: This method cannot be used in burst since managed strings are not suppported in burst. However, you can use the separate Label3D overload which takes a FixedString.
+		/// </summary>
+		/// <param name="position">Position in 3D space.</param>
+		/// <param name="rotation">Rotation in 3D space.</param>
+		/// <param name="text">Text to display.</param>
+		/// <param name="size">World size of the text. For large sizes an SDF (signed distance field) font is used and for small sizes a normal font texture is used.</param>
+		/// <param name="alignment">How to align the text relative to the given position.</param>
+		public void Label3D (float3 position, quaternion rotation, string text, float size, LabelAlignment alignment) {
+			AssertBufferExists();
+			var g = gizmos.Target as DrawingData;
+			Reserve<TextData3D>();
+			Add(Command.Text3D);
+			Add(new TextData3D { center = position, rotation = rotation, numCharacters = text.Length, size = size, alignment = alignment });
+
+			Reserve(UnsafeUtility.SizeOf<System.UInt16>() * text.Length);
+			for (int i = 0; i < text.Length; i++) {
+				char c = text[i];
+				System.UInt16 index = (System.UInt16)g.fontData.GetIndex(c);
+				Add(index);
+			}
 		}
 
 		/// <summary>
@@ -2070,6 +2385,8 @@ namespace Drawing {
 		/// See: Label2D(float3,string,float)
 		///
 		/// Note: Only ASCII is supported since the built-in font texture only includes ASCII. Other characters will be rendered as question marks (?).
+		///
+		/// Note: This method cannot be used in burst since managed strings are not suppported in burst. However, you can use the separate Label2D overload which takes a FixedString.
 		/// </summary>
 		/// <param name="position">Position in 3D space.</param>
 		/// <param name="text">Text to display.</param>
@@ -2090,6 +2407,264 @@ namespace Drawing {
 			}
 		}
 
+		#region Label2DFixedString
+		/// <summary>
+		/// Draws a label in 3D space aligned with the camera.
+		///
+		/// <code>
+		/// // This part can be inside a burst job
+		/// for (int i = 0; i < 10; i++) {
+		///     Unity.Collections.FixedString32Bytes text = $"X = {i}";
+		///     builder.Label2D(new float3(i, 0, 0), ref text, 12, LabelAlignment.Center);
+		/// }
+		/// </code>
+		/// [Open online documentation to see images]
+		///
+		/// See: Label2D(float3,string,float)
+		///
+		/// Note: Only ASCII is supported since the built-in font texture only includes ASCII. Other characters will be rendered as question marks (?).
+		///
+		/// Note: This method requires the Unity.Collections package version 0.8 or later.
+		/// </summary>
+		/// <param name="position">Position in 3D space.</param>
+		/// <param name="text">Text to display.</param>
+		/// <param name="sizeInPixels">Size of the text in screen pixels. For large sizes an SDF (signed distance field) font is used and for small sizes a normal font texture is used.</param>
+		public void Label2D (float3 position, ref FixedString32Bytes text, float sizeInPixels = 14) {
+			Label2D(position, ref text, sizeInPixels, LabelAlignment.MiddleLeft);
+		}
+
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float)}</summary>
+		public void Label2D (float3 position, ref FixedString64Bytes text, float sizeInPixels = 14) {
+			Label2D(position, ref text, sizeInPixels, LabelAlignment.MiddleLeft);
+		}
+
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float)}</summary>
+		public void Label2D (float3 position, ref FixedString128Bytes text, float sizeInPixels = 14) {
+			Label2D(position, ref text, sizeInPixels, LabelAlignment.MiddleLeft);
+		}
+
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float)}</summary>
+		public void Label2D (float3 position, ref FixedString512Bytes text, float sizeInPixels = 14) {
+			Label2D(position, ref text, sizeInPixels, LabelAlignment.MiddleLeft);
+		}
+
+		/// <summary>
+		/// Draws a label in 3D space aligned with the camera.
+		///
+		/// <code>
+		/// // This part can be inside a burst job
+		/// for (int i = 0; i < 10; i++) {
+		///     Unity.Collections.FixedString32Bytes text = $"X = {i}";
+		///     builder.Label2D(new float3(i, 0, 0), ref text, 12, LabelAlignment.Center);
+		/// }
+		/// </code>
+		/// [Open online documentation to see images]
+		///
+		/// See: Label2D(float3,string,float)
+		///
+		/// Note: Only ASCII is supported since the built-in font texture only includes ASCII. Other characters will be rendered as question marks (?).
+		///
+		/// Note: This method requires the Unity.Collections package version 0.8 or later.
+		/// </summary>
+		/// <param name="position">Position in 3D space.</param>
+		/// <param name="text">Text to display.</param>
+		/// <param name="sizeInPixels">Size of the text in screen pixels. For large sizes an SDF (signed distance field) font is used and for small sizes a normal font texture is used.</param>
+		/// <param name="alignment">How to align the text relative to the given position.</param>
+		public void Label2D (float3 position, ref FixedString32Bytes text, float sizeInPixels, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label2D(position, text.GetUnsafePtr(), text.Length, sizeInPixels, alignment);
+			}
+#else
+			Debug.LogError("The Label2D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+		}
+
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float,LabelAlignment)}</summary>
+		public void Label2D (float3 position, ref FixedString64Bytes text, float sizeInPixels, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label2D(position, text.GetUnsafePtr(), text.Length, sizeInPixels, alignment);
+			}
+#else
+			Debug.LogError("The Label2D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+		}
+
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float,LabelAlignment)}</summary>
+		public void Label2D (float3 position, ref FixedString128Bytes text, float sizeInPixels, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label2D(position, text.GetUnsafePtr(), text.Length, sizeInPixels, alignment);
+			}
+#else
+			Debug.LogError("The Label2D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+		}
+
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float,LabelAlignment)}</summary>
+		public void Label2D (float3 position, ref FixedString512Bytes text, float sizeInPixels, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label2D(position, text.GetUnsafePtr(), text.Length, sizeInPixels, alignment);
+			}
+#else
+			Debug.LogError("The Label2D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+		}
+
+		/// <summary>\copydocref{Label2D(float3,FixedString32Bytes,float,LabelAlignment)}</summary>
+		internal unsafe void Label2D (float3 position, byte* text, int byteCount, float sizeInPixels, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			AssertBufferExists();
+			Reserve<TextData>();
+			Add(Command.Text);
+			Add(new TextData { center = position, numCharacters = byteCount, sizeInPixels = sizeInPixels, alignment = alignment });
+
+			Reserve(UnsafeUtility.SizeOf<System.UInt16>() * byteCount);
+			for (int i = 0; i < byteCount; i++) {
+				// The first 128 elements in the font data are guaranteed to be laid out as ascii.
+				// We use this since we cannot use the dynamic font lookup.
+				System.UInt16 c = *(text + i);
+				if (c >= 128) c = (System.UInt16) '?';
+				if (c == (byte)'\n') c = SDFLookupData.Newline;
+				// Ignore carriage return instead of printing them as '?'. Windows encodes newlines as \r\n.
+				if (c == (byte)'\r') continue;
+				Add(c);
+			}
+#endif
+		}
+		#endregion
+
+		#region Label3DFixedString
+		/// <summary>
+		/// Draws a label in 3D space.
+		///
+		/// <code>
+		/// // This part can be inside a burst job
+		/// for (int i = 0; i < 10; i++) {
+		///     Unity.Collections.FixedString32Bytes text = $"X = {i}";
+		///     builder.Label3D(new float3(i, 0, 0), quaternion.identity, ref text, 1, LabelAlignment.Center);
+		/// }
+		/// </code>
+		/// [Open online documentation to see images]
+		///
+		/// See: Label3D(float3,quaternion,string,float)
+		///
+		/// Note: Only ASCII is supported since the built-in font texture only includes ASCII. Other characters will be rendered as question marks (?).
+		///
+		/// Note: This method requires the Unity.Collections package version 0.8 or later.
+		/// </summary>
+		/// <param name="position">Position in 3D space.</param>
+		/// <param name="rotation">Rotation in 3D space.</param>
+		/// <param name="text">Text to display.</param>
+		/// <param name="size">World size of the text. For large sizes an SDF (signed distance field) font is used and for small sizes a normal font texture is used.</param>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString32Bytes text, float size) {
+			Label3D(position, rotation, ref text, size, LabelAlignment.MiddleLeft);
+		}
+
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString32Bytes,float)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString64Bytes text, float size) {
+			Label3D(position, rotation, ref text, size, LabelAlignment.MiddleLeft);
+		}
+
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString32Bytes,float)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString128Bytes text, float size) {
+			Label3D(position, rotation, ref text, size, LabelAlignment.MiddleLeft);
+		}
+
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString32Bytes,float)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString512Bytes text, float size) {
+			Label3D(position, rotation, ref text, size, LabelAlignment.MiddleLeft);
+		}
+
+		/// <summary>
+		/// Draws a label in 3D space.
+		///
+		/// <code>
+		/// // This part can be inside a burst job
+		/// for (int i = 0; i < 10; i++) {
+		///     Unity.Collections.FixedString32Bytes text = $"X = {i}";
+		///     builder.Label3D(new float3(i, 0, 0), quaternion.identity, ref text, 1, LabelAlignment.Center);
+		/// }
+		/// </code>
+		/// [Open online documentation to see images]
+		///
+		/// See: Label3D(float3,quaternion,string,float)
+		///
+		/// Note: Only ASCII is supported since the built-in font texture only includes ASCII. Other characters will be rendered as question marks (?).
+		///
+		/// Note: This method requires the Unity.Collections package version 0.8 or later.
+		/// </summary>
+		/// <param name="position">Position in 3D space.</param>
+		/// <param name="rotation">Rotation in 3D space.</param>
+		/// <param name="text">Text to display.</param>
+		/// <param name="size">World size of the text. For large sizes an SDF (signed distance field) font is used and for small sizes a normal font texture is used.</param>
+		/// <param name="alignment">How to align the text relative to the given position.</param>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString32Bytes text, float size, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label3D(position, rotation, text.GetUnsafePtr(), text.Length, size, alignment);
+			}
+#else
+			Debug.LogError("The Label3D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+		}
+
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString32Bytes,float,LabelAlignment)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString64Bytes text, float size, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label3D(position, rotation, text.GetUnsafePtr(), text.Length, size, alignment);
+			}
+#else
+			Debug.LogError("The Label3D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+		}
+
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString32Bytes,float,LabelAlignment)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString128Bytes text, float size, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label3D(position, rotation, text.GetUnsafePtr(), text.Length, size, alignment);
+			}
+#else
+			Debug.LogError("The Label3D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+		}
+
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString32Bytes,float,LabelAlignment)}</summary>
+		public void Label3D (float3 position, quaternion rotation, ref FixedString512Bytes text, float size, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			unsafe {
+				Label3D(position, rotation, text.GetUnsafePtr(), text.Length, size, alignment);
+			}
+#else
+			Debug.LogError("The Label3D method which takes FixedStrings requires the Unity.Collections package version 0.12 or newer");
+#endif
+		}
+
+		/// <summary>\copydocref{Label3D(float3,quaternion,FixedString32Bytes,float,LabelAlignment)}</summary>
+		internal unsafe void Label3D (float3 position, quaternion rotation, byte* text, int byteCount, float size, LabelAlignment alignment) {
+#if MODULE_COLLECTIONS_0_12_0_OR_NEWER
+			AssertBufferExists();
+			Reserve<TextData3D>();
+			Add(Command.Text3D);
+			Add(new TextData3D { center = position, rotation = rotation, numCharacters = byteCount, size = size, alignment = alignment });
+
+			Reserve(UnsafeUtility.SizeOf<System.UInt16>() * byteCount);
+			for (int i = 0; i < byteCount; i++) {
+				// The first 128 elements in the font data are guaranteed to be laid out as ascii.
+				// We use this since we cannot use the dynamic font lookup.
+				System.UInt16 c = *(text + i);
+				if (c >= 128) c = (System.UInt16) '?';
+				if (c == (byte)'\n') c = SDFLookupData.Newline;
+				Add(c);
+			}
+#endif
+		}
+		#endregion
+
 		/// <summary>
 		/// Helper for determining how large a pixel is at a given depth.
 		/// A a distance D from the camera a pixel corresponds to roughly value.x * D + value.y world units.
@@ -2097,7 +2672,7 @@ namespace Drawing {
 		/// </summary>
 		private static float2 CameraDepthToPixelSize (Camera camera) {
 			if (camera.orthographic) {
-				return new float2(0.0f, camera.orthographicSize / camera.pixelHeight);
+				return new float2(0.0f, 2.0f * camera.orthographicSize / camera.pixelHeight);
 			} else {
 				return new float2(Mathf.Tan(camera.fieldOfView * Mathf.Deg2Rad * 0.5f) / (0.5f * camera.pixelHeight), 0.0f);
 			}
@@ -2113,32 +2688,14 @@ namespace Drawing {
 			}
 		}
 
-		private static readonly VertexAttributeDescriptor[] MeshLayout = {
-			new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
-			new VertexAttributeDescriptor(VertexAttribute.Normal, VertexAttributeFormat.Float32, 3),
-			new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4),
-			new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2),
-		};
-
-		private static readonly VertexAttributeDescriptor[] MeshLayoutText = {
-			new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
-			new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4),
-			new VertexAttributeDescriptor(VertexAttribute.TexCoord0, VertexAttributeFormat.Float32, 2),
-		};
-
-		private static readonly CustomSampler samplerConvert = CustomSampler.Create("Convert");
-		private static readonly CustomSampler samplerLayout = CustomSampler.Create("SetLayout");
-		private static readonly CustomSampler samplerUpdateVert = CustomSampler.Create("UpdateVertices");
-		private static readonly CustomSampler samplerUpdateInd = CustomSampler.Create("UpdateIndices");
-		private static readonly CustomSampler samplerSubmesh = CustomSampler.Create("Submesh");
-
-		private static void AssignMeshData<VertexType>(Mesh mesh, Bounds bounds, UnsafeAppendBuffer vertices, UnsafeAppendBuffer triangles, VertexAttributeDescriptor[] layout) where VertexType : struct {
-			samplerConvert.Begin();
+		private static Mesh AssignMeshData<VertexType>(DrawingData gizmos, Bounds bounds, UnsafeAppendBuffer vertices, UnsafeAppendBuffer triangles, VertexAttributeDescriptor[] layout) where VertexType : struct {
+			CommandBuilderSamplers.samplerConvert.Begin();
 			var verticesView = ConvertExistingDataToNativeArray<VertexType>(vertices);
 			var trianglesView = ConvertExistingDataToNativeArray<int>(triangles);
-			samplerConvert.End();
+			CommandBuilderSamplers.samplerConvert.End();
+			var mesh = gizmos.GetMesh(verticesView.Length);
 
-			samplerLayout.Begin();
+			CommandBuilderSamplers.samplerLayout.Begin();
 			// Resize the vertex buffer if necessary
 			// Note: also resized if the vertex buffer is significantly larger than necessary.
 			//       This is because apparently when executing the command buffer Unity does something with the whole buffer for some reason (shows up as Mesh.CreateMesh in the profiler)
@@ -2147,29 +2704,32 @@ namespace Drawing {
 			// if (mesh.vertexCount < verticesView.Length || mesh.vertexCount > verticesView.Length * 2) {
 
 			// }
-			// TODO
-			mesh.SetVertexBufferParams(verticesView.Length, layout);
-			mesh.SetIndexBufferParams(trianglesView.Length, IndexFormat.UInt32);
-			samplerLayout.End();
+			// TODO: Use Mesh.GetVertexBuffer/Mesh.GetIndexBuffer once they stop being buggy.
+			// Currently they don't seem to get refreshed properly after resizing them (2022.2.0b1)
+			mesh.SetVertexBufferParams(math.ceilpow2(verticesView.Length), layout);
+			mesh.SetIndexBufferParams(math.ceilpow2(trianglesView.Length), IndexFormat.UInt32);
+			CommandBuilderSamplers.samplerLayout.End();
 
-			samplerUpdateVert.Begin();
+			CommandBuilderSamplers.samplerUpdateVert.Begin();
 			// Update the mesh data
 			mesh.SetVertexBufferData(verticesView, 0, 0, verticesView.Length);
-			samplerUpdateVert.End();
-			samplerUpdateInd.Begin();
+			CommandBuilderSamplers.samplerUpdateVert.End();
+			CommandBuilderSamplers.samplerUpdateInd.Begin();
 			// Update the index buffer and assume all our indices are correct
 			mesh.SetIndexBufferData(trianglesView, 0, 0, trianglesView.Length, MeshUpdateFlags.DontValidateIndices);
-			samplerUpdateInd.End();
+			CommandBuilderSamplers.samplerUpdateInd.End();
 
-			samplerSubmesh.Begin();
+
+			CommandBuilderSamplers.samplerSubmesh.Begin();
 			mesh.subMeshCount = 1;
 			var submesh = new SubMeshDescriptor(0, trianglesView.Length, MeshTopology.Triangles) {
 				vertexCount = verticesView.Length,
 				bounds = bounds
 			};
-			mesh.SetSubMesh(0, submesh, MeshUpdateFlags.DontRecalculateBounds);
+			mesh.SetSubMesh(0, submesh, MeshUpdateFlags.DontRecalculateBounds | MeshUpdateFlags.DontNotifyMeshUsers);
 			mesh.bounds = bounds;
-			samplerSubmesh.End();
+			CommandBuilderSamplers.samplerSubmesh.End();
+			return mesh;
 		}
 
 		internal static unsafe JobHandle Build (DrawingData gizmos, ProcessedBuilderData.MeshBuffers* buffers, Camera camera, JobHandle dependency) {
@@ -2197,20 +2757,19 @@ namespace Drawing {
 
 		internal static unsafe void BuildMesh (DrawingData gizmos, List<MeshWithType> meshes, ProcessedBuilderData.MeshBuffers* inputBuffers) {
 			if (inputBuffers->triangles.GetLength() > 0) {
-				var mesh = gizmos.GetMesh();
-				AssignMeshData<Builder.Vertex>(mesh, inputBuffers->bounds, inputBuffers->vertices, inputBuffers->triangles, MeshLayout);
+				CommandBuilderSamplers.samplerUpdateBuffer.Begin();
+				var mesh = AssignMeshData<Builder.Vertex>(gizmos, inputBuffers->bounds, inputBuffers->vertices, inputBuffers->triangles, MeshLayouts.MeshLayout);
 				meshes.Add(new MeshWithType { mesh = mesh, type = MeshType.Lines });
+				CommandBuilderSamplers.samplerUpdateBuffer.End();
 			}
 
 			if (inputBuffers->solidTriangles.GetLength() > 0) {
-				var mesh = gizmos.GetMesh();
-				AssignMeshData<Builder.Vertex>(mesh, inputBuffers->bounds, inputBuffers->solidVertices, inputBuffers->solidTriangles, MeshLayout);
+				var mesh = AssignMeshData<Builder.Vertex>(gizmos, inputBuffers->bounds, inputBuffers->solidVertices, inputBuffers->solidTriangles, MeshLayouts.MeshLayout);
 				meshes.Add(new MeshWithType { mesh = mesh, type = MeshType.Solid });
 			}
 
 			if (inputBuffers->textTriangles.GetLength() > 0) {
-				var mesh = gizmos.GetMesh();
-				AssignMeshData<Builder.TextVertex>(mesh, inputBuffers->bounds, inputBuffers->textVertices, inputBuffers->textTriangles, MeshLayoutText);
+				var mesh = AssignMeshData<Builder.TextVertex>(gizmos, inputBuffers->bounds, inputBuffers->textVertices, inputBuffers->textTriangles, MeshLayouts.MeshLayoutText);
 				meshes.Add(new MeshWithType { mesh = mesh, type = MeshType.Text });
 			}
 		}
@@ -2236,10 +2795,14 @@ namespace Drawing {
 				commandSizes[(int)Command.CircleXZ] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<CircleXZData>();
 				commandSizes[(int)Command.SphereOutline] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<SphereData>();
 				commandSizes[(int)Command.Circle] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<CircleData>();
+				commandSizes[(int)Command.Disc] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<CircleData>();
+				commandSizes[(int)Command.DiscXZ] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<CircleXZData>();
 				commandSizes[(int)Command.Box] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<BoxData>();
+				commandSizes[(int)Command.WirePlane] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<PlaneData>();
 				commandSizes[(int)Command.PushPersist] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<PersistData>();
 				commandSizes[(int)Command.PopPersist] = UnsafeUtility.SizeOf<Command>();
 				commandSizes[(int)Command.Text] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<TextData>(); // Dynamically sized
+				commandSizes[(int)Command.Text3D] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<TextData3D>(); // Dynamically sized
 				commandSizes[(int)Command.PushLineWidth] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<LineWidthData>();
 				commandSizes[(int)Command.PopLineWidth] = UnsafeUtility.SizeOf<Command>();
 				commandSizes[(int)Command.CaptureState] = UnsafeUtility.SizeOf<Command>();
@@ -2255,6 +2818,9 @@ namespace Drawing {
 					long lastNonMetaWrite = -1;
 
 					while (readOffset < bufferPersist.GetLength()) {
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+						UnityEngine.Assertions.Assert.IsTrue(readOffset + UnsafeUtility.SizeOf<Command>() <= bufferPersist.GetLength());
+#endif
 						var cmd = *(Command*)((byte*)bufferPersist.Ptr + readOffset);
 						var cmdBit = 1 << ((int)cmd & 0xFF);
 						bool isMeta = (cmdBit & StreamSplitter.MetaCommands) != 0;
@@ -2265,7 +2831,17 @@ namespace Drawing {
 							var data = *((TextData*)((byte*)bufferPersist.Ptr + readOffset + size) - 1);
 							// Add the size of the embedded string in the buffer
 							size += data.numCharacters * UnsafeUtility.SizeOf<System.UInt16>();
+						} else if ((cmd & (Command)0xFF) == Command.Text3D) {
+							// Very pretty way of reading the TextData struct right after the command label and optional Color32
+							var data = *((TextData3D*)((byte*)bufferPersist.Ptr + readOffset + size) - 1);
+							// Add the size of the embedded string in the buffer
+							size += data.numCharacters * UnsafeUtility.SizeOf<System.UInt16>();
 						}
+
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+						UnityEngine.Assertions.Assert.IsTrue(readOffset + size <= bufferPersist.GetLength());
+						UnityEngine.Assertions.Assert.IsTrue(writeOffset + size <= bufferPersist.GetLength());
+#endif
 
 						if (shouldWrite || isMeta) {
 							if (!isMeta) lastNonMetaWrite = writeOffset;
@@ -2289,10 +2865,24 @@ namespace Drawing {
 							stackPersist[stackSize] = shouldWrite;
 							stackSize++;
 
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 							if (stackSize >= Builder.MaxStackSize) throw new System.Exception("Push commands are too deeply nested. This can happen if you have deeply nested WithMatrix or WithColor scopes.");
+#else
+							if (stackSize >= Builder.MaxStackSize) {
+								buffer->SetLength(0);
+								return;
+							}
+#endif
 						} else if ((cmdBit & StreamSplitter.PopCommands) != 0) {
 							stackSize--;
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 							if (stackSize < 0) throw new System.Exception("Trying to issue a pop command but there is no corresponding push command");
+#else
+							if (stackSize < 0) {
+								buffer->SetLength(0);
+								return;
+							}
+#endif
 							// If a scope was pushed and later popped, but no actual draw commands were written to the buffers
 							// inside that scope then we erase the whole scope.
 							if ((int)lastNonMetaWrite < stackScope[stackSize]) {
@@ -2306,7 +2896,15 @@ namespace Drawing {
 					}
 
 					bufferPersist.SetLength((int)writeOffset);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (stackSize != 0) throw new System.Exception("Inconsistent push/pop commands. Are your push and pop commands properly matched?");
+#else
+					if (stackSize != 0) {
+						buffer->SetLength(0);
+						return;
+					}
+#endif
+
 					*buffer = bufferPersist;
 				}
 			}
@@ -2321,8 +2919,8 @@ namespace Drawing {
 			internal static readonly int PushCommands = (1 << (int)Command.PushColor) | (1 << (int)Command.PushMatrix) | (1 << (int)Command.PushSetMatrix) | (1 << (int)Command.PushPersist) | (1 << (int)Command.PushLineWidth);
 			internal static readonly int PopCommands = (1 << (int)Command.PopColor) | (1 << (int)Command.PopMatrix) | (1 << (int)Command.PopPersist) | (1 << (int)Command.PopLineWidth);
 			internal static readonly int MetaCommands = PushCommands | PopCommands;
-			internal static readonly int DynamicCommands = (1 << (int)Command.SphereOutline) | (1 << (int)Command.CircleXZ) | (1 << (int)Command.Circle) | (1 << (int)Command.Text) | (1 << (int)Command.CaptureState) | MetaCommands;
-			internal static readonly int StaticCommands = (1 << (int)Command.Line) | (1 << (int)Command.Box) | MetaCommands;
+			internal static readonly int DynamicCommands = (1 << (int)Command.SphereOutline) | (1 << (int)Command.CircleXZ) | (1 << (int)Command.Circle) | (1 << (int)Command.DiscXZ) | (1 << (int)Command.Disc) | (1 << (int)Command.Text) | (1 << (int)Command.Text3D) | (1 << (int)Command.CaptureState) | MetaCommands;
+			internal static readonly int StaticCommands = (1 << (int)Command.Line) | (1 << (int)Command.Box) | (1 << (int)Command.WirePlane) | MetaCommands;
 
 			public void Execute () {
 				var lastWriteStatic = -1;
@@ -2344,10 +2942,14 @@ namespace Drawing {
 				commandSizes[(int)Command.CircleXZ] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<CircleXZData>();
 				commandSizes[(int)Command.SphereOutline] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<SphereData>();
 				commandSizes[(int)Command.Circle] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<CircleData>();
+				commandSizes[(int)Command.Disc] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<CircleData>();
+				commandSizes[(int)Command.DiscXZ] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<CircleXZData>();
 				commandSizes[(int)Command.Box] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<BoxData>();
+				commandSizes[(int)Command.WirePlane] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<PlaneData>();
 				commandSizes[(int)Command.PushPersist] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<PersistData>();
 				commandSizes[(int)Command.PopPersist] = UnsafeUtility.SizeOf<Command>();
 				commandSizes[(int)Command.Text] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<TextData>(); // Dynamically sized
+				commandSizes[(int)Command.Text3D] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<TextData3D>(); // Dynamically sized
 				commandSizes[(int)Command.PushLineWidth] = UnsafeUtility.SizeOf<Command>() + UnsafeUtility.SizeOf<LineWidthData>();
 				commandSizes[(int)Command.PopLineWidth] = UnsafeUtility.SizeOf<Command>();
 				commandSizes[(int)Command.CaptureState] = UnsafeUtility.SizeOf<Command>();
@@ -2389,22 +2991,41 @@ namespace Drawing {
 								// Add the size of the embedded string in the buffer
 								// TODO: Unaligned memory access performance penalties??
 								size += data.numCharacters * UnsafeUtility.SizeOf<System.UInt16>();
+							} else if ((cmd & (Command)0xFF) == Command.Text3D) {
+								// Very pretty way of reading the TextData struct right after the command label and optional Color32
+								var data = *((TextData3D*)((byte*)reader.Ptr + reader.Offset + size) - 1);
+								// Add the size of the embedded string in the buffer
+								// TODO: Unaligned memory access performance penalties??
+								size += data.numCharacters * UnsafeUtility.SizeOf<System.UInt16>();
 							}
+
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+							UnityEngine.Assertions.Assert.IsTrue(reader.Offset + size <= reader.Size);
+#endif
 
 							if ((cmdBit & DynamicCommands) != 0 && persist == 0) {
 								if (!isMeta) lastWriteDynamic = GetSize(bufferDynamic);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+								UnityEngine.Assertions.Assert.IsTrue(bufferDynamic.GetLength() + size <= bufferDynamic.Capacity);
+#endif
 								UnsafeUtility.MemCpy((byte*)bufferDynamic.Ptr + bufferDynamic.GetLength(), (byte*)reader.Ptr + reader.Offset, size);
 								bufferDynamic.SetLength(bufferDynamic.GetLength() + size);
 							}
 
 							if ((cmdBit & StaticCommands) != 0 && persist == 0) {
 								if (!isMeta) lastWriteStatic = bufferStatic.GetLength();
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+								UnityEngine.Assertions.Assert.IsTrue(bufferStatic.GetLength() + size <= bufferStatic.Capacity);
+#endif
 								UnsafeUtility.MemCpy((byte*)bufferStatic.Ptr + bufferStatic.GetLength(), (byte*)reader.Ptr + reader.Offset, size);
 								bufferStatic.SetLength(bufferStatic.GetLength() + size);
 							}
 
 							if ((cmdBit & MetaCommands) != 0 || persist > 0) {
 								if (persist > 0 && !isMeta) lastWritePersist = bufferPersist.GetLength();
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+								UnityEngine.Assertions.Assert.IsTrue(bufferPersist.GetLength() + size <= bufferPersist.Capacity);
+#endif
 								UnsafeUtility.MemCpy((byte*)bufferPersist.Ptr + bufferPersist.GetLength(), (byte*)reader.Ptr + reader.Offset, size);
 								bufferPersist.SetLength(bufferPersist.GetLength() + size);
 							}
@@ -2417,10 +3038,20 @@ namespace Drawing {
 								if ((cmd & (Command)0xFF) == Command.PushPersist) {
 									persist++;
 								}
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 								if (stackSize >= Builder.MaxStackSize) throw new System.Exception("Push commands are too deeply nested. This can happen if you have deeply nested WithMatrix or WithColor scopes.");
+#else
+								if (stackSize >= Builder.MaxStackSize) {
+									return;
+								}
+#endif
 							} else if ((cmdBit & PopCommands) != 0) {
 								stackSize--;
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 								if (stackSize < 0) throw new System.Exception("Trying to issue a pop command but there is no corresponding push command");
+#else
+								if (stackSize < 0) return;
+#endif
 								// If a scope was pushed and later popped, but no actual draw commands were written to the buffers
 								// inside that scope then we erase the whole scope.
 								if (lastWriteStatic < stackStatic[stackSize]) {
@@ -2434,20 +3065,31 @@ namespace Drawing {
 								}
 								if ((cmd & (Command)0xFF) == Command.PopPersist) {
 									persist--;
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 									if (persist < 0) throw new System.Exception("Too many PopPersist commands. Are your PushPersist/PopPersist calls matched?");
+#else
+									if (persist < 0) return;
+#endif
 								}
 							}
 
 							reader.Offset += size;
 						}
 
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 						if (stackSize != 0) throw new System.Exception("Too few pop commands and too many push commands. Are your push and pop commands properly matched?");
 						if (reader.Offset != reader.Size) throw new System.Exception("Did not end up at the end of the buffer. This is a bug.");
+#else
+						if (stackSize != 0) return;
+						if (reader.Offset != reader.Size) return;
+#endif
 					}
 
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (bufferStatic.GetLength() > bufferStatic.Capacity) throw new System.Exception("Buffer overrun. This is a bug");
 					if (bufferDynamic.GetLength() > bufferDynamic.Capacity) throw new System.Exception("Buffer overrun. This is a bug");
 					if (bufferPersist.GetLength() > bufferPersist.Capacity) throw new System.Exception("Buffer overrun. This is a bug");
+#endif
 
 					*staticBuffer = bufferStatic;
 					*dynamicBuffer = bufferDynamic;
@@ -2456,7 +3098,10 @@ namespace Drawing {
 			}
 		}
 
-		[BurstCompile(FloatMode = FloatMode.Fast)]
+		// Note: Setting FloatMode to Fast causes visual artificats when drawing circles.
+		// I think it is because math.sin(float4) produces slightly different results
+		// for each component in the input.
+		[BurstCompile(FloatMode = FloatMode.Default)]
 		internal struct Builder : IJob {
 			[NativeDisableUnsafePtrRestriction]
 			public unsafe ProcessedBuilderData.MeshBuffers* buffers;
@@ -2491,10 +3136,14 @@ namespace Drawing {
 			}
 
 			static unsafe void Add<T>(UnsafeAppendBuffer* buffer, T value) where T : struct {
-				int num = UnsafeUtility.SizeOf<T>();
-
+				int size = UnsafeUtility.SizeOf<T>();
+				// We know that the buffer has enough capacity, so we can just write to the buffer without
+				// having to add branches for the overflow case (like buffer->Add will do).
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+				UnityEngine.Assertions.Assert.IsTrue(buffer->GetLength() + size <= buffer->Capacity);
+#endif
 				UnsafeUtility.WriteArrayElement((byte*)buffer->Ptr + buffer->GetLength(), 0, value);
-				buffer->SetLength(buffer->GetLength() + num);
+				buffer->SetLength(buffer->GetLength() + size);
 			}
 
 			static unsafe void Reserve (UnsafeAppendBuffer* buffer, int size) {
@@ -2512,25 +3161,62 @@ namespace Drawing {
 			unsafe void AddText (System.UInt16* text, TextData textData, Color32 color) {
 				var pivot = PerspectiveDivide(math.mul(currentMatrix, new float4(textData.center, 1.0f)));
 
-				var distance = math.abs(math.dot(pivot - cameraPosition, cameraRotation * Vector3.forward)); // math.length(pivot - cameraPosition);
+				AddTextInternal(
+					text,
+					pivot,
+					math.mul(cameraRotation, new float3(1, 0, 0)),
+					math.mul(cameraRotation, new float3(0, 1, 0)),
+					textData.alignment,
+					textData.sizeInPixels,
+					true,
+					textData.numCharacters,
+					color
+					);
+			}
+
+			unsafe void AddText3D (System.UInt16* text, TextData3D textData, Color32 color) {
+				var pivot = PerspectiveDivide(math.mul(currentMatrix, new float4(textData.center, 1.0f)));
+				var m = math.mul(currentMatrix, new float4x4(textData.rotation, float3.zero));
+
+				AddTextInternal(
+					text,
+					pivot,
+					m.c0.xyz,
+					m.c1.xyz,
+					textData.alignment,
+					textData.size,
+					false,
+					textData.numCharacters,
+					color
+					);
+			}
+
+
+			unsafe void AddTextInternal (System.UInt16* text, float3 pivot, float3 right, float3 up, LabelAlignment alignment, float size, bool sizeIsInPixels, int numCharacters, Color32 color) {
+				var distance = math.abs(math.dot(pivot - cameraPosition, math.mul(cameraRotation, new float3(0, 0, 1)))); // math.length(pivot - cameraPosition);
 				var pixelSize = cameraDepthToPixelSize.x * distance + cameraDepthToPixelSize.y;
-				float fontWorldSize = textData.sizeInPixels * pixelSize;
-				float3 right = cameraRotation * Vector3.right * fontWorldSize;
-				float3 up = cameraRotation * Vector3.up * fontWorldSize;
+				float fontWorldSize = size;
+
+				if (sizeIsInPixels) fontWorldSize *= pixelSize;
+
+				right *= fontWorldSize;
+				up *= fontWorldSize;
 
 				// Calculate the total width (in pixels divided by fontSize) of the text
 				float maxWidth = 0;
 				float currentWidth = 0;
 				float numLines = 1;
 
-				for (int i = 0; i < textData.numCharacters; i++) {
+				for (int i = 0; i < numCharacters; i++) {
 					var characterInfoIndex = text[i];
 					if (characterInfoIndex == SDFLookupData.Newline) {
 						maxWidth = math.max(maxWidth, currentWidth);
 						currentWidth = 0;
 						numLines++;
 					} else {
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 						if (characterInfoIndex >= characterInfoLength) throw new System.Exception("Invalid character. No info exists. This is a bug.");
+#endif
 						currentWidth += characterInfo[characterInfoIndex].advance;
 					}
 				}
@@ -2538,16 +3224,16 @@ namespace Drawing {
 
 				// Calculate the world space position of the text given the camera and text alignment
 				var pos = pivot;
-				pos -= right * maxWidth * textData.alignment.relativePivot.x;
+				pos -= right * maxWidth * alignment.relativePivot.x;
 				// Size of a character as a fraction of a whole line using the current font
 				const float FontCharacterFractionOfLine = 0.75f;
 				// Where the upper and lower parts of the text will be assuming we start to write at y=0
 				var lower = 1 - numLines;
 				var upper = FontCharacterFractionOfLine;
-				var yAdjustment = math.lerp(lower, upper, textData.alignment.relativePivot.y);
+				var yAdjustment = math.lerp(lower, upper, alignment.relativePivot.y);
 				pos -= up * yAdjustment;
-				pos += (float3)(cameraRotation * Vector3.right * (pixelSize * textData.alignment.pixelOffset.x));
-				pos += (float3)(cameraRotation * Vector3.up * (pixelSize * textData.alignment.pixelOffset.y));
+				pos += (float3)(cameraRotation * Vector3.right * (pixelSize * alignment.pixelOffset.x));
+				pos += (float3)(cameraRotation * Vector3.up * (pixelSize * alignment.pixelOffset.y));
 
 				var textVertices = &buffers->textVertices;
 				var textTriangles = &buffers->textTriangles;
@@ -2555,12 +3241,12 @@ namespace Drawing {
 				const int TrianglesPerCharacter = 6;
 
 				// Reserve all buffer space beforehand
-				Reserve(textVertices, textData.numCharacters * VerticesPerCharacter * UnsafeUtility.SizeOf<TextVertex>());
-				Reserve(textTriangles, textData.numCharacters * TrianglesPerCharacter * UnsafeUtility.SizeOf<int>());
+				Reserve(textVertices, numCharacters * VerticesPerCharacter * UnsafeUtility.SizeOf<TextVertex>());
+				Reserve(textTriangles, numCharacters * TrianglesPerCharacter * UnsafeUtility.SizeOf<int>());
 
 				var lineStart = pos;
 
-				for (int i = 0; i < textData.numCharacters; i++) {
+				for (int i = 0; i < numCharacters; i++) {
 					var characterInfoIndex = text[i];
 
 					if (characterInfoIndex == SDFLookupData.Newline) {
@@ -2792,6 +3478,7 @@ namespace Drawing {
 				var distance = math.length(cc - cameraPosition);
 
 				var pixelSize = cameraDepthToPixelSize.x * distance + cameraDepthToPixelSize.y;
+				// realWorldRadius += pixelSize * this.currentLineWidthData.pixels * 0.5f;
 				var cosAngle = 1 - (maxPixelError * pixelSize) / realWorldRadius;
 				int steps = cosAngle < 0 ? 3 : (int)math.ceil(math.PI / (math.acos(cosAngle)));
 
@@ -2837,10 +3524,80 @@ namespace Drawing {
 					AddLine(new LineData { a = new float3(cos.z, sin.z, 0), b = new float3(cos.w, sin.w, 0) });
 				}
 
-				Join(firstLineByteOffset);
+				int lastLineByteOffset;
+
+				unsafe {
+					lastLineByteOffset = buffers->vertices.GetLength();
+				}
+				if (firstLineByteOffset != lastLineByteOffset) {
+					// Join the start and end segments.
+					// Only do this if any lines were actually added.
+					Join(firstLineByteOffset);
+				}
 				currentLineWidthData.automaticJoins = tmpJoins;
 
 				currentMatrix = oldMatrix;
+			}
+
+			void AddDisc (CircleData circle) {
+				// If the circle has a zero normal then just ignore it
+				if (math.all(circle.normal == 0)) return;
+
+				var steps = CircleSteps(circle.center, circle.radius, MaxCirclePixelError);
+
+				// Round up to nearest multiple of 3 (required for the SIMD to work)
+				steps = ((steps + 2) / 3) * 3;
+
+				circle.normal = math.normalize(circle.normal);
+				float3 tangent1;
+				if (math.all(math.abs(circle.normal - new float3(0, 1, 0)) < 0.001f)) {
+					// The normal was (almost) identical to (0, 1, 0)
+					tangent1 = new float3(0, 0, 1);
+				} else {
+					// Common case
+					tangent1 = math.cross(circle.normal, new float3(0, 1, 0));
+				}
+
+				float invSteps = 1.0f / steps;
+
+				unsafe {
+					var solidVertices = &buffers->solidVertices;
+					var solidTriangles = &buffers->solidTriangles;
+					Reserve(solidVertices, steps * UnsafeUtility.SizeOf<Vertex>());
+					Reserve(solidTriangles, 3*(steps-2) * UnsafeUtility.SizeOf<int>());
+
+					var matrix = math.mul(currentMatrix, Matrix4x4.TRS(circle.center, Quaternion.LookRotation(circle.normal, tangent1), new Vector3(circle.radius, circle.radius, circle.radius)));
+
+					var mn = minBounds;
+					var mx = maxBounds;
+					int vertexCount = solidVertices->GetLength() / UnsafeUtility.SizeOf<Vertex>();
+
+					for (int i = 0; i < steps; i++) {
+						var t = math.lerp(0, 2*Mathf.PI, i * invSteps);
+						math.sincos(t, out float sin, out float cos);
+
+						var p = PerspectiveDivide(math.mul(matrix, new float4(cos, sin, 0, 1)));
+						// Update the bounding box
+						mn = math.min(mn, p);
+						mx = math.max(mx, p);
+
+						Add(solidVertices, new Vertex {
+							position = p,
+							color = currentColor,
+							uv = new float2(0, 0),
+							uv2 = new float3(0, 0, 0),
+						});
+					}
+
+					minBounds = mn;
+					maxBounds = mx;
+
+					for (int i = 0; i < steps - 2; i++) {
+						Add(solidTriangles, vertexCount);
+						Add(solidTriangles, vertexCount + i + 1);
+						Add(solidTriangles, vertexCount + i + 2);
+					}
+				}
 			}
 
 			void AddSphereOutline (SphereData circle) {
@@ -2887,7 +3644,8 @@ namespace Drawing {
 				// Round up to nearest multiple of 3 (required for the SIMD to work)
 				steps = ((steps + 2) / 3) * 3;
 
-				while (circle.startAngle > circle.endAngle) circle.startAngle -= 2 * Mathf.PI;
+				circle.endAngle = math.clamp(circle.endAngle, circle.startAngle - Mathf.PI * 2, circle.startAngle + Mathf.PI * 2);
+
 				var oldMatrix = currentMatrix;
 				currentMatrix = math.mul(currentMatrix, Matrix4x4.Translate(circle.center) * Matrix4x4.Scale(new Vector3(circle.radius, circle.radius, circle.radius)));
 
@@ -2895,10 +3653,10 @@ namespace Drawing {
 				unsafe {
 					firstLineByteOffset = buffers->vertices.GetLength();
 				}
-				bool tmpJoins = currentLineWidthData.automaticJoins;
-				currentLineWidthData.automaticJoins = true;
 
 				float invSteps = 1.0f / steps;
+				bool tmpJoins = currentLineWidthData.automaticJoins;
+				currentLineWidthData.automaticJoins = true;
 				for (int i = 0; i < steps; i += 3) {
 					var i4 = math.lerp(circle.startAngle, circle.endAngle, new float4(i, i + 1, i + 2, i + 3) * invSteps);
 					// Calculate 4 sines and cosines at the same time using SIMD
@@ -2908,8 +3666,90 @@ namespace Drawing {
 					AddLine(new LineData { a = new float3(cos.z, 0, sin.z), b = new float3(cos.w, 0, sin.w) });
 				}
 
-				Join(firstLineByteOffset);
+				int lastLineByteOffset;
+
+				unsafe {
+					lastLineByteOffset = buffers->vertices.GetLength();
+				}
+				if (firstLineByteOffset != lastLineByteOffset) {
+					// Join the start and end segments.
+					// Only do this if any lines were actually added.
+					Join(firstLineByteOffset);
+				}
 				currentLineWidthData.automaticJoins = tmpJoins;
+
+				currentMatrix = oldMatrix;
+			}
+
+			void AddDisc (CircleXZData circle) {
+				var steps = CircleSteps(circle.center, circle.radius, MaxCirclePixelError);
+
+				// Round up to nearest multiple of 3 (required for the SIMD to work)
+				// We don't actually use SIMD here, but it's good that it's consistent with AddCircle.
+				steps = ((steps + 2) / 3) * 3;
+
+				circle.endAngle = math.clamp(circle.endAngle, circle.startAngle - Mathf.PI * 2, circle.startAngle + Mathf.PI * 2);
+
+				float invSteps = 1.0f / steps;
+
+				unsafe {
+					var solidVertices = &buffers->solidVertices;
+					var solidTriangles = &buffers->solidTriangles;
+					Reserve(solidVertices, (2+steps) * UnsafeUtility.SizeOf<Vertex>());
+					Reserve(solidTriangles, 3*steps * UnsafeUtility.SizeOf<int>());
+
+					var matrix = math.mul(currentMatrix, Matrix4x4.Translate(circle.center) * Matrix4x4.Scale(new Vector3(circle.radius, circle.radius, circle.radius)));
+
+					var worldCenter = PerspectiveDivide(math.mul(matrix, new float4(0, 0, 0, 1)));
+					Add(solidVertices, new Vertex {
+						position = worldCenter,
+						color = currentColor,
+						uv = new float2(0, 0),
+						uv2 = new float3(0, 0, 0),
+					});
+
+					var mn = math.min(minBounds, worldCenter);
+					var mx = math.max(maxBounds, worldCenter);
+					int vertexCount = solidVertices->GetLength() / UnsafeUtility.SizeOf<Vertex>();
+
+					for (int i = 0; i <= steps; i++) {
+						var t = math.lerp(circle.startAngle, circle.endAngle, i * invSteps);
+						math.sincos(t, out float sin, out float cos);
+
+						var p = PerspectiveDivide(math.mul(matrix, new float4(cos, 0, sin, 1)));
+						// Update the bounding box
+						mn = math.min(mn, p);
+						mx = math.max(mx, p);
+
+						Add(solidVertices, new Vertex {
+							position = p,
+							color = currentColor,
+							uv = new float2(0, 0),
+							uv2 = new float3(0, 0, 0),
+						});
+					}
+
+					minBounds = mn;
+					maxBounds = mx;
+
+					for (int i = 0; i < steps; i++) {
+						// Center vertex
+						Add(solidTriangles, vertexCount - 1);
+						Add(solidTriangles, vertexCount + i + 0);
+						Add(solidTriangles, vertexCount + i + 1);
+					}
+				}
+			}
+
+			void AddPlane (PlaneData plane) {
+				var oldMatrix = currentMatrix;
+
+				currentMatrix = math.mul(currentMatrix, float4x4.TRS(plane.center, plane.rotation, new float3(plane.size.x * 0.5f, 1, plane.size.y * 0.5f)));
+
+				AddLine(new LineData { a = new float3(-1, 0, -1), b = new float3(1, 0, -1) });
+				AddLine(new LineData { a = new float3(1, 0, -1), b = new float3(1, 0, 1) });
+				AddLine(new LineData { a = new float3(1, 0, 1), b = new float3(-1, 0, 1) });
+				AddLine(new LineData { a = new float3(-1, 0, 1), b = new float3(-1, 0, -1) });
 
 				currentMatrix = oldMatrix;
 			}
@@ -2998,41 +3838,69 @@ namespace Drawing {
 
 				switch (cmd) {
 				case Command.PushColor:
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (colorStackSize >= colorStack.Length) throw new System.Exception("Too deeply nested PushColor calls");
+#else
+					if (colorStackSize >= colorStack.Length) colorStackSize--;
+#endif
 					colorStack[colorStackSize] = currentColor;
 					colorStackSize++;
 					currentColor = reader.ReadNext<Color32>();
 					break;
 				case Command.PopColor:
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (colorStackSize <= 0) throw new System.Exception("PushColor and PopColor are not matched");
+#else
+					if (colorStackSize <= 0) break;
+#endif
 					colorStackSize--;
 					currentColor = colorStack[colorStackSize];
 					break;
 				case Command.PushMatrix:
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (matrixStackSize >= matrixStack.Length) throw new System.Exception("Too deeply nested PushMatrix calls");
+#else
+					if (matrixStackSize >= matrixStack.Length) matrixStackSize--;
+#endif
 					matrixStack[matrixStackSize] = currentMatrix;
 					matrixStackSize++;
 					currentMatrix = math.mul(currentMatrix, reader.ReadNext<float4x4>());
 					break;
 				case Command.PushSetMatrix:
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (matrixStackSize >= matrixStack.Length) throw new System.Exception("Too deeply nested PushMatrix calls");
+#else
+					if (matrixStackSize >= matrixStack.Length) matrixStackSize--;
+#endif
 					matrixStack[matrixStackSize] = currentMatrix;
 					matrixStackSize++;
 					currentMatrix = reader.ReadNext<float4x4>();
 					break;
 				case Command.PopMatrix:
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (matrixStackSize <= 0) throw new System.Exception("PushMatrix and PopMatrix are not matched");
+#else
+					if (matrixStackSize <= 0) break;
+#endif
 					matrixStackSize--;
 					currentMatrix = matrixStack[matrixStackSize];
 					break;
 				case Command.PushLineWidth:
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (lineWidthStackSize >= lineWidthStack.Length) throw new System.Exception("Too deeply nested PushLineWidth calls");
+#else
+					if (lineWidthStackSize >= lineWidthStack.Length) lineWidthStackSize--;
+#endif
 					lineWidthStack[lineWidthStackSize] = currentLineWidthData;
 					lineWidthStackSize++;
 					currentLineWidthData = reader.ReadNext<LineWidthData>();
 					break;
 				case Command.PopLineWidth:
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (lineWidthStackSize <= 0) throw new System.Exception("PushLineWidth and PopLineWidth are not matched");
+#else
+					if (lineWidthStackSize <= 0) break;
+#endif
 					lineWidthStackSize--;
 					currentLineWidthData = lineWidthStack[lineWidthStackSize];
 					break;
@@ -3048,8 +3916,17 @@ namespace Drawing {
 				case Command.Circle:
 					AddCircle(reader.ReadNext<CircleData>());
 					break;
+				case Command.DiscXZ:
+					AddDisc(reader.ReadNext<CircleXZData>());
+					break;
+				case Command.Disc:
+					AddDisc(reader.ReadNext<CircleData>());
+					break;
 				case Command.Box:
 					AddBox(reader.ReadNext<BoxData>());
+					break;
+				case Command.WirePlane:
+					AddPlane(reader.ReadNext<PlaneData>());
 					break;
 				case Command.PushPersist:
 					// This command does not need to be handled by the builder
@@ -3065,6 +3942,13 @@ namespace Drawing {
 						AddText(ptr, data, currentColor);
 					}
 					break;
+				case Command.Text3D:
+					var data2 = reader.ReadNext<TextData3D>();
+					unsafe {
+						System.UInt16* ptr = (System.UInt16*)reader.ReadNext(UnsafeUtility.SizeOf<System.UInt16>() * data2.numCharacters);
+						AddText3D(ptr, data2, currentColor);
+					}
+					break;
 				case Command.CaptureState:
 					unsafe {
 						buffers->capturedState.Add(new ProcessedBuilderData.CapturedState {
@@ -3074,7 +3958,11 @@ namespace Drawing {
 					}
 					break;
 				default:
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					throw new System.Exception("Unknown command");
+#else
+					break;
+#endif
 				}
 
 				if ((fullCmd & Command.PushColorInline) != 0) {
@@ -3139,7 +4027,9 @@ namespace Drawing {
 				unsafe {
 					var reader = buffers->splitterOutput.AsReader();
 					while (reader.Offset < reader.Size) Next(ref reader, ref matrixStack, ref colorStack, ref lineWidthStack, ref matrixStackSize, ref colorStackSize, ref lineWidthStackSize);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 					if (reader.Offset != reader.Size) throw new Exception("Didn't reach the end of the buffer");
+#endif
 				}
 
 				CreateTriangles();
@@ -3151,7 +4041,9 @@ namespace Drawing {
 					if (math.any(math.isnan(outBounds->min)) && (buffers->vertices.GetLength() > 0 || buffers->solidTriangles.GetLength() > 0)) {
 						// Fall back to a bounding box that covers everything
 						*outBounds = new Bounds(Vector3.zero, new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity));
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
 						throw new Exception("NaN bounds. A Draw.* command may have been given NaN coordinates.");
+#endif
 					}
 				}
 			}

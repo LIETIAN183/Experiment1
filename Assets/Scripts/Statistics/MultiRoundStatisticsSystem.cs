@@ -31,19 +31,20 @@ public partial class MultiRoundStatisticsSystem : SystemBase
 
     protected override void OnStartRunning()
     {
-        var analysisCircledata = GetSingleton<MultiRoundStatisticsData>();
+        var analysisCircledata = SystemAPI.GetSingleton<MultiRoundStatisticsData>();
         analysisCircledata.curStage = AnalysisStage.DataBackup;
         analysisCircledata.curSeismicIndex = 0;
-        analysisCircledata.seismicEventsCount = SetupBlobSystem.seismicBlobRefs.Count;
+        analysisCircledata.seismicEventsCount =
+        SystemAPI.GetSingletonBuffer<BlobRefBuffer>().Length;
         analysisCircledata.curSimulationTargetPGA = 0;
-        SetSingleton<MultiRoundStatisticsData>(analysisCircledata);
+        SystemAPI.SetSingleton<MultiRoundStatisticsData>(analysisCircledata);
     }
 
     // 内部不能使用异步的 aync 和 Task.Delay,因为该函数定时调用多次，会导致延时失效，反而相同函数执行多次，只适用于单次调用的函数
     protected override void OnUpdate()
     {
         // UnityEngine.Debug.Log(envGUID.ToString());
-        var analysisCircledata = GetSingleton<MultiRoundStatisticsData>();
+        var analysisCircledata = SystemAPI.GetSingleton<MultiRoundStatisticsData>();
 
         switch (analysisCircledata.curStage)
         {
@@ -56,7 +57,12 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 if (analysisCircledata.curSeismicIndex >= analysisCircledata.seismicEventsCount)
                 {
                     simulation.GetExistingSystemManaged<SingleStatisticSystem>().ExportData();
-                    simulation.GetExistingSystemManaged<UISystem>().DisplayNotificationForever("Simulation Finished");
+                    var message = SystemAPI.GetSingleton<MessageEvent>();
+                    message.isActivate = true;
+                    message.message = "Simulation Finished";
+                    message.displayType = 1;
+                    SystemAPI.SetSingleton(message);
+                    // simulation.GetExistingSystemManaged<UISystem>().DisplayNotificationForever("Simulation Finished");
                     this.Enabled = false;
                     return;
                 }
@@ -66,8 +72,14 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                     // var accTimerData = GetSingleton<AccTimerData>();
                     if (analysisCircledata.pgaThreshold.Equals(0) | analysisCircledata.pgaStep.Equals(0))
                     {
+                        var startEvent = SystemAPI.GetSingleton<StartSeismicEvent>();
+                        startEvent.isActivate = true;
+                        startEvent.index = analysisCircledata.curSeismicIndex++;
+                        startEvent.targetPGA = analysisCircledata.pgaThreshold;
+                        SystemAPI.SetSingleton(startEvent);
+
                         // 设置当前仿真参数
-                        simulation.GetExistingSystemManaged<AccTimerSystem>().StartSingleSimulation(analysisCircledata.curSeismicIndex++, analysisCircledata.pgaThreshold);
+                        // TimerSystem.instance.StartSingleSimulation(analysisCircledata.curSeismicIndex++, analysisCircledata.pgaThreshold);
                     }
                     else
                     {
@@ -81,14 +93,21 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                             break;
                         }
                         // 设置当前仿真参数
-                        simulation.GetExistingSystemManaged<AccTimerSystem>().StartSingleSimulation(analysisCircledata.curSeismicIndex, analysisCircledata.curSimulationTargetPGA);
+                        // TimerSystem.instance.StartSingleSimulation(analysisCircledata.curSeismicIndex, analysisCircledata.curSimulationTargetPGA);
+                        var startEvent = SystemAPI.GetSingleton<StartSeismicEvent>();
+                        startEvent.isActivate = true;
+                        startEvent.index = analysisCircledata.curSeismicIndex;
+                        startEvent.targetPGA = analysisCircledata.curSimulationTargetPGA;
+                        SystemAPI.SetSingleton(startEvent);
                     }
-                    // 启动
+                    // 启动仿真事件配置
+
+                    // 更新状态
                     analysisCircledata.curStage = AnalysisStage.Simulation;
                 }
                 break;
             case AnalysisStage.Simulation:
-                if (!simulation.GetExistingSystemManaged<AccTimerSystem>().Enabled)
+                if (!simulation.Unmanaged.GetExistingSystemState<TimerSystem>().Enabled)
                 {
                     analysisCircledata.curStage = AnalysisStage.Recover;
                 }
@@ -100,26 +119,31 @@ public partial class MultiRoundStatisticsSystem : SystemBase
             default:
                 break;
         }
-        SetSingleton<MultiRoundStatisticsData>(analysisCircledata);
+        SystemAPI.SetSingleton(analysisCircledata);
     }
 
-    public async void StartMultiRoundStatistics(float pgaThreshold, float pgaStep)
+    public void StartMultiRoundStatistics(float pgaThreshold, float pgaStep)
     {
         // 确保开始仿真前已经生成智能体
-        var simulationSetting = GetSingleton<SimulationLayerConfigurationData>();
-        var spawnerData = GetSingleton<SpawnerData>();
-        if (simulationSetting.isSimulateAgent && !spawnerData.canSpawn)
+        var simulationSetting = SystemAPI.GetSingleton<SimConfigData>();
+        var spawnerData = SystemAPI.GetSingleton<SpawnerData>();
+        if (simulationSetting.simAgent && !spawnerData.canSpawn)
         {
             spawnerData.canSpawn = true;
-            SetSingleton(spawnerData);
-            simulation.GetExistingSystemManaged<UISystem>().DisplayNotification2s("Spawning Agents");
-            await Task.Delay(2000);
+            SystemAPI.SetSingleton(spawnerData);
+            // simulation.GetExistingSystemManaged<UISystem>().DisplayNotification2s("Spawning Agents");
+            var message = SystemAPI.GetSingleton<MessageEvent>();
+            message.isActivate = true;
+            message.message = "Spawning Agents";
+            message.displayType = 0;
+            SystemAPI.SetSingleton(message);
+            // await Task.Delay(2000);
         }
         // 开始仿真
-        var analysisCircledata = GetSingleton<MultiRoundStatisticsData>();
+        var analysisCircledata = SystemAPI.GetSingleton<MultiRoundStatisticsData>();
         analysisCircledata.pgaThreshold = pgaThreshold;
         analysisCircledata.pgaStep = pgaStep;
-        SetSingleton(analysisCircledata);
+        SystemAPI.SetSingleton(analysisCircledata);
         this.Enabled = true;
     }
 
@@ -162,12 +186,14 @@ public partial class MultiRoundStatisticsSystem : SystemBase
     public JobHandle RecoverData()
     {
         // 重置环境
-        simulation.GetExistingSystemManaged<InitialSystem>().ReloadSubScene();
-        simulation.GetExistingSystemManaged<ReplaceSystem>().RemoveAllFluid();
+        simulation.GetExistingSystemManaged<SimInitializeSystem>().ReloadSubScene();
+
+        SystemAPI.SetSingleton<ClearFluidEvent>(new ClearFluidEvent { isActivate = true });
+        // simulation.GetExistingSystemManaged<DestructionSystem>().RemoveAllFluid();
         // 重置行人数据
-        var accTimer = GetSingleton<AccTimerData>();
-        accTimer.targetPGA = 0;
-        SetSingleton(accTimer);
+        // var accTimer = SystemAPI.GetSingleton<TimerData>();
+        // accTimer.simPGA = 0;
+        SystemAPI.SetSingleton(new TimerData());
 
         var ecb = m_EndSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 

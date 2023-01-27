@@ -15,6 +15,7 @@ namespace Drawing.Examples {
 
 				foreach (var contact in contactForces.Values) {
 					Draw.Circle(contact.lastPoint, contact.lastNormal, 0.1f * contact.impulse, gizmoColor2);
+					Draw.SolidCircle(contact.lastPoint, contact.lastNormal, 0.1f * contact.impulse, gizmoColor2);
 				}
 			}
 		}

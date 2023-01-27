@@ -8,20 +8,23 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Profiling;
 
-namespace InitialPrefabs.NimGui {
+namespace InitialPrefabs.NimGui
+{
 
-    public static partial class ImGui {
+    public static partial class ImGui
+    {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static unsafe float HorizontalSliderInternal(
-            ImWindow window, 
-            in uint id, 
-            in float min, 
-            in float max, 
+            ImWindow window,
+            in uint id,
+            in float min,
+            in float max,
             in float tInitial,
-            in float2 size, 
-            in ImSliderStyle style, 
-            out ImRect rect) {
+            in float2 size,
+            in ImSliderStyle style,
+            out ImRect rect)
+        {
 
             var marker = new ProfilerMarker("Horizontal_Float_Slider");
             marker.Begin();
@@ -34,11 +37,11 @@ namespace InitialPrefabs.NimGui {
 
             rect = ImLayoutUtility.CreateRect(in lastScope, in size, in unmanagedWindow.ScrollOffset);
 
-            float buttonXExtent   = math.min(size.x, size.y) * 0.5f;
-            float halfHeight      = (rect.Min.y + rect.Max.y) * 0.5f;
+            float buttonXExtent = math.min(size.x, size.y) * 0.5f;
+            float halfHeight = (rect.Min.y + rect.Max.y) * 0.5f;
             float2 quarterPadding = style.Padding * 0.25f;
-            float2 left           = new float2(rect.Min.x + buttonXExtent, halfHeight);
-            float2 right          = new float2(rect.Max.x - buttonXExtent, halfHeight);
+            float2 left = new float2(rect.Min.x + buttonXExtent, halfHeight);
+            float2 right = new float2(rect.Max.x - buttonXExtent, halfHeight);
 
             UnsafeParallelHashMap<uint, float2>* scrollOffset = unmanagedWindow.ImScrollOffsets;
             UnsafeParallelHashMap<uint, ImPaneOffset>* paneOffset = unmanagedWindow.ImPaneOffsets;
@@ -48,11 +51,14 @@ namespace InitialPrefabs.NimGui {
             // -------------------------------------------------------------------
             var sliderButtonRect = new ImRect(left, buttonXExtent - quarterPadding);
 
-            if (!scrollOffset->ContainsKey(id) && tInitial > 0) {
+            if (!scrollOffset->ContainsKey(id) && tInitial > 0)
+            {
                 float2 distance = math.lerp(left, right, tInitial) - left;
                 sliderButtonRect.Position = math.clamp(
                     sliderButtonRect.Position + distance, left, right);
-            } else if (scrollOffset->TryGetValue(id, out float2 prevDistance)) {
+            }
+            else if (scrollOffset->TryGetValue(id, out float2 prevDistance))
+            {
                 sliderButtonRect.Position = math.clamp(
                     sliderButtonRect.Position + prevDistance, left, right);
             }
@@ -67,12 +73,16 @@ namespace InitialPrefabs.NimGui {
                 out var finalColor);
 
             // Cache the drag offset
-            if ((clicked & Mouse.State.Down) > 0) {
-                paneOffset->Update(id, new ImPaneOffset {
+            if ((clicked & Mouse.State.Down) > 0)
+            {
+                paneOffset->Update(id, new ImPaneOffset
+                {
                     Position = left,
                     Offset = mouse.Position - left
                 });
-            } else if ((clicked & Mouse.State.Held) > 0 && unmanagedWindow.TrackedItem == id) {
+            }
+            else if ((clicked & Mouse.State.Held) > 0 && unmanagedWindow.TrackedItem == id)
+            {
                 var distanceVector = mouse.Position - left;
                 scrollOffset->Update(id, new float2(distanceVector.x, 0));
             }
@@ -93,7 +103,8 @@ namespace InitialPrefabs.NimGui {
         /// <param name="min">The minimum value, must be less than the min</param>
         /// <param name="max">The maximum value, must be greater than the min</param>
         /// <param name="t">The initial value between 0 and 1 that describes the value between the min and max.</param>
-        public static float Slider(float min, float max, float t = 0f) {
+        public static float Slider(float min, float max, float t = 0f)
+        {
             var style = ImSliderStyle.New();
             return Slider(min, max, in style, t);
         }
@@ -105,7 +116,8 @@ namespace InitialPrefabs.NimGui {
         /// <param name="min">The minimum value, must be less than the min</param>
         /// <param name="max">The maximum value, must be greater than the min</param>
         /// <param name="t">The initial value between 0 and 1 that describes the value between the min and max.</param>
-        public static int Slider(int min, int max, float t = 0f) {
+        public static int Slider(int min, int max, float t = 0f)
+        {
             var style = ImSliderStyle.New();
             return Slider(min, max, in style, t);
         }
@@ -117,7 +129,8 @@ namespace InitialPrefabs.NimGui {
         /// <param name="max">The maximum value, must be greater than the min</param>
         /// <param name="style">A custom slider style.</param>
         /// <param name="t">The initial value between 0 and 1 that describes the value between the min and max.</param>
-        public static float Slider(float min, float max, in ImSliderStyle style, float t = 0f) {
+        public static float Slider(float min, float max, in ImSliderStyle style, float t = 0f)
+        {
             var window = ImGuiContext.GetCurrentWindow();
 
             // ------------------------------------------------
@@ -129,13 +142,13 @@ namespace InitialPrefabs.NimGui {
 
             // Find s, which will tell use how to lerp
             float s = HorizontalSliderInternal(
-                window, 
-                in id, 
-                in min, 
-                in max, 
+                window,
+                in id,
+                in min,
+                in max,
                 in t,
-                in size, 
-                in style, 
+                in size,
+                in style,
                 out ImRect rect);
 
             // ------------------------------------------------
@@ -155,7 +168,8 @@ namespace InitialPrefabs.NimGui {
         /// <param name="max">The maximum value, must be greater than the min</param>
         /// <param name="style">A custom slider style.</param>
         /// <param name="t">The initial value between 0 and 1 that describes the value between the min and max.</param>
-        public static int Slider(int min, int max, in ImSliderStyle style, float t = 0f) {
+        public static int Slider(int min, int max, in ImSliderStyle style, float t = 0f)
+        {
             ImWindow window = ImGuiContext.GetCurrentWindow();
 
             // ------------------------------------------------
@@ -169,13 +183,13 @@ namespace InitialPrefabs.NimGui {
 
             // Find s, which will tell use how to lerp
             var s = HorizontalSliderInternal(
-                window, 
-                in id, 
-                min, 
+                window,
+                in id,
+                min,
                 max,
                 t,
-                in size, 
-                in style, 
+                in size,
+                in style,
                 out var rect);
 
             // ------------------------------------------------
@@ -196,7 +210,8 @@ namespace InitialPrefabs.NimGui {
         /// <param name="max">The maximum value, must be greater than the min</param>
         /// <param name="style">A custom slider style</param>
         /// <param name="t">The initial value between 0 and 1 that describes the value between the min and max.</param>
-        public static float Slider(string label, float min, float max, in ImSliderStyle style, float t = 0f) {
+        public static float Slider(string label, float min, float max, in ImSliderStyle style, float t = 0f)
+        {
             ImWindow window = ImGuiContext.GetCurrentWindow();
 
             ImTextStyle textStyle = style.GetTextStyle();
@@ -209,17 +224,18 @@ namespace InitialPrefabs.NimGui {
             // Generate the full progress bar rect
             // ------------------------------------------------
             float2 size = ImGui.CalculateRemainingLineSize(window, style.FontSize, in style.Padding);
+            size.x /= 10;// x 轴占据窗口的 1/10
 
             uint id = TextUtils.GetStringHash(label);
             // Find t, which will tell use how to lerp
             float s = HorizontalSliderInternal(
-                window, 
-                in id, 
-                in min, 
-                in max, 
+                window,
+                in id,
+                in min,
+                in max,
                 in t,
-                in size, 
-                in style, 
+                in size,
+                in style,
                 out ImRect rect);
 
             // ------------------------------------------------
@@ -238,8 +254,9 @@ namespace InitialPrefabs.NimGui {
         /// <param name="max">The maximum value, must be greater than the min.</param>
         /// <param name="style">A custom slider style.</param>
         /// <param name="t">The initial value between 0 and 1 that describes the value between the min and max.</param>
-        public static int Slider(string label, int min, int max, in ImSliderStyle style) {
-            ImWindow window  = ImGuiContext.GetCurrentWindow();
+        public static int Slider(string label, int min, int max, in ImSliderStyle style)
+        {
+            ImWindow window = ImGuiContext.GetCurrentWindow();
 
             ImTextStyle textStyle = style.GetTextStyle();
             textStyle.WithColumn(HorizontalAlignment.Left);
@@ -255,13 +272,13 @@ namespace InitialPrefabs.NimGui {
             uint id = TextUtils.GetStringHash(label);
             // Find t, which will tell use how to lerp
             float t = HorizontalSliderInternal(
-                window, 
-                in id, 
-                min, 
+                window,
+                in id,
+                min,
                 max,
                 0f,
-                in size, 
-                in style, 
+                in size,
+                in style,
                 out ImRect rect);
 
             int final = (int)math.lerp(min, max, t);
@@ -277,7 +294,8 @@ namespace InitialPrefabs.NimGui {
         /// <param name="min">The minimum value, must be less than the min</param>
         /// <param name="max">The maximum value, must be greater than the min</param>
         /// <param name="t">The initial value between 0 and 1 that describes the value between the min and max.</param>
-        public static int Slider(string label, int min, int max, float t = 0f) {
+        public static int Slider(string label, int min, int max, float t = 0f)
+        {
             var style = ImSliderStyle.New();
 
             var window = ImGuiContext.GetCurrentWindow();
@@ -289,17 +307,17 @@ namespace InitialPrefabs.NimGui {
             float2 lastSize = lastScope.Rect.Size;
 
             var size = TextUtils.CalculateSize(
-                in content, 
-                in fontFace, 
-                in glyphs, 
-                in lastSize.x, 
+                in content,
+                in fontFace,
+                in glyphs,
+                in lastSize.x,
                 in style.FontSize) + style.Padding;
 
             var textStyle = style.GetTextStyle();
             textStyle.WithColumn(HorizontalAlignment.Left);
             var rect = ImLayoutUtility.CreateRect(
-                in lastScope, 
-                in size, 
+                in lastScope,
+                in size,
                 in window.UnmanagedImWindow.ScrollOffset);
 
             size.x -= style.Padding.x;
@@ -317,7 +335,8 @@ namespace InitialPrefabs.NimGui {
         /// <param name="min">The minimum value, must be less than the min</param>
         /// <param name="max">The maximum value, must be greater than the min</param>
         /// <param name="t">The initial value between 0 and 1 that describes the value between the min and max.</param>
-        public static float Slider(string label, float min, float max, float t = 0f) {
+        public static float Slider(string label, float min, float max, float t = 0f)
+        {
             var style = ImSliderStyle.New();
             return Slider(label, min, max, in style, t);
         }

@@ -14,11 +14,15 @@ namespace Drawing {
 #endif
 		}
 
-		// Why an empty OnDrawGizmos method?
-		// This is because only objects with an OnDrawGizmos method will show up in Unity's menu for enabling/disabling
-		// the gizmos per object type (upper right corner of the scene view). So we need it here even though
-		// we don't use normal gizmos.
-		void OnDrawGizmos () {
+		/// <summary>
+		/// An empty OnDrawGizmosSelected method.
+		/// Why an empty OnDrawGizmosSelected method?
+		/// This is because only objects with an OnDrawGizmos/OnDrawGizmosSelected method will show up in Unity's menu for enabling/disabling
+		/// the gizmos per object type (upper right corner of the scene view). So we need it here even though we don't use normal gizmos.
+		///
+		/// By using OnDrawGizmosSelected instead of OnDrawGizmos we minimize the overhead of Unity calling this empty method.
+		/// </summary>
+		void OnDrawGizmosSelected () {
 		}
 
 		public virtual void DrawGizmos () {

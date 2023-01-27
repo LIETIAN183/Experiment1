@@ -1,12 +1,35 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.Collections;
 
 public static class FlowFieldUtility
 {
-    public static List<int2> GetNeighborIndices(int2 currentIndex, int2 gridSize)//IEnumerable<GridDirection> directions
+    /// <summary>
+    /// 8邻域
+    /// </summary>
+    /// <param name="currentIndex"></param>
+    /// <param name="gridSize"></param>
+    /// <returns></returns>
+    public static NativeList<int2> GetNeighborIndices(int2 currentIndex, int2 gridSize)//IEnumerable<GridDirection> directions
     {
-        var neighbors = new List<int2>();
+        var neighbors = new NativeList<int2>(Allocator.Temp);
         foreach (int2 relativeDir in GridDirection.CardinalAndIntercardinalDirections)
+        {
+            int2 neighborIndex = GetIndexAtRelativePosition(currentIndex, relativeDir, gridSize);
+            if (neighborIndex.x >= 0) neighbors.Add(neighborIndex);
+        }
+        return neighbors;
+    }
+    /// <summary>
+    /// 4邻域
+    /// </summary>
+    /// <param name="currentIndex"></param>
+    /// <param name="gridSize"></param>
+    /// <returns></returns>
+    public static NativeList<int2> GetBesideIndices(int2 currentIndex, int2 gridSize)//IEnumerable<GridDirection> directions
+    {
+        var neighbors = new NativeList<int2>(Allocator.Temp);
+        foreach (int2 relativeDir in GridDirection.CardinalDirections)
         {
             int2 neighborIndex = GetIndexAtRelativePosition(currentIndex, relativeDir, gridSize);
             if (neighborIndex.x >= 0) neighbors.Add(neighborIndex);
@@ -18,7 +41,8 @@ public static class FlowFieldUtility
         int2 finalPos = currentPos + relativePos;
         return (finalPos.x < 0 || finalPos.x >= gridSize.x || finalPos.y < 0 || finalPos.y >= gridSize.y) ? new int2(-1, -1) : finalPos;
     }
-    public static int ToFlatIndex(int2 index2D, int height) => height * index2D.x + index2D.y;
+    public static int ToFlatIndex(int2 index2D, int columnNumber) => columnNumber * index2D.x + index2D.y;
+    public static int ToFlatIndex(int x, int y, int columnNumber) => columnNumber * x + y;
     public static int2 GetCellIndexFromWorldPos(float3 worldPos, float3 originPoint, int2 gridSize, float3 cellDiameter)
     {
         float percentX = (worldPos.x - originPoint.x) / (gridSize.x * cellDiameter.x);

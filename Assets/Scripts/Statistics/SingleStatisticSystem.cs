@@ -60,7 +60,7 @@ public partial class SingleStatisticSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var data = GetSingleton<AccTimerData>();
+        var data = SystemAPI.GetSingleton<TimerData>();
         NativeQueue<bool> countQueue = new NativeQueue<bool>(Allocator.TempJob);
         var countWriter = countQueue.AsParallelWriter();
 
@@ -97,12 +97,12 @@ public partial class SingleStatisticSystem : SystemBase
         var curDetail = new Detail()
         {
             NO = summaries.Count + 1,
-            SeismicName = data.seismicName.ToString(),
-            simulationPGA = math.select(data.targetPGA, data.eventPGA, data.targetPGA.Equals(0)),
+            SeismicName = data.seismicEventName.ToString(),
+            simulationPGA = math.select(data.simPGA, data.eventPGA, data.simPGA.Equals(0)),
             time = data.elapsedTime,
-            xAcc = data.acc.x,
-            yAcc = data.acc.y,
-            zAcc = data.acc.z,
+            xAcc = data.curAcc.x,
+            yAcc = data.curAcc.y,
+            zAcc = data.curAcc.z,
             dropCount = countQueue.Count,
             escapedPedestrain = escaped,
             escapedPerSec = escaped - escapedPedestrain_Backup
@@ -112,10 +112,10 @@ public partial class SingleStatisticSystem : SystemBase
         countQueue.Dispose();
 
         // // 人数到达标准，结束仿真
-        if (escaped.Equals(GetSingleton<SpawnerData>().desireCount))//&& data.elapsedTime >= 50
+        if (escaped.Equals(SystemAPI.GetSingleton<SpawnerData>().desireCount))//&& data.elapsedTime >= 50
         {
             GetSummary();
-            World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<AccTimerSystem>().Enabled = false;
+            World.DefaultGameObjectInjectionWorld.Unmanaged.GetExistingSystemState<TimerSystem>().Enabled = false;
         }
     }
     public void ClearDataStorage()
@@ -126,7 +126,7 @@ public partial class SingleStatisticSystem : SystemBase
 
     public void GetSummary()
     {
-        var accData = GetSingleton<AccTimerData>();
+        var accData = SystemAPI.GetSingleton<TimerData>();
 
         NativeQueue<float> timeQueue = new NativeQueue<float>(Allocator.TempJob);
         NativeQueue<float> lengthQueue = new NativeQueue<float>(Allocator.TempJob);
@@ -151,8 +151,8 @@ public partial class SingleStatisticSystem : SystemBase
         var curSummary = new Summary()
         {
             NO = summaries.Count + 1,
-            SeismicName = accData.seismicName.ToString(),
-            simulationPGA = math.select(accData.targetPGA, accData.eventPGA, accData.targetPGA.Equals(0)),
+            SeismicName = accData.seismicEventName.ToString(),
+            simulationPGA = math.select(accData.simPGA, accData.eventPGA, accData.simPGA.Equals(0)),
             fullEscapeTime = accData.elapsedTime,
             // finalDropCount = countBridge[0],
             finalDropCount = details.Last().dropCount,
@@ -166,9 +166,9 @@ public partial class SingleStatisticSystem : SystemBase
         lengthQueue.Dispose();
         velQueue.Dispose();
 
-        var analysisSetting = GetSingleton<MultiRoundStatisticsData>();
+        var analysisSetting = SystemAPI.GetSingleton<MultiRoundStatisticsData>();
         analysisSetting.curStage = AnalysisStage.Recover;
-        SetSingleton<MultiRoundStatisticsData>(analysisSetting);
+        SystemAPI.SetSingleton<MultiRoundStatisticsData>(analysisSetting);
     }
 
     public void ExportData()

@@ -290,9 +290,6 @@ namespace Drawing {
 				if (type == Type.Static && submitted) return;
 				buildJob.Complete();
 				unsafe {
-					// Remove any existing meshes since we will generate new ones.
-					// We do not remove custom meshes because we do not regenerate those.
-					PoolMeshes(gizmos);
 					CommandBuilder.BuildMesh(gizmos, meshes, (MeshBuffers*)temporaryMeshBuffers.GetUnsafePtr());
 				}
 				submitted = true;
@@ -339,12 +336,13 @@ namespace Drawing {
 				}
 			}
 
-			void PoolMeshes (DrawingData gizmos) {
+			void PoolMeshes (DrawingData gizmos, bool includeCustom) {
 				if (!isValid) throw new System.InvalidOperationException();
 				var outIndex = 0;
 				for (int i = 0; i < meshes.Count; i++) {
-					// Custom meshes should never be pooled since they are supplied by the user
-					if ((meshes[i].type & MeshType.Custom) == 0) {
+					// Custom meshes should only be pooled if the Pool flag is set.
+					// Otherwise they are supplied by the user and it's up to them how to handle it.
+					if ((meshes[i].type & MeshType.Custom) == 0 || (includeCustom && (meshes[i].type & MeshType.Pool) != 0)) {
 						gizmos.PoolMesh(meshes[i].mesh);
 					} else {
 						// Retain custom meshes
@@ -355,9 +353,14 @@ namespace Drawing {
 				meshes.RemoveRange(outIndex, meshes.Count - outIndex);
 			}
 
+			public void PoolDynamicMeshes (DrawingData gizmos) {
+				if (type == Type.Static && submitted) return;
+				PoolMeshes(gizmos, false);
+			}
+
 			public void Release (DrawingData gizmos) {
 				if (!isValid) throw new System.InvalidOperationException();
-				PoolMeshes(gizmos);
+				PoolMeshes(gizmos, true);
 				// Clear custom meshes too
 				meshes.Clear();
 				type = Type.Invalid;
@@ -374,6 +377,11 @@ namespace Drawing {
 					temporaryMeshBuffers.Dispose();
 				}
 			}
+		}
+
+		internal struct SubmittedMesh {
+			public Mesh mesh;
+			public bool temporary;
 		}
 
 		[BurstCompile]
@@ -404,11 +412,14 @@ namespace Drawing {
 				const int UniqueIDBitshift = 17;
 				const int IsBuiltInFlagIndex = 16;
 				const int IndexMask = (1 << IsBuiltInFlagIndex) - 1;
+				const int MaxDataIndex = IndexMask;
+				public const int UniqueIdMask = (1 << (32 - UniqueIDBitshift)) - 1;
 
 
 				public BitPackedMeta (int dataIndex, int uniqueID, bool isBuiltInCommandBuilder) {
 					// Important to make ensure bitpacking doesn't collide
-					if (dataIndex > IndexMask) throw new System.Exception("Too many command builders active. Are some command builders not being disposed?");
+					if (dataIndex > MaxDataIndex) throw new System.Exception("Too many command builders active. Are some command builders not being disposed?");
+					UnityEngine.Assertions.Assert.IsTrue(uniqueID <= UniqueIdMask && uniqueID >= 0);
 
 					flags = (uint)(dataIndex | uniqueID << UniqueIDBitshift | (isBuiltInCommandBuilder ? 1 << IsBuiltInFlagIndex : 0));
 				}
@@ -452,20 +463,21 @@ namespace Drawing {
 			}
 
 			public BitPackedMeta packedMeta;
-			public List<Mesh> meshes;
+			public List<SubmittedMesh> meshes;
 			public NativeArray<UnsafeAppendBuffer> commandBuffers;
 			public State state { get; private set; }
 			// TODO?
 			public bool preventDispose;
 			JobHandle splitterJob;
 			JobHandle disposeDependency;
+			AllowedDelay disposeDependencyDelay;
 			System.Runtime.InteropServices.GCHandle disposeGCHandle;
 			public Meta meta;
 
 			public void Reserve (int dataIndex, bool isBuiltInCommandBuilder) {
 				if (state != State.Free) throw new System.InvalidOperationException();
 				state = BuilderData.State.Reserved;
-				packedMeta = new BitPackedMeta(dataIndex, (UniqueIDCounter++), isBuiltInCommandBuilder);
+				packedMeta = new BitPackedMeta(dataIndex, (UniqueIDCounter++) & BitPackedMeta.UniqueIdMask, isBuiltInCommandBuilder);
 			}
 
 			static int UniqueIDCounter = 0;
@@ -484,7 +496,7 @@ namespace Drawing {
 					cameraTargets = null,
 				};
 
-				if (meshes == null) meshes = new List<Mesh>();
+				if (meshes == null) meshes = new List<SubmittedMesh>();
 				if (!commandBuffers.IsCreated) {
 					commandBuffers = new NativeArray<UnsafeAppendBuffer>(JobsUtility.MaxJobThreadCount, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
 					for (int i = 0; i < commandBuffers.Length; i++) commandBuffers[i] = new UnsafeAppendBuffer(0, 4, Allocator.Persistent);
@@ -523,9 +535,10 @@ namespace Drawing {
 			unsafe delegate void ResetAllBuffersToDelegate(UnsafeAppendBuffer* buffers, int numBuffers);
 			private readonly unsafe static ResetAllBuffersToDelegate ResetAllBuffersToInvoke = BurstCompiler.CompileFunctionPointer<ResetAllBuffersToDelegate>(ResetAllBuffers).Invoke;
 
-			public void SubmitWithDependency (System.Runtime.InteropServices.GCHandle gcHandle, JobHandle dependency) {
+			public void SubmitWithDependency (System.Runtime.InteropServices.GCHandle gcHandle, JobHandle dependency, AllowedDelay allowedDelay) {
 				state = State.WaitingForUserDefinedJob;
 				disposeDependency = dependency;
+				disposeDependencyDelay = allowedDelay;
 				disposeGCHandle = gcHandle;
 			}
 
@@ -586,7 +599,7 @@ namespace Drawing {
 					var customMeshes = gizmos.processedData.Get(dynamicBuffer).meshes;
 
 					// Copy meshes to render
-					for (int i = 0; i < meshes.Count; i++) customMeshes.Add(new MeshWithType { mesh = meshes[i], type = MeshType.Solid | MeshType.Custom });
+					for (int i = 0; i < meshes.Count; i++) customMeshes.Add(new MeshWithType { mesh = meshes[i].mesh, type = MeshType.Solid | MeshType.Custom | (meshes[i].temporary ? MeshType.Pool : 0) });
 					meshes.Clear();
 				}
 
@@ -600,8 +613,8 @@ namespace Drawing {
 				state = State.WaitingForSplitter;
 			}
 
-			public void CheckJobDependency (DrawingData gizmos) {
-				if (state == State.WaitingForUserDefinedJob && disposeDependency.IsCompleted) {
+			public void CheckJobDependency (DrawingData gizmos, bool allowBlocking) {
+				if (state == State.WaitingForUserDefinedJob && (disposeDependency.IsCompleted || (allowBlocking && disposeDependencyDelay == AllowedDelay.EndOfFrame))) {
 					disposeDependency.Complete();
 					disposeDependency = default;
 					disposeGCHandle.Free();
@@ -694,11 +707,10 @@ namespace Drawing {
 
 			public void DisposeCommandBuildersWithJobDependencies (DrawingData gizmos) {
 				if (data == null) return;
-				for (int i = 0; i < data.Length; i++) {
-					if (data[i].state == BuilderData.State.WaitingForUserDefinedJob) {
-						data[i].CheckJobDependency(gizmos);
-					}
-				}
+				for (int i = 0; i < data.Length; i++) data[i].CheckJobDependency(gizmos, false);
+				Profiler.BeginSample("Awaiting user dependencies");
+				for (int i = 0; i < data.Length; i++) data[i].CheckJobDependency(gizmos, true);
+				Profiler.EndSample();
 			}
 
 			public void ReleaseAllUnused () {
@@ -721,12 +733,16 @@ namespace Drawing {
 
 		internal struct ProcessedBuilderDataContainer {
 			ProcessedBuilderData[] data;
+			Dictionary<ulong, List<int> > hash2index;
 			Stack<int> freeSlots;
+			Stack<List<int> > freeLists;
 
 			public int Reserve (ProcessedBuilderData.Type type, BuilderData.Meta meta) {
 				if (data == null) {
 					data = new ProcessedBuilderData[0];
 					freeSlots = new Stack<int>();
+					freeLists = new Stack<List<int> >();
+					hash2index = new Dictionary<ulong, List<int> >();
 				}
 				if (freeSlots.Count == 0) {
 					var newData = new ProcessedBuilderData[math.max(4, data.Length*2)];
@@ -736,6 +752,14 @@ namespace Drawing {
 				}
 				int index = freeSlots.Pop();
 				data[index].Init(type, meta);
+				if (!meta.hasher.Equals(Hasher.NotSupplied)) {
+					List<int> ls;
+					if (!hash2index.TryGetValue(meta.hasher.Hash, out ls)) {
+						if (freeLists.Count == 0) freeLists.Push(new List<int>());
+						ls = hash2index[meta.hasher.Hash] = freeLists.Pop();
+					}
+					ls.Add(index);
+				}
 				return index;
 			}
 
@@ -745,6 +769,17 @@ namespace Drawing {
 			}
 
 			void Release (DrawingData gizmos, int i) {
+				var h = data[i].meta.hasher.Hash;
+
+				if (!data[i].meta.hasher.Equals(Hasher.NotSupplied)) {
+					if (hash2index.TryGetValue(h, out var ls)) {
+						ls.Remove(i);
+						if (ls.Count == 0) {
+							freeLists.Push(ls);
+							hash2index.Remove(h);
+						}
+					}
+				}
 				data[i].Release(gizmos);
 				freeSlots.Push(i);
 			}
@@ -774,6 +809,21 @@ namespace Drawing {
 				Profiler.EndSample();
 			}
 
+			/// <summary>
+			/// Remove any existing dynamic meshes since we know we will not need them after this frame.
+			/// We do not remove custom meshes or static ones because those may be kept between frames and cameras.
+			/// </summary>
+			public void PoolDynamicMeshes (DrawingData gizmos) {
+				if (data == null) return;
+				Profiler.BeginSample("Pool");
+				for (int i = 0; i < data.Length; i++) {
+					if (data[i].isValid) {
+						data[i].PoolDynamicMeshes(gizmos);
+					}
+				}
+				Profiler.EndSample();
+			}
+
 			public void CollectMeshes (int versionThreshold, List<RenderedMeshWithType> meshes, Camera camera, bool allowGizmos, bool allowCameraDefault) {
 				if (data == null) return;
 				for (int i = 0; i < data.Length; i++) {
@@ -794,15 +844,19 @@ namespace Drawing {
 
 			public bool SetVersion (Hasher hasher, int version) {
 				if (data == null) return false;
-				bool found = false;
 
-				for (int i = 0; i < data.Length; i++) {
-					if (data[i].isValid && data[i].meta.hasher.Hash == hasher.Hash) {
+				if (hash2index.TryGetValue(hasher.Hash, out var indices)) {
+					UnityEngine.Assertions.Assert.IsTrue(indices.Count > 0);
+					for (int id = 0; id < indices.Count; id++) {
+						var i = indices[id];
+						UnityEngine.Assertions.Assert.IsTrue(data[i].isValid);
+						UnityEngine.Assertions.Assert.AreEqual(data[i].meta.hasher.Hash, hasher.Hash);
 						data[i].meta.version = version;
-						found = true;
 					}
+					return true;
+				} else {
+					return false;
 				}
-				return found;
 			}
 
 			public bool SetVersion (RedrawScope scope, int version) {
@@ -820,15 +874,19 @@ namespace Drawing {
 
 			public bool SetCustomScope (Hasher hasher, RedrawScope scope) {
 				if (data == null) return false;
-				bool found = false;
 
-				for (int i = 0; i < data.Length; i++) {
-					if (data[i].isValid && data[i].meta.hasher.Hash == hasher.Hash) {
+				if (hash2index.TryGetValue(hasher.Hash, out var indices)) {
+					UnityEngine.Assertions.Assert.IsTrue(indices.Count > 0);
+					for (int id = 0; id < indices.Count; id++) {
+						var i = indices[id];
+						UnityEngine.Assertions.Assert.IsTrue(data[i].isValid);
+						UnityEngine.Assertions.Assert.AreEqual(data[i].meta.hasher.Hash, hasher.Hash);
 						data[i].meta.redrawScope2 = scope;
-						found = true;
 					}
+					return true;
+				} else {
+					return false;
 				}
-				return found;
 			}
 
 			public void ReleaseDataOlderThan (DrawingData gizmos, int version) {
@@ -866,6 +924,9 @@ namespace Drawing {
 			Text = 1 << 2,
 			// Set if the mesh is not a built-in mesh. These may have non-identity matrices set.
 			Custom = 1 << 3,
+			// If set for a custom mesh, the mesh will be pooled.
+			// This is used for temporary custom meshes that are created by ALINE
+			Pool = 1 << 4,
 		}
 
 		internal struct MeshWithType {
@@ -886,7 +947,12 @@ namespace Drawing {
 		internal BuilderDataContainer data;
 		internal ProcessedBuilderDataContainer processedData;
 		List<RenderedMeshWithType> meshes = new List<RenderedMeshWithType>();
-		Stack<Mesh> cachedMeshes = new Stack<Mesh>();
+		List<Mesh> cachedMeshes = new List<Mesh>();
+		List<Mesh> stagingCachedMeshes = new List<Mesh>();
+#if USE_RAW_GRAPHICS_BUFFERS
+		List<Mesh> stagingCachedMeshesDelay = new List<Mesh>();
+#endif
+		int lastTimeLargestCachedMeshWasUsed = 0;
 		internal SDFLookupData fontData;
 		int currentDrawOrderIndex = 0;
 
@@ -925,16 +991,38 @@ namespace Drawing {
 			return currentDrawOrderIndex;
 		}
 
-		void PoolMesh (Mesh mesh) {
+		internal void PoolMesh (Mesh mesh) {
 			// Note: clearing the mesh here will deallocate the vertex/index buffers
 			// This is not good for performance as it will have to be allocated again (likely with the same size) in the next frame
 			//mesh.Clear();
-			cachedMeshes.Push(mesh);
+			stagingCachedMeshes.Add(mesh);
 		}
 
-		internal Mesh GetMesh () {
+		void SortPooledMeshes () {
+			// TODO: Is accessing the vertex count slow?
+			cachedMeshes.Sort((a, b) => b.vertexCount - a.vertexCount);
+		}
+
+		internal Mesh GetMesh (int desiredVertexCount) {
 			if (cachedMeshes.Count > 0) {
-				return cachedMeshes.Pop();
+				// Do a binary search to find the smallest cached mesh which is larger or equal to the desired vertex count
+				// TODO: We should actually compare the byte size of the vertex buffer, not the number of vertices because
+				// the vertex size can change depending on the mesh attribute layout.
+				int mn = 0;
+				int mx = cachedMeshes.Count;
+				while (mx > mn + 1) {
+					int mid = (mn+mx)/2;
+					if (cachedMeshes[mid].vertexCount < desiredVertexCount) {
+						mx = mid;
+					} else {
+						mn = mid;
+					}
+				}
+
+				var res = cachedMeshes[mn];
+				if (mn == 0) lastTimeLargestCachedMeshWasUsed = version;
+				cachedMeshes.RemoveAt(mn);
+				return res;
 			} else {
 				var mesh = new Mesh {
 					hideFlags = HideFlags.DontSave
@@ -947,6 +1035,7 @@ namespace Drawing {
 		internal void LoadFontDataIfNecessary () {
 			if (fontData.material == null) {
 				var font = DefaultFonts.LoadDefaultFont();
+				fontData.Dispose();
 				fontData = new SDFLookupData(font);
 			}
 		}
@@ -1022,6 +1111,8 @@ namespace Drawing {
 		/// <summary>Material to use for text</summary>
 		public Material textMaterial;
 
+		public DrawingSettings settingsAsset;
+
 		public int version { get; private set; } = 1;
 		int lastTickVersion;
 		int lastTickVersion2;
@@ -1083,6 +1174,35 @@ namespace Drawing {
 			lastTickVersion2 = lastTickVersion;
 			lastTickVersion = version;
 			currentDrawOrderIndex = 0;
+
+			// Pooled meshes from two frames ago can now be used.
+#if USE_RAW_GRAPHICS_BUFFERS
+			// One would think that pooled meshes from only one frame ago can be used.
+			// And yes, Unity will allow this, but the GPU may still be working on the meshes from the previous frame.
+			// Therefore, when we try to write to the raw mesh vertex buffers Unity will block until the previous
+			// frame's GPU work is done, which may take a long time.
+			// Using "double buffering" for the meshes that are updated every frame is more efficient.
+			// When we use simplified methods for setting the vertex/index data we don't have to do this
+			// because Unity seems to manage an upload buffer or something for us.
+			cachedMeshes.AddRange(stagingCachedMeshesDelay);
+			// Move stagingCachedMeshes to stagingCachedMeshesDelay, and make stagingCachedMeshes an empty list.
+			stagingCachedMeshesDelay.Clear();
+			var tmp = stagingCachedMeshesDelay;
+			stagingCachedMeshesDelay = stagingCachedMeshes;
+			stagingCachedMeshes = tmp;
+#else
+			cachedMeshes.AddRange(stagingCachedMeshes);
+			stagingCachedMeshes.Clear();
+#endif
+			SortPooledMeshes();
+
+			// If the largest cached mesh hasn't been used in a while, then remove it to free up the memory
+			if (version - lastTimeLargestCachedMeshWasUsed > 60 && cachedMeshes.Count > 0) {
+				Mesh.DestroyImmediate(cachedMeshes[0]);
+				cachedMeshes.RemoveAt(0);
+				lastTimeLargestCachedMeshWasUsed = version;
+			}
+
 			// TODO: Filter cameraVersions to avoid memory leak
 		}
 
@@ -1098,46 +1218,45 @@ namespace Drawing {
 		// Temporary block, cached to avoid allocations
 		MaterialPropertyBlock customMaterialProperties = new MaterialPropertyBlock();
 
-		void ConfigureMaterialFeature (Material material, DetectedRenderPipeline detectedRenderPipeline) {
-			if (material) {
-				if (detectedRenderPipeline == DetectedRenderPipeline.HDRP) {
-					material.EnableKeyword("UNITY_HDRP");
-				} else {
-					material.DisableKeyword("UNITY_HDRP");
-				}
-			}
-		}
-
-		void LoadMaterials (DetectedRenderPipeline detectedRenderPipeline) {
+		void LoadMaterials () {
 			// Make sure the material references are correct
 
 			// Note: When importing the package for the first time the asset database may not be up to date and Resources.Load may return null.
 
 			if (surfaceMaterial == null) {
-				surfaceMaterial = Resources.Load<Material>("aline_surface");
-				ConfigureMaterialFeature(surfaceMaterial, detectedRenderPipeline);
+				surfaceMaterial = Resources.Load<Material>("aline_surface_mat");
 			}
 			if (lineMaterial == null) {
-				lineMaterial = Resources.Load<Material>("aline_outline");
-				ConfigureMaterialFeature(lineMaterial, detectedRenderPipeline);
+				lineMaterial = Resources.Load<Material>("aline_outline_mat");
 			}
 			if (fontData.material == null) {
 				var font = DefaultFonts.LoadDefaultFont();
+				fontData.Dispose();
 				fontData = new SDFLookupData(font);
-				ConfigureMaterialFeature(fontData.material, detectedRenderPipeline);
 			}
 		}
 
 		public DrawingData() {
-			LoadMaterials(DetectedRenderPipeline.BuiltInOrCustom);
+			LoadMaterials();
+		}
+
+		static int CeilLog2 (int x) {
+			// Should use `math.ceillog2` whenever we next raise the minimum compatible version of the mathematics package.
+			// This variant is prone to floating point errors.
+			return (int)math.ceil(math.log2(x));
 		}
 
 		/// <summary>Call after all <see cref="Draw"/> commands for the frame have been done to draw everything.</summary>
 		/// <param name="allowCameraDefault">Indicates if built-in command builders and custom ones without a custom CommandBuilder.cameraTargets should render to this camera.</param>
-		public void Render (Camera cam, bool allowGizmos, CommandBuffer commandBuffer, bool allowCameraDefault, DetectedRenderPipeline detectedRenderPipeline) {
-			Profiler.BeginSample("Draw Retained Gizmos");
+		public void Render (Camera cam, bool allowGizmos, CommandBuffer commandBuffer, bool allowCameraDefault) {
+			LoadMaterials();
 
-			LoadMaterials(detectedRenderPipeline);
+			if (settingsAsset == null) {
+				settingsAsset = DrawingSettings.GetSettingsAsset();
+				if (settingsAsset == null) {
+					throw new System.InvalidOperationException("ALINE settings could not be found");
+				}
+			}
 
 			// Warn if the materials could not be found
 			if (surfaceMaterial == null || lineMaterial == null) {
@@ -1193,6 +1312,7 @@ namespace Drawing {
 				Profiler.BeginSample("Collect Meshes");
 				meshes.Clear();
 				processedData.CollectMeshes(cameraRenderingRange.start, meshes, cam, allowGizmos, allowCameraDefault);
+				processedData.PoolDynamicMeshes(this);
 				Profiler.EndSample();
 				Profiler.BeginSample("Sorting Meshes");
 				// Note that a stable sort is required as some meshes may have the same sorting index
@@ -1201,12 +1321,30 @@ namespace Drawing {
 				Profiler.EndSample();
 
 				int colorID = Shader.PropertyToID("_Color");
-				var baseColor = surfaceMaterial.GetColor(colorID);
+				int colorFadeID = Shader.PropertyToID("_FadeColor");
+				var settings = settingsAsset.settings;
+				var solidBaseColor = new Color(1, 1, 1, settings.solidOpacity);
+				var solidFadeColor = new Color(1, 1, 1, settings.solidOpacityBehindObjects);
+				var lineBaseColor = new Color(1, 1, 1, settings.lineOpacity);
+				var lineFadeColor = new Color(1, 1, 1, settings.lineOpacityBehindObjects);
+				var textBaseColor = new Color(1, 1, 1, settings.textOpacity);
+				var textFadeColor = new Color(1, 1, 1, settings.textOpacityBehindObjects);
 
 				// First surfaces, then lines
 				for (int matIndex = 0; matIndex <= 2; matIndex++) {
 					var mat = matIndex == 0 ? surfaceMaterial : (matIndex == 1 ? lineMaterial : fontData.material);
 					var meshType = matIndex == 0 ? MeshType.Solid : (matIndex == 1 ? MeshType.Lines : MeshType.Text);
+					customMaterialProperties.Clear();
+					if (matIndex == 0) {
+						customMaterialProperties.SetColor(colorID, solidBaseColor);
+						customMaterialProperties.SetColor(colorFadeID, solidFadeColor);
+					} else if (matIndex == 1) {
+						customMaterialProperties.SetColor(colorID, lineBaseColor);
+						customMaterialProperties.SetColor(colorFadeID, lineFadeColor);
+					} else if (matIndex == 2) {
+						customMaterialProperties.SetColor(colorID, textBaseColor);
+						customMaterialProperties.SetColor(colorFadeID, textFadeColor);
+					}
 
 					for (int pass = 0; pass < mat.passCount; pass++) {
 						for (int i = 0; i < meshes.Count; i++) {
@@ -1216,12 +1354,13 @@ namespace Drawing {
 									// This mesh type may have a matrix set. So we need to handle that
 									if (GeometryUtility.TestPlanesAABB(planes, TransformBoundingBox(mesh.matrix, mesh.mesh.bounds))) {
 										// Custom meshes may have different colors
-										customMaterialProperties.SetColor(colorID, baseColor * mesh.color);
+										customMaterialProperties.SetColor(colorID, solidBaseColor * mesh.color);
 										commandBuffer.DrawMesh(mesh.mesh, mesh.matrix, mat, 0, pass, customMaterialProperties);
+										customMaterialProperties.SetColor(colorID, solidBaseColor);
 									}
 								} else if (GeometryUtility.TestPlanesAABB(planes, mesh.mesh.bounds)) {
 									// This mesh is drawn with an identity matrix
-									commandBuffer.DrawMesh(mesh.mesh, Matrix4x4.identity, mat, 0, pass, null);
+									commandBuffer.DrawMesh(mesh.mesh, Matrix4x4.identity, mat, 0, pass, customMaterialProperties);
 								}
 							}
 						}
@@ -1233,7 +1372,6 @@ namespace Drawing {
 
 			cameraVersions[cam] = cameraRenderingRange;
 			version++;
-			Profiler.EndSample();
 		}
 
 		/// <summary>Returns a new axis aligned bounding box that contains the given bounding box after being transformed by the matrix</summary>
@@ -1265,9 +1403,10 @@ namespace Drawing {
 			data.Dispose();
 			processedData.Dispose(this);
 
-			while (cachedMeshes.Count > 0) {
-				Mesh.DestroyImmediate(cachedMeshes.Pop());
+			for (int i = 0; i < cachedMeshes.Count; i++) {
+				Mesh.DestroyImmediate(cachedMeshes[i]);
 			}
+			cachedMeshes.Clear();
 
 			UnityEngine.Assertions.Assert.IsTrue(meshes.Count == 0);
 			fontData.Dispose();

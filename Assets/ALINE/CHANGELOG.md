@@ -1,3 +1,87 @@
+## 1.6.4 (2022-09-17)
+    - \reflink{CommandBuilder.DisposeAfter} will now block on the given dependency before rendering the current frame by default.
+        This reduces the risk of flickering when using ECS systems as they may otherwise not have completed their work before the frame is rendered.
+        You can pass \reflink{AllowedDelay.Infinite} to disable this behavior for long-running jobs.
+    - Fixed recent regression causing drawing to fail in standalone builds.
+
+## 1.6.3 (2022-09-15)
+    - Added \reflink{LabelAlignment.withPixelOffset}.
+    - Fixed \reflink{LabelAlignment} had top and bottom alignment swapped. So for example \reflink{LabelAlignment.TopLeft} was actually \reflink{LabelAlignment.BottomLeft}.
+    - Fixed shaders would sometimes cause compilation errors, especially if you changed render pipelines.
+    - Improved sharpness of \reflink{Draw.Label2D} and \reflink{Draw.Label3D} when using small font-sizes.\n
+        <table>
+        <tr><td>Before</td><td>After</td></tr>
+        <tr>
+        <td>
+        \shadowimage{changelog/text_blurry_small.png}
+        </td>
+        <td>
+        \shadowimage{changelog/text_sharp_small.png}
+        </td>
+        </table>
+    - Text now fades out slightly when behind or inside other objects. The fade out amount can be controlled in the project settings:
+        \shadowimage{changelog/text_opacity.png}
+    - Fixed \reflink{Draw.Label2D} and \reflink{Draw.Label3D} font sizes would be incorrect (half as large) when the camera was in orthographic mode.
+    - Fixed \reflink{Draw.WireCapsule} and \reflink{Draw.WireCylinder} would render incorrectly in certain orientations.
+
+## 1.6.2 (2022-09-05)
+    - Fix typo causing prefabs to always be drawn in the scene view in Unity versions earlier than 2022.1, even if they were not even added to the scene.
+
+## 1.6.1 (2022-08-31)
+    - Fix vertex buffers not getting resized correctly. This could cause exceptions to be logged sometimes. Regression in 1.6.
+
+## 1.6 (2022-08-27)
+    - Fixed documentation and changelog URLs in the package manager.
+    - Fixed dragging a prefab into the scene view would instantiate it, but gizmos for scripts attached to it would not work.
+    - Fixed some edge cases in \reflink{Draw.WireCapsule} and \reflink{Draw.WireCapsule} which could cause NaNs and other subtle errors.
+    - Improved compatibility with WebGL as well as Intel GPUs on Mac.
+    - Added warning when using HDRP and custom passes are disabled.
+    - Improved performance of watching for destroyed objects.
+    - Reduced overhead when having lots of objects inheriting from \reflink{MonoBehaviourGizmos}.
+    - It's now possible to enable/disable gizmos for component types via the Unity Scene View Gizmos menu when using render pipelines in Unity 2022.1+.
+        In earlier versions of Unity, a limited API made this impossible.
+    - Made it possible to adjust the global opacity of gizmos in the Unity Project Settings.
+        \shadowimage{changelog/settings.png}
+
+## 1.5.3 (2022-05-14)
+    - Breaking changes
+        - The minimum supported Unity version is now 2020.3.
+    - The URP 2D renderer now has support for all features required by ALINE. So the warning about it not being supported has been removed.
+    - Fixed windows newlines (\n\r) would show up as a newline and a question mark instead of just a newline.
+    - Fixed compilation errors when using the Unity.Collections package between version 0.8 and 0.11.
+    - Improved performance in some edge cases.
+    - Fixed \reflink{Draw.SolidMesh} with a non-white color could affect the color of unrelated rendered lines. Thanks Chris for finding and reporting the bug.
+    - Fixed an exception could be logged when drawing circles with a zero or negative line width.
+    - Fixed various compilation errors that could show up when using newer versions of the burst package.
+
+## 1.5.2 (2021-11-09)
+    - Fix gizmos would not show up until you selected the camera if you had just switched to the universal render pipeline.
+    - Improved performance of drawing lines by more efficiently sending the data to the shader.
+        This has the downside that shader target 4.5 is now required. I don't think this should be a big deal nowadays, but let me know if things don't work on your platform.
+        This was originally introduced in 1.5.0, but reverted in 1.5.1 due to some compatibility issues causing rendering to fail for some project configurations. I think those issues should be resolved now.
+
+## 1.5.1 (2021-10-28)
+    - Reverted "Improved performance of drawing lines by more efficiently sending the data to the shader." from 1.5.0.
+        It turns out this caused issues for some users and could result in gizmos not showing at all.
+        I'll try to figure out a solution and bring the performance improvements back.
+
+## 1.5 (2021-10-27)
+    - Added support FixedStrings in \reflink{Draw.Label2D(float3,FixedString32Bytes,float)}, which means it can be used inside burst jobs (C# managed strings cannot be used in burst jobs).
+    - Fixed a 'NativeArray has not been disposed' error message that could show up if the whole project's assets were re-imported.
+    - Added \reflink{Draw.SolidCircle}.
+       \shadowimage{rendered/solidcircle.png}
+    - Added \reflink{Draw.SolidCircleXZ}.
+       \shadowimage{rendered/solidcirclexz.png}
+    - Added \reflink{Draw.SolidArc}.
+       \shadowimage{rendered/solidarc.png}
+    - Added \reflink{Draw.Label3D}
+        \shadowimage{rendered/label3d.png}
+    - Improved performance of \reflink{Draw.WirePlane} and \reflink{Draw.WireRectangle} by making them primitives instead of just calling \reflink{Draw.Line} 4 times.
+    - Improved performance in general by more efficiently re-using existing vertex buffers.
+    - Fixed some warnings related to ENABLE_UNITY_COLLECTIONS_CHECKS which burst would log when building a standalone player.
+    - Changed more functions in the \reflink{Draw} class to take a Unity.Mathematics.quaternion instead of a UnityEngine.Quaternion.
+        Implicit conversions exist in both directions, so there is no need to change your code.
+
 ## 1.4.3 (2021-09-04)
     - Fixed some debug printout had been included by mistake. A "Disposing" message could sometimes show up in the console.
 
@@ -23,7 +107,7 @@
             This method has been changed so that it now matches the documentation as this was the intended behavior all along.
             The documentation and parameter names have also been clarified.
     - Added \reflink{Draw.SolidRectangle(Rect)}.
-    - Fixed \reflink{Draw.SolidBox(float3,Quaternion,float3)} and \reflink{Draw.WireBox(float3,Quaternion,float3)} rendered a box that was offset by 0.5 times the size of the box.
+    - Fixed \reflink{Draw.SolidBox(float3,quaternion,float3)} and \reflink{Draw.WireBox(float3,quaternion,float3)} rendered a box that was offset by 0.5 times the size of the box.
         This bug only applied to the overload with a rotation, not for example to \reflink{Draw.SolidBox(float3,float3)}.
     - Fixed Draw.SolidMesh would always be rendered at the world origin with a white color. Now it picks up matrices and colors properly.
     - Fixed a bug which could cause a greyed out object called 'RetainedGizmos' to appear in the scene hierarchy.

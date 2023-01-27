@@ -14,7 +14,7 @@ public partial class SeismicActiveSystem : SystemBase
     }
     protected override void OnUpdate()
     {
-        if (World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<AccTimerSystem>().Enabled)
+        if (World.DefaultGameObjectInjectionWorld.Unmanaged.GetExistingSystemState<TimerSystem>().Enabled)
         {
             var ecb = m_EndSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 

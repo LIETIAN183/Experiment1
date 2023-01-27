@@ -22,7 +22,7 @@ namespace Drawing.Examples {
 					for (int k = 0; k < 2; k++) {
 						for (int i = 0; i < 4; i++) {
 							// Draw with a few different line widths
-							using (draw.WithLineWidth(i*i+1, k == 1)) {
+							using (draw.WithLineWidth(i*i+1, true)) {
 								float angle = Mathf.PI * 0.25f * (i+1) + Time.time * i;
 								Vector3 offset = new Vector3(-0.3f + i * 0.2f, k * 0.2f - 0.1f);
 								float radius = 0.075f;
