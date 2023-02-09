@@ -1,3 +1,3 @@
 using Unity.Entities;
 
-public struct Escaped : IComponentData { }
+public struct Escaped : IComponentData, IEnableableComponent { }

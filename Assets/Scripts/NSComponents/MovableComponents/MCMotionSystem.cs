@@ -20,10 +20,8 @@ public partial struct MCMotionSystem : ISystem, ISystemStartStop
     [BurstCompile]
     public void OnStartRunning(ref SystemState state)
     {
-        // 仿真开始前重置 MCData
-        var resetJob = new ResetMCData();
-        // 确保更新 MCData 前，数据均已重置完毕
-        resetJob.ScheduleParallel(state.Dependency).Complete();
+        // 仿真开始前重置 MCData, 且重置完毕后再 Update
+        new ResetMCData().ScheduleParallel(state.Dependency).Complete();
     }
     [BurstCompile]
     public void OnStopRunning(ref SystemState state) { }
@@ -31,14 +29,14 @@ public partial struct MCMotionSystem : ISystem, ISystemStartStop
     public void OnUpdate(ref SystemState state)
     {
         var timerData = SystemAPI.GetSingleton<TimerData>();
-        var job = new UpdateMCMotion
+        var mcJob = new UpdateMCMotion
         {
             // 设置时间间隔，地震加速度，当前垂直重力加速度
             deltaTime = SystemAPI.Time.DeltaTime,
             seismicAcc = timerData.curAcc * timerData.envEnhanceFactor,
             currentGravity = Constants.gravity - timerData.curAcc.y
         }.ScheduleParallel(state.Dependency);
-        state.Dependency = job;
+        state.Dependency = mcJob;
     }
 }
 

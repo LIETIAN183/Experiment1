@@ -1,3 +1,3 @@
 using Unity.Entities;
 
-public struct Reaction : IComponentData { }
+public struct Reaction : IComponentData, IEnableableComponent { }

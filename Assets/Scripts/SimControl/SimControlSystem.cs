@@ -4,6 +4,8 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Burst;
 using Unity.Jobs;
+using Unity.Physics;
+using Unity.Collections;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateBefore(typeof(TimerSystem))]
 [BurstCompile]
@@ -29,16 +31,12 @@ public partial struct SimControlSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-
-
         StartCheck(ref state);
         EndCheck(ref state);
     }
 
     public void StartCheck(ref SystemState state)
     {
-
-
         var startEvent = SystemAPI.GetComponent<StartSeismicEvent>(state.SystemHandle);
         if (startEvent.isActivate)
         {
@@ -59,10 +57,20 @@ public partial struct SimControlSystem : ISystem
 
             var simulationSetting = SystemAPI.GetSingleton<SimConfigData>();
             var spawnerData = SystemAPI.GetSingleton<SpawnerData>();
-            if (simulationSetting.simAgent && !spawnerData.canSpawn)
+            if (simulationSetting.simAgent && spawnerData.currentCount < spawnerData.desireCount)
             {
-                spawnerData.canSpawn = true;
-                SystemAPI.SetSingleton(spawnerData);
+                // 这里需要 Allocator.Persistent，因为生成 Agent 需要花费较多时间， Allocator.TempJob 时间不够
+                var ecb = new EntityCommandBuffer(Allocator.Persistent);
+
+                new SpawnerJob
+                {
+                    ecb = ecb,
+                    physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
+                    randomInitSeed = (uint)(SystemAPI.Time.ElapsedTime * 1000),
+                }.Schedule(state.Dependency).Complete();
+                ecb.Playback(state.EntityManager);
+                ecb.Dispose();
+
                 var message = SystemAPI.GetSingleton<MessageEvent>();
                 message.isActivate = true;
                 message.message = "Spawning Agents";
@@ -71,16 +79,10 @@ public partial struct SimControlSystem : ISystem
             }
 
             // TODO: MultiRound Error
-            SystemInit(ref state).Complete();
-            // var initJob = new TimerInitJob
-            // {
-            //     eventIndex = 0,
-            //     simPGA = 0,
-            //     em = state.EntityManager
-            // };
-            // initJob.Schedule(state.Dependency).Complete();
+            SystemInit(ref state, startEvent.index, startEvent.targetPGA).Complete();
 
             SubSystemManager(ref state, true);
+
         }
     }
 
@@ -98,50 +100,50 @@ public partial struct SimControlSystem : ISystem
         }
     }
 
-    public JobHandle SystemInit(ref SystemState state)
+    public JobHandle SystemInit(ref SystemState state, int eventIndex, float simPGA)
     {
         var initJobDependency = new TimerInitJob
         {
-            eventIndex = 0,
-            simPGA = 0
+            eventIndex = eventIndex,
+            simPGA = simPGA
         }.Schedule(state.Dependency);
 
         return initJobDependency;
     }
 
+    [BurstCompile]
     private void SubSystemManager(ref SystemState state, bool enabled)
     {
-        if (!SystemAPI.HasSingleton<SimConfigData>()) return;
-        var setting = SystemAPI.GetSingleton<SimConfigData>();
+        var unmanagedWorld = state.WorldUnmanaged;
+        unmanagedWorld.GetExistingSystemState<TimerSystem>().Enabled = enabled;
 
-        state.WorldUnmanaged.GetExistingSystemState<TimerSystem>().Enabled = true;
+        if (!SystemAPI.TryGetSingleton<SimConfigData>(out var setting)) return;
 
         if (setting.simEnvironment)
         {
             // 环境系统
-            state.WorldUnmanaged.GetExistingSystemState<MCMotionSystem>().Enabled = enabled;
-            state.WorldUnmanaged.GetExistingSystemState<FCOscSystem>().Enabled = enabled;
+            unmanagedWorld.GetExistingSystemState<MCMotionSystem>().Enabled = enabled;
+            unmanagedWorld.GetExistingSystemState<FCOscSystem>().Enabled = enabled;
 
             if (setting.itemDestructible)
             {
-                state.WorldUnmanaged.GetExistingSystemState<DestructionSystem>().Enabled = enabled;
+                unmanagedWorld.GetExistingSystemState<DestructionSystem>().Enabled = enabled;
             }
         }
 
-        if (setting.simFlowField)
-        {
-            // 路径算法
-            state.WorldUnmanaged.GetExistingSystemState<FlowFieldSystem>().Enabled = enabled;
-        }
+        // 路径算法
+        // 因为计算需要时间，不然路径计算会比其他系统晚一定时间，因此需要提前开启
+        // 所以只有在不需要路径算法的时候，关闭即可
+        unmanagedWorld.GetExistingSystemState<FlowFieldSystem>().Enabled = setting.simFlowField;
 
         if (setting.simAgent)
         {
             // 行人状态切换
-            state.World.GetExistingSystemManaged<SeismicActiveSystem>().Enabled = enabled;
-            state.World.GetExistingSystemManaged<CheckReachedDestinationSystem>().Enabled = enabled;
-
+            unmanagedWorld.GetExistingSystemState<AgentStateChangeSystem>().Enabled = enabled;
             // 人群算法
-            state.World.GetExistingSystemManaged<AgentMovementSystem>().Enabled = enabled;
+            // 和多轮仿真的恢复 Job 相关联，需要同步修改
+            // state.World.GetExistingSystemManaged<AgentMovementSystem>().Enabled = enabled;
+            unmanagedWorld.GetExistingSystemState<FlowFieldMovementSystem>().Enabled = enabled;
             // simulation.GetExistingSystemManaged<SFMmovementSystem>().Enabled = state;
             // simulation.GetExistingSystemManaged<SFMmovementSystem2>().Enabled = state;
             // simulation.GetExistingSystemManaged<SFMmovementSystem3>().Enabled = state;
@@ -149,15 +151,15 @@ public partial struct SimControlSystem : ISystem
             if (setting.displayTrajectories)
             {
                 // 行人轨迹记录
-                state.World.GetExistingSystemManaged<TrajectoryRecordSystem>().Enabled = enabled;
+                unmanagedWorld.GetExistingSystemState<TrajectoryRecordSystem>().Enabled = enabled;
             }
         }
 
         if (setting.performStatistics)
         {
             // 统计系统
-            state.World.GetExistingSystemManaged<SingleStatisticSystem>().Enabled = enabled;
-            state.World.GetExistingSystemManaged<RecordSystem>().Enabled = enabled;
+            unmanagedWorld.GetExistingSystemState<SingleStatisticSystem>().Enabled = enabled;
+            unmanagedWorld.GetExistingSystemState<RecordSystem>().Enabled = enabled;
         }
     }
 }

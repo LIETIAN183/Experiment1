@@ -14,7 +14,8 @@ public partial struct FCOscSystem : ISystem, ISystemStartStop
     private ComponentLookup<FCData> m_fcDataLookup;
     public void OnCreate(ref SystemState state)
     {
-        state.RequireAnyForUpdate(state.GetEntityQuery(ComponentType.ReadOnly<FCData>()), state.GetEntityQuery(ComponentType.ReadOnly<SubFCData>()));
+        state.RequireForUpdate<FCData>();
+        // state.RequireAnyForUpdate(state.GetEntityQuery(ComponentType.ReadOnly<FCData>()), state.GetEntityQuery(ComponentType.ReadOnly<SubFCData>()));
         state.Enabled = false;
     }
     [BurstCompile]
@@ -24,9 +25,10 @@ public partial struct FCOscSystem : ISystem, ISystemStartStop
     {
         m_fcDataLookup = state.GetComponentLookup<FCData>(true);
 
-        var job1 = new ResetFCData().ScheduleParallel(state.Dependency);
+        var job1 = new ResetFCDataJob().ScheduleParallel(state.Dependency);
 
-        var job2 = new ResetSubFCData().ScheduleParallel(state.Dependency);
+        state.EntityManager.CompleteDependencyBeforeRO<LocalTransform>();
+        var job2 = new ResetSubFCDataJob().ScheduleParallel(state.Dependency);
 
         state.Dependency = JobHandle.CombineDependencies(job1, job2);
         // 初始化完成后才能开始下一步
@@ -40,14 +42,14 @@ public partial struct FCOscSystem : ISystem, ISystemStartStop
         var timerData = SystemAPI.GetSingleton<TimerData>();
         var deltaTime = SystemAPI.Time.DeltaTime;
 
-        var job1 = new CalFCMotion
+        var job1 = new CalFCMotionJob
         {
             deltaTime = deltaTime,
             seismicAcc = timerData.curAcc * timerData.envEnhanceFactor
         }.ScheduleParallel(state.Dependency);
 
         m_fcDataLookup.Update(ref state);
-        var job2 = new CalSubFCMotion
+        var job2 = new CalSubFCMotionJob
         {
             fcDataLookup = m_fcDataLookup,
             deltaTime = deltaTime
@@ -58,16 +60,17 @@ public partial struct FCOscSystem : ISystem, ISystemStartStop
 }
 
 [BurstCompile]
-// [WithAll()]
-partial struct ResetFCData : IJobEntity
+partial struct ResetFCDataJob : IJobEntity
 {
-    void Execute(ref FCData fcData)
+    void Execute(ref FCData fcData, in FCKCInitData initData)
     {
         fcData.topDis = fcData.topVel = 0;
+        fcData.k += initData.k;
+        fcData.c += initData.c;
     }
 }
 [BurstCompile]
-partial struct ResetSubFCData : IJobEntity
+partial struct ResetSubFCDataJob : IJobEntity
 {
     void Execute(ref SubFCData subFCData, in LocalTransform localTransform)
     {
@@ -76,7 +79,7 @@ partial struct ResetSubFCData : IJobEntity
     }
 }
 [BurstCompile]
-partial struct CalFCMotion : IJobEntity
+partial struct CalFCMotionJob : IJobEntity
 {
     [ReadOnly] public float deltaTime;
     [ReadOnly] public float3 seismicAcc;
@@ -104,7 +107,7 @@ partial struct CalFCMotion : IJobEntity
 
 [BurstCompile]
 [WithNone(typeof(MCData)), WithAll(typeof(SubFCData))]
-partial struct CalSubFCMotion : IJobEntity
+partial struct CalSubFCMotionJob : IJobEntity
 {
     [ReadOnly]
     public ComponentLookup<FCData> fcDataLookup;
@@ -121,7 +124,6 @@ partial struct CalSubFCMotion : IJobEntity
 
         // var curmovement = math.pow(curData.height, 2) * (3 * parentData.length - curData.height) * parentData.endMovement / (2 * math.pow(parentData.length, 3));
         var curmovement = k * hSquare * (3 * parentData.length - subFCData.height);
-
         // w'(h)= Δx(6Lh-3h^2)/2L^3=tanθ
         // var gradient = -3 * parentData.endMovement * (math.pow(curData.height, 2) - 2 * parentData.length * curData.height) / (2 * math.pow(parentData.length, 3));
         var radius = math.atan(k * (6 * parentData.length * subFCData.height - 3 * hSquare));
@@ -131,5 +133,17 @@ partial struct CalSubFCMotion : IJobEntity
         RigidTransform rgTransform = new RigidTransform(math.mul(subFCData.orgRot, quaternion.Euler(radius, 0, 0)), subFCData.orgPos + parentData.forward * curmovement);
 
         velocity = PhysicsVelocity.CalculateVelocityToTarget(mass, localTransform.Position, localTransform.Rotation, rgTransform, 1 / deltaTime);
+    }
+}
+
+[BurstCompile]
+partial struct FCKCInitJob : IJobEntity
+{
+    [ReadOnly] public int seed;
+    void Execute(ref FCKCInitData data, [EntityIndexInQuery] int index)
+    {
+        var random = new Random((uint)((index + 1) * seed + 1));
+        data.k += random.NextFloat(-5, 5);
+        data.c += random.NextFloat(-0.2f, 0.2f);
     }
 }

@@ -1,31 +1,25 @@
 using Unity.Entities;
-// using Unity.Physics;
 using Unity.Mathematics;
-// using BansheeGz.BGDatabase;
 using Unity.Transforms;
 using Unity.Jobs;
 using Unity.Physics;
-// using UnityEngine;
-// using UnityEngine;
-// using Random = Unity.Mathematics.Random;
-using System.Threading.Tasks;
 using Unity.Burst;
+using Unity.Collections;
 
 // 程序一开始就运行该系统，放在 FixedStepSimulationSystemGroup 可能出现无法读到单例数据的错误
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 // [DisableAutoCreation]
 public partial class MultiRoundStatisticsSystem : SystemBase
 {
-    World simulation;
-
-    private EndSimulationEntityCommandBufferSystem m_EndSimECBSystem;
-
-    // private Hash128 envGUID;
+    World managedWorld;
+    WorldUnmanaged unmanagedWorld;
+    private bool recoverSceneTag;
 
     protected override void OnCreate()
     {
-        simulation = World.DefaultGameObjectInjectionWorld;
-        m_EndSimECBSystem = World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
+        managedWorld = World.DefaultGameObjectInjectionWorld;
+        unmanagedWorld = managedWorld.Unmanaged;
+        recoverSceneTag = false;
         this.Enabled = false;
     }
 
@@ -43,43 +37,41 @@ public partial class MultiRoundStatisticsSystem : SystemBase
     // 内部不能使用异步的 aync 和 Task.Delay,因为该函数定时调用多次，会导致延时失效，反而相同函数执行多次，只适用于单次调用的函数
     protected override void OnUpdate()
     {
-        // UnityEngine.Debug.Log(envGUID.ToString());
         var analysisCircledata = SystemAPI.GetSingleton<MultiRoundStatisticsData>();
 
         switch (analysisCircledata.curStage)
         {
             case AnalysisStage.DataBackup:
-                DataBuckup().Complete();
+                DataBuckup();
                 analysisCircledata.curStage = AnalysisStage.Start;
                 break;
             case AnalysisStage.Start:
                 // 仿真下标超过地震事件数目，结束仿真
                 if (analysisCircledata.curSeismicIndex >= analysisCircledata.seismicEventsCount)
                 {
-                    simulation.GetExistingSystemManaged<SingleStatisticSystem>().ExportData();
-                    var message = SystemAPI.GetSingleton<MessageEvent>();
-                    message.isActivate = true;
-                    message.message = "Simulation Finished";
-                    message.displayType = 1;
-                    SystemAPI.SetSingleton(message);
-                    // simulation.GetExistingSystemManaged<UISystem>().DisplayNotificationForever("Simulation Finished");
+                    var handle = unmanagedWorld.GetExistingUnmanagedSystem<SingleStatisticSystem>();
+                    unmanagedWorld.GetUnsafeSystemRef<SingleStatisticSystem>(handle).ExportData();
+
+                    SystemAPI.SetSingleton(new MessageEvent
+                    {
+                        isActivate = true,
+                        message = "Simulation Finished",
+                        displayType = 1
+                    });
                     this.Enabled = false;
                     return;
                 }
                 else
                 {
                     // 配置 仿真系统参数
-                    // var accTimerData = GetSingleton<AccTimerData>();
                     if (analysisCircledata.pgaThreshold.Equals(0) | analysisCircledata.pgaStep.Equals(0))
                     {
-                        var startEvent = SystemAPI.GetSingleton<StartSeismicEvent>();
-                        startEvent.isActivate = true;
-                        startEvent.index = analysisCircledata.curSeismicIndex++;
-                        startEvent.targetPGA = analysisCircledata.pgaThreshold;
-                        SystemAPI.SetSingleton(startEvent);
-
-                        // 设置当前仿真参数
-                        // TimerSystem.instance.StartSingleSimulation(analysisCircledata.curSeismicIndex++, analysisCircledata.pgaThreshold);
+                        SystemAPI.SetSingleton(new StartSeismicEvent
+                        {
+                            isActivate = true,
+                            index = analysisCircledata.curSeismicIndex++,
+                            targetPGA = analysisCircledata.pgaThreshold
+                        });
                     }
                     else
                     {
@@ -93,28 +85,39 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                             break;
                         }
                         // 设置当前仿真参数
-                        // TimerSystem.instance.StartSingleSimulation(analysisCircledata.curSeismicIndex, analysisCircledata.curSimulationTargetPGA);
-                        var startEvent = SystemAPI.GetSingleton<StartSeismicEvent>();
-                        startEvent.isActivate = true;
-                        startEvent.index = analysisCircledata.curSeismicIndex;
-                        startEvent.targetPGA = analysisCircledata.curSimulationTargetPGA;
-                        SystemAPI.SetSingleton(startEvent);
+                        SystemAPI.SetSingleton(new StartSeismicEvent
+                        {
+                            isActivate = true,
+                            index = analysisCircledata.curSeismicIndex,
+                            targetPGA = analysisCircledata.curSimulationTargetPGA
+                        });
                     }
-                    // 启动仿真事件配置
 
                     // 更新状态
                     analysisCircledata.curStage = AnalysisStage.Simulation;
                 }
                 break;
             case AnalysisStage.Simulation:
-                if (!simulation.Unmanaged.GetExistingSystemState<TimerSystem>().Enabled)
+                if (!managedWorld.Unmanaged.GetExistingSystemState<TimerSystem>().Enabled)
                 {
                     analysisCircledata.curStage = AnalysisStage.Recover;
                 }
                 break;
             case AnalysisStage.Recover:
-                RecoverData().Complete();
-                analysisCircledata.curStage = AnalysisStage.Start;
+                if (!recoverSceneTag)
+                {
+                    managedWorld.GetExistingSystemManaged<SimInitializeSystem>().ReloadSubScene();
+                    recoverSceneTag = true;
+                }
+                else
+                {
+                    if (managedWorld.GetExistingSystemManaged<SimInitializeSystem>().SceneLoadState())
+                    {
+                        RecoverData();
+                        recoverSceneTag = false;
+                        analysisCircledata.curStage = AnalysisStage.Start;
+                    }
+                }
                 break;
             default:
                 break;
@@ -124,20 +127,28 @@ public partial class MultiRoundStatisticsSystem : SystemBase
 
     public void StartMultiRoundStatistics(float pgaThreshold, float pgaStep)
     {
-        // 确保开始仿真前已经生成智能体
         var simulationSetting = SystemAPI.GetSingleton<SimConfigData>();
         var spawnerData = SystemAPI.GetSingleton<SpawnerData>();
-        if (simulationSetting.simAgent && !spawnerData.canSpawn)
+        if (simulationSetting.simAgent && spawnerData.currentCount < spawnerData.desireCount)
         {
-            spawnerData.canSpawn = true;
-            SystemAPI.SetSingleton(spawnerData);
-            // simulation.GetExistingSystemManaged<UISystem>().DisplayNotification2s("Spawning Agents");
+            // 这里需要 Allocator.Persistent，因为生成 Agent 需要花费较多时间， Allocator.TempJob 时间不够
+            var ecb = new EntityCommandBuffer(Allocator.Persistent);
+            this.EntityManager.CompleteDependencyBeforeRO<PhysicsWorldSingleton>();
+
+            new SpawnerJob
+            {
+                ecb = ecb,
+                physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
+                randomInitSeed = (uint)(SystemAPI.Time.ElapsedTime * 1000),
+            }.Schedule(Dependency).Complete();
+            ecb.Playback(this.EntityManager);
+            ecb.Dispose();
+
             var message = SystemAPI.GetSingleton<MessageEvent>();
             message.isActivate = true;
             message.message = "Spawning Agents";
             message.displayType = 0;
             SystemAPI.SetSingleton(message);
-            // await Task.Delay(2000);
         }
         // 开始仿真
         var analysisCircledata = SystemAPI.GetSingleton<MultiRoundStatisticsData>();
@@ -148,74 +159,49 @@ public partial class MultiRoundStatisticsSystem : SystemBase
     }
 
     [BurstCompile]
-    public JobHandle DataBuckup()
+    public void DataBuckup()
     {
         // 最开始需要做的初始化
-        simulation.GetExistingSystemManaged<SingleStatisticSystem>().ClearDataStorage();
+        var handle = unmanagedWorld.GetExistingUnmanagedSystem<SingleStatisticSystem>();
+        unmanagedWorld.GetUnsafeSystemRef<SingleStatisticSystem>(handle).ClearDataStorage();
 
-        var ecb = m_EndSimECBSystem.CreateCommandBuffer().AsParallelWriter();
-
-        Random x = new Random();
-        x.InitState();
-        var handle1 = Entities.WithAll<FCData>().ForEach((ref FCData data) =>
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        new AgentBackupJob
         {
-            data.k += x.NextFloat(-5, 5);
-            data.c += x.NextFloat(-0.2f, 0.2f);
-        }).ScheduleParallel(Dependency);
-
-        // 备份初始位置
-        // var handle2 = Entities.WithAny<SubFCData, MCData, AgentMovementData>().ForEach((Entity e, int entityInQueryIndex, in Translation translation, in Rotation rotation) =>
-        // {
-        //     ecb.AddComponent<BackupData>(entityInQueryIndex, e, new BackupData { originPosition = translation.Value, originRotation = rotation.Value });
-        // }).ScheduleParallel(Dependency);
-        var handle2 = Entities.WithAny<AgentMovementData>().ForEach((Entity e, int entityInQueryIndex, in LocalTransform localTransform) =>
-        {
-            ecb.AddComponent<BackupData>(entityInQueryIndex, e, new BackupData { originPosition = localTransform.Position, originRotation = localTransform.Rotation });
-        }).ScheduleParallel(Dependency);
-
-        var sumHandle = JobHandle.CombineDependencies(handle1, handle2);
-
-        m_EndSimECBSystem.AddJobHandleForProducer(sumHandle);
-
-        Dependency = sumHandle;
-
-        return sumHandle;
+            parallelECB = ecb.AsParallelWriter()
+        }.ScheduleParallel(Dependency).Complete();
+        ecb.Playback(this.EntityManager);
+        ecb.Dispose();
     }
 
     [BurstCompile]
-    public JobHandle RecoverData()
+    public void RecoverData()
     {
         // 重置环境
-        simulation.GetExistingSystemManaged<SimInitializeSystem>().ReloadSubScene();
-
         SystemAPI.SetSingleton<ClearFluidEvent>(new ClearFluidEvent { isActivate = true });
-        // simulation.GetExistingSystemManaged<DestructionSystem>().RemoveAllFluid();
         // 重置行人数据
-        // var accTimer = SystemAPI.GetSingleton<TimerData>();
-        // accTimer.simPGA = 0;
         SystemAPI.SetSingleton(new TimerData());
 
-        var ecb = m_EndSimECBSystem.CreateCommandBuffer().AsParallelWriter();
-
-        var handle1 = Entities.WithAll<BackupData>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabledEntities).ForEach((ref LocalTransform localTransform, ref PhysicsVelocity velocity, in BackupData backup) =>
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        if (SystemAPI.HasComponent<PhysicsVelocity>(SystemAPI.GetSingleton<SpawnerData>().prefab))
         {
-            localTransform.Position = backup.originPosition;
-            localTransform.Rotation = backup.originRotation;
-            velocity.Linear = float3.zero;
-            velocity.Angular = float3.zero;
-        }).ScheduleParallel(Dependency);
-
-        var handle2 = Entities.WithAll<Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabledEntities).ForEach((Entity e, int entityInQueryIndex) =>
+            new AgentRecoverJob
+            {
+                idleList = SystemAPI.GetComponentLookup<Idle>(),
+                escapedList = SystemAPI.GetComponentLookup<Escaped>(),
+                parallelECB = ecb.AsParallelWriter()
+            }.ScheduleParallel(Dependency).Complete();
+        }
+        else
         {
-            ecb.AddComponent<Idle>(entityInQueryIndex, e);
-            ecb.RemoveComponent<Escaped>(entityInQueryIndex, e);
-            ecb.RemoveComponent<Disabled>(entityInQueryIndex, e);
-        }).ScheduleParallel(Dependency);
-
-        m_EndSimECBSystem.AddJobHandleForProducer(handle2);
-
-        Dependency = handle2;
-
-        return JobHandle.CombineDependencies(handle1, handle2);
+            new FlowFieldAgentRecoverJob
+            {
+                idleList = SystemAPI.GetComponentLookup<Idle>(),
+                escapedList = SystemAPI.GetComponentLookup<Escaped>(),
+                parallelECB = ecb.AsParallelWriter()
+            }.ScheduleParallel(Dependency).Complete();
+        }
+        ecb.Playback(this.EntityManager);
+        ecb.Dispose();
     }
 }

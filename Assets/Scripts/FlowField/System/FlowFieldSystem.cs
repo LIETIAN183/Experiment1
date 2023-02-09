@@ -36,7 +36,7 @@ public partial struct FlowFieldSystem : ISystem
         localTransformList = SystemAPI.GetComponentLookup<LocalTransform>(true);
         physicsMassList = SystemAPI.GetComponentLookup<PhysicsMass>(true);
 
-        state.Enabled = false;
+        // state.Enabled = false;
     }
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
@@ -119,7 +119,10 @@ public partial struct FlowFieldSystem : ISystem
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
-        localArray.Dispose();
+        if (localArray.IsCreated)
+        {
+            localArray.Dispose();
+        }
     }
 
     [BurstCompile]
@@ -304,10 +307,10 @@ public struct CalculateFlowFieldJob : IJobParallelFor
     public void Execute(int index)
     {
         var curCell = cells[index];
-        if (curCell.tempCost == float.MaxValue)
-        {
-            return;
-        }
+        // if (curCell.tempCost == float.MaxValue)
+        // {
+        //     return;
+        // }
         foreach (int2 neighborIndex in FlowFieldUtility.GetNeighborIndices(curCell.gridIndex, gridSetSize))
         {
             int flatNeighborIndex = FlowFieldUtility.ToFlatIndex(neighborIndex, gridSetSize.y);
@@ -315,7 +318,16 @@ public struct CalculateFlowFieldJob : IJobParallelFor
             // if (neighborCellData.bestCost.Equals(ushort.MaxValue)) continue;
             if (neighborCellData.tempCost.Equals(float.MaxValue)) continue;
             // var temp = curCell.bestCost - neighborCellData.bestCost;
-            var gradient = curCell.tempCost - neighborCellData.tempCost;
+            float gradient;
+            if (curCell.tempCost == float.MaxValue)
+            {
+                gradient = 100 - neighborCellData.tempCost;
+            }
+            else
+            {
+                gradient = curCell.tempCost - neighborCellData.tempCost;
+            }
+            // var gradient = curCell.tempCost - neighborCellData.tempCost;
             if (gradient == 0) continue;
             var dir = (float2)(neighborCellData.gridIndex - curCell.gridIndex);
             if (dir.x == 0 || dir.y == 0)

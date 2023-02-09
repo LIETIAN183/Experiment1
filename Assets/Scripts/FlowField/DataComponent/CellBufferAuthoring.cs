@@ -13,8 +13,6 @@ public class CellBufferAuthoring : MonoBehaviour
     }
 }
 
-
-
 public struct CellData
 {
     public float3 worldPos;

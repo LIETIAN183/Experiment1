@@ -3,20 +3,18 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
 using UnityEngine;
-using System.Collections.Generic;
 using Unity.Physics;
 using Unity.Jobs;
 using System;
 using System.Reflection;
 using System.IO;
-using System.Linq;
+using Unity.Burst;
 
 
 public struct Detail
 {
     public int NO;
-    public string SeismicName;
-    public float simulationPGA;
+    public FixedString32Bytes SeismicName;
     public float time;
     public float xAcc;
     public float yAcc;
@@ -28,147 +26,118 @@ public struct Detail
 public struct Summary
 {
     public int NO;
-    public string SeismicName;
+    public FixedString32Bytes SeismicName;
     public float simulationPGA;
     public float fullEscapeTime;
-    public float finalDropCount;
-    public float itmeCount;
+    public int finalDropCount;
+    public int itemCount;
     public float escapeTime_ave;
     public float escapeLength_ave;
     public float escapeVel_ave;
 }
 [UpdateInGroup(typeof(AnalysisSystemGroup))]
-public partial class SingleStatisticSystem : SystemBase
+[BurstCompile]
+public partial struct SingleStatisticSystem : ISystem
 {
-    List<Detail> details;
+    // 数据变量
+    NativeList<Detail> details;
+    NativeList<Summary> summaries;
 
-    List<Summary> summaries;
+    // 辅助变量
+    private int escaped;
+    private EntityQuery escapedQuery, mcQuery;
+    private NativeQueue<byte> countQueue;
 
-    int escapedPedestrain_Backup;
-    protected override void OnCreate()
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
     {
-        details = new List<Detail>();
-        summaries = new List<Summary>();
-
-        this.Enabled = false;
+        details = new NativeList<Detail>(Allocator.Persistent);
+        summaries = new NativeList<Summary>(Allocator.Persistent);
+        countQueue = new NativeQueue<byte>(Allocator.Persistent);
+        escapedQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Escaped>().WithOptions(EntityQueryOptions.IncludeDisabledEntities).Build(ref state);
+        mcQuery = state.GetEntityQuery(ComponentType.ReadOnly<MCData>());
+        state.Enabled = false;
     }
 
-    protected override void OnStartRunning()
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state)
     {
-        escapedPedestrain_Backup = 0;
-    }
+        state.Dependency = GetDetail(ref state);
 
-    protected override void OnUpdate()
-    {
-        var data = SystemAPI.GetSingleton<TimerData>();
-        NativeQueue<bool> countQueue = new NativeQueue<bool>(Allocator.TempJob);
-        var countWriter = countQueue.AsParallelWriter();
-
-        // 最底层货架上的商品存在一定的错误计算，但误差可接受
-        // 将地面下降2m统计则将为准确结果
-        // Entities.WithAll<MCData>().ForEach((in Translation translation, in BackupData recoverData, in MCData data) =>
-        // {
-        //     // 位于第二层货架上方的商品，低于0.5f且商品不在空中时，算掉落
-        //     if (recoverData.originPosition.y > 0.5f && translation.Value.y < 0.5f && !data.inAir)
-        //     {
-        //         countWriter.Enqueue(true);
-        //     }
-        //     else if (recoverData.originPosition.y < 0.5f)
-        //     {
-        //         // 位于底层的货架上的商品，位移超过0.4m就算其掉落
-        //         if (math.lengthsq(recoverData.originPosition - translation.Value) > 0.16f) countWriter.Enqueue(true);
-        //     }
-        // }).ScheduleParallel(Dependency).Complete();
-        Entities.WithAll<MCData>().ForEach((in LocalTransform localTransform, in MCData data) =>
-        {
-            // 位于第二层货架上方的商品，低于0.5f且商品不在空中时，算掉落
-            if (localTransform.Position.y < 0.5f && !data.inAir)
-            {
-                countWriter.Enqueue(true);
-            }
-        }).ScheduleParallel(Dependency).Complete();
-
-        var query = new EntityQueryDesc
-        {
-            All = new ComponentType[] { ComponentType.ReadOnly<Escaped>() },
-            Options = EntityQueryOptions.IncludeDisabledEntities
-        };
-        var escaped = GetEntityQuery(query).CalculateEntityCount();
-        var curDetail = new Detail()
-        {
-            NO = summaries.Count + 1,
-            SeismicName = data.seismicEventName.ToString(),
-            simulationPGA = math.select(data.simPGA, data.eventPGA, data.simPGA.Equals(0)),
-            time = data.elapsedTime,
-            xAcc = data.curAcc.x,
-            yAcc = data.curAcc.y,
-            zAcc = data.curAcc.z,
-            dropCount = countQueue.Count,
-            escapedPedestrain = escaped,
-            escapedPerSec = escaped - escapedPedestrain_Backup
-        };
-        details.Add(curDetail);
-        escapedPedestrain_Backup = escaped;
-        countQueue.Dispose();
-
-        // // 人数到达标准，结束仿真
+        // 人数到达标准，结束仿真
         if (escaped.Equals(SystemAPI.GetSingleton<SpawnerData>().desireCount))//&& data.elapsedTime >= 50
         {
-            GetSummary();
-            World.DefaultGameObjectInjectionWorld.Unmanaged.GetExistingSystemState<TimerSystem>().Enabled = false;
+            GetSummary(ref state);
+
+            // 结束本轮仿真
+            SystemAPI.SetSingleton(new EndSeismicEvent { isActivate = true });
         }
     }
+
+    [BurstCompile]
+    public void OnDestroy(ref SystemState state)
+    {
+        details.Dispose();
+        summaries.Dispose();
+        countQueue.Dispose();
+    }
+    [BurstCompile]
     public void ClearDataStorage()
     {
         details.Clear();
         summaries.Clear();
     }
 
-    public void GetSummary()
+    [BurstCompile]
+    private JobHandle GetDetail(ref SystemState state)
     {
-        var accData = SystemAPI.GetSingleton<TimerData>();
+        var countJob = new DroppedMCCountJob
+        {
+            counter = countQueue.AsParallelWriter()
+        }.ScheduleParallel(state.Dependency);
 
+        escaped = escapedQuery.CalculateEntityCount();
+
+        var recordJob = new RecordDetailJob
+        {
+            simulationRoundIndex = summaries.Length,
+            details = details,
+            dropped = countQueue,
+            escaped = escaped,
+            data = SystemAPI.GetSingleton<TimerData>(),
+            deltaTime = SystemAPI.Time.DeltaTime
+        }.Schedule(countJob);
+        return recordJob;
+    }
+
+    [BurstCompile]
+    public void GetSummary(ref SystemState state)
+    {
         NativeQueue<float> timeQueue = new NativeQueue<float>(Allocator.TempJob);
         NativeQueue<float> lengthQueue = new NativeQueue<float>(Allocator.TempJob);
         NativeQueue<float> velQueue = new NativeQueue<float>(Allocator.TempJob);
 
-        var timeWriter = timeQueue.AsParallelWriter();
-        var lengthWriter = lengthQueue.AsParallelWriter();
-        var velWriter = velQueue.AsParallelWriter();
-
-        Entities.WithAll<Escaped>().WithEntityQueryOptions(EntityQueryOptions.IncludeDisabledEntities).ForEach((in RecordData recordData) =>
+        var calJob = new CalAgentAverageInfoJob
         {
-            timeWriter.Enqueue(recordData.escapeTime);
-            lengthWriter.Enqueue(recordData.escapeLength);
-            velWriter.Enqueue(recordData.escapeAveVel);
-        }).ScheduleParallel(Dependency).Complete();
+            timeWriter = timeQueue.AsParallelWriter(),
+            lengthWriter = lengthQueue.AsParallelWriter(),
+            velWriter = velQueue.AsParallelWriter()
+        }.ScheduleParallel(state.Dependency);
 
-        var count = timeQueue.Count;
-        float sumTime = 0, sumLength = 0, sumVel = 0;
-        while (timeQueue.Count > 0) sumTime += timeQueue.Dequeue();
-        while (lengthQueue.Count > 0) sumLength += lengthQueue.Dequeue();
-        while (velQueue.Count > 0) sumVel += velQueue.Dequeue();
-        var curSummary = new Summary()
+        new RecordSummaryJob
         {
-            NO = summaries.Count + 1,
-            SeismicName = accData.seismicEventName.ToString(),
-            simulationPGA = math.select(accData.simPGA, accData.eventPGA, accData.simPGA.Equals(0)),
-            fullEscapeTime = accData.elapsedTime,
-            // finalDropCount = countBridge[0],
-            finalDropCount = details.Last().dropCount,
-            itmeCount = GetEntityQuery(ComponentType.ReadOnly<MCData>()).CalculateEntityCount(),
-            escapeTime_ave = sumTime / count,
-            escapeLength_ave = sumLength / count,
-            escapeVel_ave = sumVel / count
-        };
-        summaries.Add(curSummary);
+            summaries = summaries,
+            details = details,
+            timeQueue = timeQueue,
+            lengthQueue = lengthQueue,
+            velQueue = velQueue,
+            data = SystemAPI.GetSingleton<TimerData>(),
+            itemCount = mcQuery.CalculateEntityCount()
+        }.Schedule(calJob).Complete();
+
         timeQueue.Dispose();
         lengthQueue.Dispose();
         velQueue.Dispose();
-
-        var analysisSetting = SystemAPI.GetSingleton<MultiRoundStatisticsData>();
-        analysisSetting.curStage = AnalysisStage.Recover;
-        SystemAPI.SetSingleton<MultiRoundStatisticsData>(analysisSetting);
     }
 
     public void ExportData()
@@ -184,7 +153,7 @@ public partial class SingleStatisticSystem : SystemBase
         StreamWriter wr = null;
         wr = new StreamWriter(fs);
         wr.WriteLine(Struct2String(typeof(Detail)));
-        for (int i = 0; i < details.Count; i++)
+        for (int i = 0; i < details.Length; i++)
         {
             wr.WriteLine(Data2String(details[i]));
         }
@@ -201,7 +170,7 @@ public partial class SingleStatisticSystem : SystemBase
         wr = null;
         wr = new StreamWriter(fs);
         wr.WriteLine(Struct2String(typeof(Summary)));
-        for (int i = 0; i < summaries.Count; i++)
+        for (int i = 0; i < summaries.Length; i++)
         {
             wr.WriteLine(Data2String(summaries[i]));
         }
@@ -226,5 +195,108 @@ public partial class SingleStatisticSystem : SystemBase
             result += field.GetValue(data).ToString() + ' ';
         }
         return result.TrimEnd();
+    }
+}
+
+// TODO: 考虑到存在破碎物体，计算不准确
+[BurstCompile]
+[WithAll(typeof(MCData))]
+partial struct DroppedMCCountJob : IJobEntity
+{
+    public NativeQueue<byte>.ParallelWriter counter;
+    void Execute(in MCData data, in LocalTransform localTransform)
+    {
+        // 最底层货架上的商品存在一定的错误计算，但误差可接受
+        // 将地面下降2m统计则将为准确结果
+        //     // 位于第二层货架上方的商品，低于0.5f且商品不在空中时，算掉落
+        //     if (recoverData.originPosition.y > 0.5f && translation.Value.y < 0.5f && !data.inAir)
+        //     {
+        //         countWriter.Enqueue(true);
+        //     }
+        //     else if (recoverData.originPosition.y < 0.5f)
+        //     {
+        //         // 位于底层的货架上的商品，位移超过0.4m就算其掉落
+        //         if (math.lengthsq(recoverData.originPosition - translation.Value) > 0.16f) countWriter.Enqueue(true);
+        //     }
+
+        // 位于第二层货架上方的商品，低于0.5f且商品不在空中时，算掉落
+        if (localTransform.Position.y < 0.5f && !data.inAir)
+        {
+            counter.Enqueue(0);
+        }
+    }
+}
+
+[BurstCompile]
+[WithAll(typeof(Escaped), typeof(AgentMovementData)), WithOptions(EntityQueryOptions.IncludeDisabledEntities)]
+partial struct CalAgentAverageInfoJob : IJobEntity
+{
+    public NativeQueue<float>.ParallelWriter timeWriter, lengthWriter, velWriter;
+    void Execute(in RecordData recordData)
+    {
+        timeWriter.Enqueue(recordData.escapedTime);
+        lengthWriter.Enqueue(recordData.escapedLength);
+        velWriter.Enqueue(recordData.escapeAveVel);
+    }
+}
+
+[BurstCompile]
+partial struct RecordDetailJob : IJob
+{
+    public NativeList<Detail> details;
+
+    [ReadOnly] public int simulationRoundIndex;
+    [ReadOnly] public NativeQueue<byte> dropped;
+    [ReadOnly] public int escaped;
+    [ReadOnly] public TimerData data;
+    [ReadOnly] public float deltaTime;
+    public void Execute()
+    {
+        var curDetail = new Detail()
+        {
+            NO = simulationRoundIndex,
+            SeismicName = data.seismicEventName,
+            time = data.elapsedTime,
+            xAcc = data.curAcc.x,
+            yAcc = data.curAcc.y,
+            zAcc = data.curAcc.z,
+            dropCount = dropped.Count,
+            escapedPedestrain = escaped,
+            escapedPerSec = (int)((escaped - (details.Length <= 0 ? 0 : details[details.Length - 1].escapedPedestrain)) / deltaTime)
+        };
+        details.Add(curDetail);
+    }
+}
+
+[BurstCompile]
+partial struct RecordSummaryJob : IJob
+{
+    public NativeList<Summary> summaries;
+    [ReadOnly] public NativeList<Detail> details;
+    public NativeQueue<float> timeQueue, lengthQueue, velQueue;
+    [ReadOnly] public TimerData data;
+    [ReadOnly] public int itemCount;
+
+    public void Execute()
+    {
+        var count = timeQueue.Count;
+        float sumTime = 0, sumLength = 0, sumVel = 0;
+        while (timeQueue.Count > 0) sumTime += timeQueue.Dequeue();
+        while (lengthQueue.Count > 0) sumLength += lengthQueue.Dequeue();
+        while (velQueue.Count > 0) sumVel += velQueue.Dequeue();
+        var curSummary = new Summary()
+        {
+            NO = summaries.Length,
+            SeismicName = data.seismicEventName,
+            simulationPGA = math.select(data.simPGA, data.eventPGA, data.simPGA.Equals(0)),
+            fullEscapeTime = data.elapsedTime,
+            // finalDropCount = countBridge[0],
+            finalDropCount = details[details.Length - 1].dropCount,
+            itemCount = itemCount,
+            escapeTime_ave = sumTime / count,
+            escapeLength_ave = sumLength / count,
+            escapeVel_ave = sumVel / count
+        };
+        summaries.Add(curSummary);
     }
 }

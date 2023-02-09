@@ -1,3 +1,3 @@
 using Unity.Entities;
 
-public struct Idle : IComponentData { }
+public struct Idle : IComponentData, IEnableableComponent { }

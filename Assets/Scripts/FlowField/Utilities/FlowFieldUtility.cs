@@ -38,8 +38,7 @@ public static class FlowFieldUtility
     }
     public static int2 GetIndexAtRelativePosition(int2 currentPos, int2 relativePos, int2 gridSize)
     {
-        int2 finalPos = currentPos + relativePos;
-        return (finalPos.x < 0 || finalPos.x >= gridSize.x || finalPos.y < 0 || finalPos.y >= gridSize.y) ? new int2(-1, -1) : finalPos;
+        return DeterminingInGridSet(currentPos + relativePos, gridSize);
     }
     public static int ToFlatIndex(int2 index2D, int columnNumber) => columnNumber * index2D.x + index2D.y;
     public static int ToFlatIndex(int x, int y, int columnNumber) => columnNumber * x + y;
@@ -56,6 +55,11 @@ public static class FlowFieldUtility
             x = math.clamp((int)math.floor((gridSize.x) * percentX), 0, gridSize.x - 1),
             y = math.clamp((int)math.floor((gridSize.y) * percentY), 0, gridSize.y - 1)
         };
-        return cellIndex;
+        return DeterminingInGridSet(cellIndex, gridSize);
+    }
+
+    public static int2 DeterminingInGridSet(int2 index, int2 gridSize)
+    {
+        return (index.x < 0 || index.y < 0 || index.x >= gridSize.x || index.y >= gridSize.y) ? Constants.notInGridSet : index;
     }
 }

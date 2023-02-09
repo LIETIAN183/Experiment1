@@ -98,7 +98,7 @@ public partial class UISystem : SystemBase
         if (messageResetTimer > 0)
         {
             messageResetTimer -= SystemAPI.Time.DeltaTime;
-            if (messageResetTimer < 0)
+            if (messageResetTimer <= 0)
             {
                 message = " ";
             }
@@ -110,7 +110,7 @@ public partial class UISystem : SystemBase
         textStyle.WithColor(DefaultStyles.Text);// 重置白色
 
         // Debug 用
-        SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle) });
+        // SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle) });
 
         // 判断是否开始仿真
         if (unmanagedWorld.GetExistingSystemState<TimerSystem>().Enabled | managedWorld.GetExistingSystemManaged<MultiRoundStatisticsSystem>().Enabled)
@@ -162,11 +162,12 @@ public partial class UISystem : SystemBase
             if (ImGui.Button("Single", in buttonStyle))
             {
                 // 获得选择的地震 Index. 开始仿真
-                var startEvent = SystemAPI.GetSingleton<StartSeismicEvent>();
-                startEvent.isActivate = true;
-                startEvent.index = eventIndex;
-                startEvent.targetPGA = pgaThreshold;
-                SystemAPI.SetSingleton(startEvent);
+                SystemAPI.SetSingleton(new StartSeismicEvent
+                {
+                    isActivate = true,
+                    index = eventIndex,
+                    targetPGA = pgaThreshold
+                });
             }
             ImGui.SameLine();
             //开始多轮统计

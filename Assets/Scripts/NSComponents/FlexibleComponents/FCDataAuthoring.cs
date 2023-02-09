@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+[RequireComponent(typeof(FCKCInitAuthoring))]
 public class FCDataAuthoring : MonoBehaviour
 {
     public float length;

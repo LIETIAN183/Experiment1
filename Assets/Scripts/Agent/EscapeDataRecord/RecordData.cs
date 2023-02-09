@@ -6,9 +6,9 @@ using Unity.Mathematics;
 [Serializable]
 public struct RecordData : IComponentData
 {
-    public float3 lastposition;
-    public float escapeTime;
-    public float escapeLength;
+    public float3 lastPosition;
+    public float escapedTime;
+    public float escapedLength;
     public float escapeAveVel;
     public float accumulatedY;
 }

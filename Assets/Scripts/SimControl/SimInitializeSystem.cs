@@ -19,6 +19,8 @@ public partial class SimInitializeSystem : SystemBase
     public readonly string subScenesFolderPath = "Assets/Scenes/SubScene/ForTest.unity";
     Hash128 guid;
 
+    private Entity sceneEntity;
+
     public NativeHashMap<FixedString32Bytes, Hash128> string2GUID;
 
     protected override void OnCreate()
@@ -31,8 +33,7 @@ public partial class SimInitializeSystem : SystemBase
     protected override void OnUpdate()
     {
         UpdateGUID();
-
-        SceneSystem.LoadSceneAsync(World.Unmanaged, guid, new SceneSystem.LoadParameters { AutoLoad = true });
+        sceneEntity = SceneSystem.LoadSceneAsync(World.Unmanaged, guid, new SceneSystem.LoadParameters { AutoLoad = true });
         this.Enabled = false;
 
     }
@@ -40,11 +41,16 @@ public partial class SimInitializeSystem : SystemBase
     public void ReloadSubScene()
     {
         SceneSystem.UnloadScene(World.Unmanaged, guid);
-        SceneSystem.LoadSceneAsync(World.Unmanaged, guid, new SceneSystem.LoadParameters { AutoLoad = true });
+        sceneEntity = SceneSystem.LoadSceneAsync(World.Unmanaged, guid, new SceneSystem.LoadParameters { AutoLoad = true });
     }
 
     public void UpdateGUID()
     {
         guid = SceneSystem.GetSceneGUID(ref World.Unmanaged.GetExistingSystemState<SceneSystem>(), subScenesFolderPath);
+    }
+
+    public bool SceneLoadState()
+    {
+        return SceneSystem.IsSceneLoaded(World.Unmanaged, sceneEntity);
     }
 }

@@ -18,13 +18,15 @@ public partial class SetupEventBlobSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        if (SystemAPI.HasSingleton<TimerData>())
+        if (SystemAPI.TryGetSingletonEntity<TimerData>(out var entity))
         {
-            var entity = SystemAPI.GetSingletonEntity<TimerData>();
-            EntityManager.AddBuffer<BlobRefBuffer>(entity);
+            if (!SystemAPI.HasBuffer<BlobRefBuffer>(entity))
+            {
+                EntityManager.AddBuffer<BlobRefBuffer>(entity);
+            }
         }
 
-        if (SystemAPI.HasSingleton<BlobRefBuffer>())
+        if (SystemAPI.TryGetSingletonBuffer<BlobRefBuffer>(out var blobRefBuffer))
         {
             // 判断目标路径的文件夹是否存在
             if (!Directory.Exists(seismicDataPath))
@@ -56,7 +58,6 @@ public partial class SetupEventBlobSystem : SystemBase
             }
 
             // 创建 BlobAsset 资源引用
-            var blobRefBuffer = SystemAPI.GetSingletonBuffer<BlobRefBuffer>();
             // 遍历每个文件夹内的AT2文件并读取数据
             foreach (var item in events)
             {

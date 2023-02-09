@@ -104,7 +104,7 @@ NavMeshSettings:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_BuildSettings:
-    serializedVersion: 2
+    serializedVersion: 3
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 2
@@ -117,7 +117,7 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
-    accuratePlacement: 0
+    buildHeightMesh: 0
     maxJobWorkers: 0
     preserveTilesOutsideBounds: 0
     debug:
@@ -133,7 +133,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1487950779}
   - component: {fileID: 1487950780}
-  - component: {fileID: 1487950781}
   m_Layer: 0
   m_Name: Spawaner
   m_TagString: Untagged
@@ -154,7 +153,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1487950780
 MonoBehaviour:
@@ -168,99 +167,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f60c3d0a54bfad744992f80c39d2167f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canSpawn: 0
-  desireCount: 50
-  currentCount: 0
-  center:
-    x: 0
-    y: 0.9
-    z: 0
-  sideLength: 10
-  Prefab: {fileID: 7530782321942106993, guid: fab381279a3b1174cbe44a7d856bbe1e, type: 3}
---- !u!114 &1487950781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1487950778}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 433e562974fd4ce46810c1404f6f0f2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Values: []
---- !u!1001 &7530782321066362207
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 6.48
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.18
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -7.88
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106987, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106993, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_Name
-      value: Agent
-      objectReference: {fileID: 0}
-    - target: {fileID: 7530782321942106993, guid: fab381279a3b1174cbe44a7d856bbe1e,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: fab381279a3b1174cbe44a7d856bbe1e, type: 3}
+  agentPrefab: {fileID: 3102279564332726338, guid: d667d8206a9c09949a45dc81b45b91e4,
+    type: 3}

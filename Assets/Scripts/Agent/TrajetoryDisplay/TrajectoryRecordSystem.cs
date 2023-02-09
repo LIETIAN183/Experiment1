@@ -6,32 +6,49 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(TrajectoryRecordSystemGroup))]
-public partial class TrajectoryRecordSystem : SystemBase
+[BurstCompile]
+public partial struct TrajectoryRecordSystem : ISystem, ISystemStartStop
 {
-    protected override void OnCreate() => this.Enabled = false;
+    [BurstCompile]
+    public void OnCreate(ref SystemState state) => state.Enabled = false;
+    [BurstCompile]
+    public void OnStartRunning(ref SystemState state)
+    {
+        new CleanTrajectoriesJob().ScheduleParallel(state.Dependency).Complete();
 
-    protected override void OnStartRunning()
-    {
-        // 放到AnalysisCircyleSystem中重置，否则Display系统会没等初始化重置就显示上一次的轨迹
-        Entities.WithAll<AgentMovementData>().ForEach((ref DynamicBuffer<TrajectoryBuffer> trajectory) =>
-        {
-            trajectory.Clear();
-        }).ScheduleParallel();
-        // 初始化完成后才能开始下一步
-        this.CompleteDependency();
-        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<TrajectoryDisplaySystem>().Enabled = true;
+        state.WorldUnmanaged.GetExistingSystemState<TrajectoryDisplaySystem>().Enabled = true;
     }
-    protected override void OnStopRunning()
+    [BurstCompile]
+    public void OnStopRunning(ref SystemState state)
     {
-        World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<TrajectoryDisplaySystem>().Enabled = false;
+        state.WorldUnmanaged.GetExistingSystemState<TrajectoryDisplaySystem>().Enabled = false;
     }
-    protected override void OnUpdate()
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state)
     {
-        Entities.WithAll<Escaping>().ForEach((ref DynamicBuffer<TrajectoryBuffer> trajectory, in LocalTransform localTransform) =>
-        {
-            var temp = localTransform.Position;
-            temp.y = 1;
-            trajectory.Add(temp);
-        }).Schedule();
+        state.EntityManager.CompleteDependencyBeforeRO<LocalTransform>();
+        state.Dependency = new RecordTrajectoriesJob().ScheduleParallel(state.Dependency);
+    }
+    [BurstCompile]
+    public void OnDestroy(ref SystemState state) { }
+}
+
+[BurstCompile]
+[WithAll(typeof(AgentMovementData))]
+partial struct CleanTrajectoriesJob : IJobEntity
+{
+    void Execute(ref DynamicBuffer<PosBuffer> posList)
+    {
+        posList.Clear();
+    }
+}
+
+[BurstCompile]
+[WithAll(typeof(AgentMovementData), typeof(Escaping))]
+partial struct RecordTrajectoriesJob : IJobEntity
+{
+    void Execute(ref DynamicBuffer<PosBuffer> posList, in LocalTransform localTransform)
+    {
+        posList.Add(new float3(localTransform.Position.x, 1, localTransform.Position.z));
     }
 }

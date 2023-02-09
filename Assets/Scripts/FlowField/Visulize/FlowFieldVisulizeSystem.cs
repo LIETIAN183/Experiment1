@@ -2,13 +2,10 @@ using Unity.Entities;
 using Drawing;
 using UnityEngine;
 using Unity.Mathematics;
-using System.Linq;
-using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Jobs;
 using Unity.Collections;
 
-// TODO: 不每一帧都读取 CellBuffer
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 [BurstCompile]
 // [DisableAutoCreation]
@@ -46,7 +43,7 @@ public partial struct FlowFieldVisulizeSystem : ISystem
         // builder.cameraTargets = new Camera[] { cameraRef.mainCamera, cameraRef.overHeadCamera };
         builder.Preallocate(setting.gridSetSize.x * setting.gridSetSize.y * 400);
 
-        var drawingJob = new DrawingJob
+        var drawJob = new DrawFlowFieldJob
         {
             ffVisType = ffVisType,
             gridSize = setting.gridSetSize,
@@ -59,14 +56,13 @@ public partial struct FlowFieldVisulizeSystem : ISystem
             rotation = quaternion.Euler(setting.rotation)
         }.Schedule();
 
-        builder.DisposeAfter(drawingJob);
-
-        drawingJob.Complete();
+        builder.DisposeAfter(drawJob);
+        drawJob.Complete();
     }
 }
 
 [BurstCompile]
-public struct DrawingJob : IJob
+public struct DrawFlowFieldJob : IJob
 {
     [ReadOnly] public FlowFieldVisulizeType ffVisType;
     [ReadOnly] public int2 gridSize;

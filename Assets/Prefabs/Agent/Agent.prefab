@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 7530782321942106991}
   - component: {fileID: 7530782321942106992}
   - component: {fileID: 7530782321942106990}
-  - component: {fileID: 7530782321942106985}
   - component: {fileID: 3294793136774993308}
   m_Layer: 0
   m_Name: Agent
@@ -31,12 +30,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7530782321942106993}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.124, y: 0.9, z: -5.478}
+  m_LocalPosition: {x: 0, y: 0.9, z: 0}
   m_LocalScale: {x: 0.5, y: 0.9, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7530782321942106988
 MeshFilter:
@@ -95,7 +94,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7530782321942106993}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b275e5f92732148048d7b77e264ac30e, type: 3}
   m_Name: 
@@ -238,7 +237,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7530782321942106993}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ccea9ea98e38942e0b0938c27ed1903e, type: 3}
   m_Name: 
@@ -294,24 +293,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6a0f8b852ce434b9bf211edfe9d91a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stdVel: 2
-  originPosition:
-    x: 0
-    y: 0
-    z: 0
---- !u!114 &7530782321942106985
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7530782321942106993}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c6edbc48a7db9248822e2f0f7bee380, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Values: []
+  standardVel: 0
 --- !u!114 &3294793136774993308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -324,4 +306,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08d11e095564d45458588d5c40ead3fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Value: 0

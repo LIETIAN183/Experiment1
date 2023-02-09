@@ -9,6 +9,8 @@ using Unity.Jobs;
 [BurstCompile]
 public partial struct TimerSystem : ISystem
 {
+    private EntityQuery escapingQuery;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -17,6 +19,9 @@ public partial struct TimerSystem : ISystem
         var entity = state.EntityManager.CreateEntity();
         state.EntityManager.SetName(entity, "TimerDataEntity");
         state.EntityManager.AddComponentData<TimerData>(entity, new TimerData { simDeltaTime = 0.04f });
+
+        escapingQuery = state.GetEntityQuery(ComponentType.ReadOnly<Escaping>());
+
         state.Enabled = false;
     }
 
@@ -43,17 +48,16 @@ public partial struct TimerSystem : ISystem
         // 有行人时所有行人逃出后结束仿真
         if (simulationSetting.simAgent)
         {//TODO: 移到人群系统
-            var escaping = state.GetEntityQuery(ComponentType.ReadOnly<Escaping>()).CalculateEntityCount();
-            if (escaping == 0)
-            {
-                state.Enabled = false;
-            }
+         // var escaping = escapingQuery.CalculateEntityCount();
+         // if (escaping == 0)
+         // {
+         //     SystemAPI.SetSingleton(new EndSeismicEvent { isActivate = true });
+         // }
         }
         else if (!simulationSetting.performStatistics && data.elapsedTime >= data.eventDuration + 2)
+        // else if (!simulationSetting.performStatistics && data.elapsedTime >= 3)
         {
-            var endEvent = SystemAPI.GetSingleton<EndSeismicEvent>();
-            endEvent.isActivate = true;
-            SystemAPI.SetSingleton(endEvent);
+            SystemAPI.SetSingleton(new EndSeismicEvent { isActivate = true });
         }
     }
     [BurstCompile]
@@ -75,7 +79,7 @@ partial struct TimerInitJob : IJobEntity
 
     void Execute(ref TimerData data, in DynamicBuffer<BlobRefBuffer> refBuffer)
     {
-        ref var dataResource = ref refBuffer[data.seismicEventIndex].Value.Value;
+        ref var dataResource = ref refBuffer[eventIndex].Value.Value;
         data.seismicEventIndex = eventIndex;
         data.simPGA = simPGA;
         data.simDeltaTime = data.simDeltaTime.inRange(0.01f, 0.06f, 0.04f);

@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using System.Collections.Generic;
 using UnityEngine;
+
 public enum AnalysisStage { DataBackup, Start, Simulation, Recover }
 
 public struct MultiRoundStatisticsData : IComponentData

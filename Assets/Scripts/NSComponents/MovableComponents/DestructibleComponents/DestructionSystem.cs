@@ -7,8 +7,6 @@ using Unity.Physics;
 using Unity.Physics.Systems;
 using Havok.Physics;
 
-
-
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
 [UpdateAfter(typeof(PhysicsSystemGroup))]
 [BurstCompile]
@@ -25,7 +23,7 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
     private BufferLookup<ReplacePrefabsBuffer> prefabList;
     private ComponentLookup<LocalTransform> localTransformList;
     private ComponentLookup<PhysicsVelocity> physicsVelocityList;
-    private ComponentLookup<OriginRelativePos_RotInfo> orgInfoList;
+    private ComponentLookup<OriginPos_RotInfo> orgInfoList;
     private ComponentLookup<DCData> dcComponentList;
 
     [BurstCompile]
@@ -36,7 +34,7 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
         prefabList = SystemAPI.GetBufferLookup<ReplacePrefabsBuffer>(true);
         localTransformList = SystemAPI.GetComponentLookup<LocalTransform>(true);
         physicsVelocityList = SystemAPI.GetComponentLookup<PhysicsVelocity>(true);
-        orgInfoList = SystemAPI.GetComponentLookup<OriginRelativePos_RotInfo>(true);
+        orgInfoList = SystemAPI.GetComponentLookup<OriginPos_RotInfo>(true);
         dcComponentList = SystemAPI.GetComponentLookup<DCData>(true);
 
         deletedEntity = new NativeList<Entity>(Allocator.Persistent);
@@ -194,7 +192,7 @@ partial struct DCPrefabsInitialize : IJobEntity
     [ReadOnly] public BufferLookup<LinkedEntityGroup> linkedList;
     [ReadOnly] public ComponentLookup<PhysicsVelocity> physicsVelocityList;
     [ReadOnly] public ComponentLookup<LocalTransform> localTransformList;
-    [ReadOnly] public ComponentLookup<OriginRelativePos_RotInfo> orgInfoList;
+    [ReadOnly] public ComponentLookup<OriginPos_RotInfo> orgInfoList;
     public EntityCommandBuffer ecb;
     void Execute(in DynamicBuffer<ReplacePrefabsBuffer> buffer)
     {
@@ -202,17 +200,16 @@ partial struct DCPrefabsInitialize : IJobEntity
         foreach (var curPrefab in buffer.Reinterpret<Entity>())
         {
             // 获得当前 Prefab 的每个子元素
-            var childBuffer = linkedList[curPrefab].Reinterpret<Entity>();
-
             // 遍历，对物理子元素，存储初始位置和旋转角度。
             // 因为该子元素加入物理计算，因此会与父物体脱离父子关系，所以生成的时候需要手动设置生成的位置，因此需要初始信息
-            foreach (var child in childBuffer)
+            foreach (var child in linkedList[curPrefab].Reinterpret<Entity>())
             {
                 if (child == curPrefab) continue;
                 if (physicsVelocityList.HasComponent(child) && !orgInfoList.HasComponent(child))
                 {
                     var source = localTransformList[child];
-                    ecb.AddComponent<OriginRelativePos_RotInfo>(child, new OriginRelativePos_RotInfo { orgPos = source.Position, orgRot = source.Rotation });
+                    ecb.AddComponent<OriginPos_RotInfo>(child, new OriginPos_RotInfo { orgPos = source.Position, orgRot = source.Rotation });
+                    // ecb.AddComponent<OriginPos_RotInfo>(child, new OriginPos_RotInfo { orgPos = new float3(1, 1, 1), orgRot = source.Rotation });
                     ecb.AddComponent<MCData>(child);
                 }
             }

@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(MCDataAuthoring))]
 public class DestructibleDataAuthoring : MonoBehaviour
 {
     public bool fluidInside;
