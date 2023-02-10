@@ -36,7 +36,7 @@ public struct CalCulateIntegration_DjistraJob : IJob
             int cellFlatIndex = FlowFieldUtility.ToFlatIndex(cellIndex, gridSize.y);
             CellData curCellData = cells[cellFlatIndex];
 
-            foreach (int2 neighborIndex in FlowFieldUtility.GetNeighborIndices(cellIndex, gridSize))
+            foreach (int2 neighborIndex in FlowFieldUtility.Get8NeighborIndices(cellIndex, gridSize))
             {
                 int flatNeighborIndex = FlowFieldUtility.ToFlatIndex(neighborIndex, gridSize.y);
                 CellData neighborCellData = cells[flatNeighborIndex];

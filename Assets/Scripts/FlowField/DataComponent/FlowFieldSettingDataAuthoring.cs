@@ -38,5 +38,7 @@ public struct FlowFieldSettingData : IComponentData
     public float3 rotation;
 
     public int index;
+
+    public float debugValue;
 }
 

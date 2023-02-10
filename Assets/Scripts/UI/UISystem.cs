@@ -110,7 +110,7 @@ public partial class UISystem : SystemBase
         textStyle.WithColor(DefaultStyles.Text);// 重置白色
 
         // Debug 用
-        // SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle) });
+        SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle) });
 
         // 判断是否开始仿真
         if (unmanagedWorld.GetExistingSystemState<TimerSystem>().Enabled | managedWorld.GetExistingSystemManaged<MultiRoundStatisticsSystem>().Enabled)

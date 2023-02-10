@@ -164,19 +164,61 @@ public struct DrawFlowFieldJob : IJob
                     }
                 }
                 break;
-            case FlowFieldVisulizeType.DebugField:
+            // case FlowFieldVisulizeType.TargetField:
+            //     foreach (var cell in cells)
+            //     {
+            //         if (cell.tempCost == 0) builder.CircleXZ(cell.worldPos + heightOffset, cellRadius.x * 0.8f, Color.yellow);
+            //         // else if (cell.bestDirection.Equals(GridDirection.None)) drawCross45(draw, cell.worldPos + heightOffset, setting.cellRadius * 0.8f, Color.red);
+            //         else if (cell.targetDir.Equals(float2.zero)) builder.drawCross45(cell.worldPos + heightOffset, cellRadius * 0.8f, Color.red);
+            //         else
+            //         {
+            //             var dir = math.normalize(new float3(cell.bestDir.x, 0, cell.bestDir.y));
+            //             var halfLength = cellRadius.x * 0.8f;
+            //             var originPos = cell.worldPos + heightOffset;
+            //             builder.Arrow(originPos - halfLength * dir, originPos + halfLength * dir, Color.black);
+
+            //             var tdir = math.normalize(new float3(cell.targetDir.x, 0, cell.targetDir.y));
+            //             var thalfLength = cellRadius.x * 0.8f;
+            //             var toriginPos = cell.worldPos + heightOffset;
+            //             builder.Arrow(toriginPos - thalfLength * tdir, toriginPos + thalfLength * tdir, Color.red);
+            //         }
+            //     }
+            //     break;
+            case FlowFieldVisulizeType.DebugField1:
 
                 builder.WireGrid(center, Quaternion.identity, gridSize, gridSetSize.xz, Color.black);
                 // data.ForEach(cell => draw.Label2D(cell.worldPos + heightOffset, cell.bestCost == ushort.MaxValue ? "M" : cell.bestCost.ToString(), 40, LabelAlignment.Center));
                 // 角度差异
+                // foreach (var cell in cells)
+                // {
+                // FixedString32Bytes valueString = $"{(int)Vector2.Angle(cell.bestDir, cell.targetDir)}";
+                //     builder.Label2D(cell.worldPos + heightOffset, ref valueString, 40, LabelAlignment.Center);
+                // }
+
                 foreach (var cell in cells)
                 {
-                    FixedString32Bytes valueString = $"{(int)Vector2.Angle(cell.bestDir, cell.targetDir)}";
+                    FixedString32Bytes valueString = $"{(int)cell.debugField.x}";
                     builder.Label2D(cell.worldPos + heightOffset, ref valueString, 40, LabelAlignment.Center);
                 }
 
                 // 距离差异
                 // data.ForEach(cell => draw.Label2D(cell.worldPos + heightOffset, $"{(cell.targetCost):0.00}", 40, LabelAlignment.Center));
+                break;
+            case FlowFieldVisulizeType.DebugField2:
+                builder.WireGrid(center, Quaternion.identity, gridSize, gridSetSize.xz, Color.black);
+                foreach (var cell in cells)
+                {
+                    FixedString32Bytes valueString = $"{(int)cell.debugField.y}";
+                    builder.Label2D(cell.worldPos + heightOffset, ref valueString, 40, LabelAlignment.Center);
+                }
+                break;
+            case FlowFieldVisulizeType.DebugField3:
+                builder.WireGrid(center, Quaternion.identity, gridSize, gridSetSize.xz, Color.black);
+                foreach (var cell in cells)
+                {
+                    FixedString32Bytes valueString = $"{(int)cell.debugField.z}";
+                    builder.Label2D(cell.worldPos + heightOffset, ref valueString, 40, LabelAlignment.Center);
+                }
                 break;
             default:
                 break;

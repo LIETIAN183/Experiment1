@@ -55,7 +55,7 @@ public struct CalCulateIntegration_FMMJob : IJob
 
             // cells[currentIndex] = current;
 
-            foreach (int2 neighborIndex in FlowFieldUtility.GetBesideIndices(current.gridIndex, gridSetSize))
+            foreach (int2 neighborIndex in FlowFieldUtility.Get4NeighborIndices(current.gridIndex, gridSetSize))
             {
                 int flatNeighborIndex = FlowFieldUtility.ToFlatIndex(neighborIndex, gridSetSize.y);
                 CellData neighborCellData = cells[flatNeighborIndex];

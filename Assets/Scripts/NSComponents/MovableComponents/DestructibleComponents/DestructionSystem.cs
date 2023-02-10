@@ -41,8 +41,11 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
 
         var entity = state.EntityManager.CreateEntity();
         state.EntityManager.SetName(entity, "FluidInfoEntity");
+        // 传输要生产的流体位置
         state.EntityManager.AddBuffer<FluidInfoBuffer>(entity);
         state.EntityManager.AddComponentData<ClearFluidEvent>(entity, new ClearFluidEvent { isActivate = false });
+        // 传输世界中已有流体的位置
+        state.EntityManager.AddBuffer<Pos2DBuffer>(entity);
         // 不添加到 System Entity，因为 EntityQuery 查询不到
         // state.EntityManager.AddComponentData<ClearFluidEvent>(state.SystemHandle, new ClearFluidEvent { isActivate = false });
 

@@ -28,8 +28,10 @@ public partial struct FlowFieldSystem : ISystem
             gridSetSize = new int2(44, 40),
             cellRadius = new float3(0.25f, 1, 0.25f),
             destination = new float3(-10.8f, 0, 8.8f),
-            displayOffset = math.up(),
-            index = 2
+            // displayOffset = math.up(),
+            displayOffset = new float3(0, -0.9f, 0),
+            index = 2,
+            debugValue = 0.5f
         });
         state.EntityManager.AddBuffer<CellBuffer>(entity);
 
@@ -63,7 +65,8 @@ public partial struct FlowFieldSystem : ISystem
             physicsMassList = physicsMassList
         }.Schedule(localArray.Length, 32, state.Dependency);
 
-        // costJob.Complete();
+        // CalculateFluidCostJob
+        // TODO:计算流体代价
 
         // 并行快速扫描法，虽然实行并行化，但相比非并行版本，需要迭代更多次，因此放弃并行快速扫描法
         // {
@@ -103,7 +106,8 @@ public partial struct FlowFieldSystem : ISystem
         var flowFieldJob = new CalculateFlowFieldJob()
         {
             cells = localArray,
-            gridSetSize = settingData.gridSetSize
+            // gridSetSize = settingData.gridSetSize
+            settingData = settingData
         }.Schedule(localArray.Length, 32, integrationJob);
 
         var cells = SystemAPI.GetSingletonBuffer<CellBuffer>().Reinterpret<CellData>().AsNativeArray();
@@ -212,6 +216,25 @@ public struct CalculateCostJob : IJobParallelFor
 }
 
 [BurstCompile]
+[WithAll(typeof(Pos2DBuffer), typeof(ClearFluidEvent))]
+public struct CalculateFluidCostJob : IJobEntity
+{
+    public NativeArray<CellData> cells;
+    [ReadOnly] public FlowFieldSettingData settingData;
+    public void Execute(in DynamicBuffer<Pos2DBuffer> posList)
+    {
+        var gridSetSize = settingData.gridSetSize;
+        var cellDiameter = settingData.cellRadius * 2;
+        foreach (var item in posList.Reinterpret<float2>())
+        {
+            var flatIndex = FlowFieldUtility.GetCellFlatIndexFromWorldPos(item, settingData.originPoint, gridSetSize, cellDiameter);
+            if (flatIndex < 0) continue;
+            // cells[flatIndex] 配置
+        }
+    }
+}
+
+[BurstCompile]
 public struct CalCulateIntegration_FSMJob : IJob
 {
     public NativeArray<CellData> cells;
@@ -251,32 +274,14 @@ public struct CalCulateIntegration_FSMJob : IJob
 
                     if (current.cost < 255)
                     {
-                        // === neighboring cells (Upwind Godunov) ===
-                        if (i == 0)
-                        {
-                            midValue.y = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i + 1, j, gridSetSize.y)].tempCost);
-                        }
-                        else if (i == (row - 1))
-                        {
-                            midValue.y = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i - 1, j, gridSetSize.y)].tempCost);
-                        }
-                        else
-                        {
-                            midValue.y = midValue.y = math.min(cells[FlowFieldUtility.ToFlatIndex(i - 1, j, gridSetSize.y)].tempCost, cells[FlowFieldUtility.ToFlatIndex(i + 1, j, gridSetSize.y)].tempCost);
-                        }
+                        float left, right;
+                        left = (i == 0 ? current.tempCost : cells[FlowFieldUtility.ToFlatIndex(i - 1, j, gridSetSize.y)].tempCost);
+                        right = (i == (row - 1) ? current.tempCost : cells[FlowFieldUtility.ToFlatIndex(i + 1, j, gridSetSize.y)].tempCost);
+                        midValue.y = math.min(left, right);
 
-                        if (j == 0)
-                        {
-                            midValue.x = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i, j + 1, gridSetSize.y)].tempCost);
-                        }
-                        else if (j == (column - 1))
-                        {
-                            midValue.x = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i, j - 1, gridSetSize.y)].tempCost);
-                        }
-                        else
-                        {
-                            midValue.x = math.min(cells[FlowFieldUtility.ToFlatIndex(i, j - 1, gridSetSize.y)].tempCost, cells[FlowFieldUtility.ToFlatIndex(i, j + 1, gridSetSize.y)].tempCost);
-                        }
+                        left = (j == 0 ? current.tempCost : cells[FlowFieldUtility.ToFlatIndex(i, j - 1, gridSetSize.y)].tempCost);
+                        right = (j == (column - 1) ? current.tempCost : cells[FlowFieldUtility.ToFlatIndex(i, j + 1, gridSetSize.y)].tempCost);
+                        midValue.x = math.min(left, right);
 
                         if (math.abs(midValue.x - midValue.y) < 0.5f * current.cost)
                         {
@@ -296,49 +301,69 @@ public struct CalCulateIntegration_FSMJob : IJob
     }
 }
 
-
-
 [BurstCompile]
 public struct CalculateFlowFieldJob : IJobParallelFor
 {
     [NativeDisableContainerSafetyRestriction]
     public NativeArray<CellData> cells;
-    [ReadOnly] public int2 gridSetSize;
+    // [ReadOnly] public int2 gridSetSize;
+    [ReadOnly] public FlowFieldSettingData settingData;
     public void Execute(int index)
     {
+        var gridSetSize = settingData.gridSetSize;
+
+        var destinationIndex = FlowFieldUtility.GetCellIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
+        int flatDestinationIndex = FlowFieldUtility.ToFlatIndex(destinationIndex, gridSetSize.y);
+        CellData destinationCell = cells[flatDestinationIndex];
+        var targetPos = destinationCell.worldPos;
+
         var curCell = cells[index];
         // if (curCell.tempCost == float.MaxValue)
         // {
         //     return;
         // }
-        foreach (int2 neighborIndex in FlowFieldUtility.GetNeighborIndices(curCell.gridIndex, gridSetSize))
+        float2 lowerDir = new float2(), upperDir = new float2(), dir = new float2();
+        float diff;
+        foreach (int flatNeighborIndex in FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, gridSetSize))
         {
-            int flatNeighborIndex = FlowFieldUtility.ToFlatIndex(neighborIndex, gridSetSize.y);
-            CellData neighborCellData = cells[flatNeighborIndex];
-            // if (neighborCellData.bestCost.Equals(ushort.MaxValue)) continue;
-            if (neighborCellData.tempCost.Equals(float.MaxValue)) continue;
-            // var temp = curCell.bestCost - neighborCellData.bestCost;
-            float gradient;
-            if (curCell.tempCost == float.MaxValue)
+            CellData neighborCell = cells[flatNeighborIndex];
+            if (neighborCell.tempCost.Equals(float.MaxValue))
             {
-                gradient = 100 - neighborCellData.tempCost;
+                if (curCell.tempCost.Equals(float.MaxValue))
+                {
+                    diff = 0;
+                }
+                else
+                {
+                    diff = -curCell.tempCost;
+                }
             }
             else
             {
-                gradient = curCell.tempCost - neighborCellData.tempCost;
+                if (curCell.tempCost.Equals(float.MaxValue))
+                {
+                    diff = neighborCell.tempCost;
+                }
+                else
+                {
+                    diff = curCell.tempCost - neighborCell.tempCost;
+                }
             }
-            // var gradient = curCell.tempCost - neighborCellData.tempCost;
-            if (gradient == 0) continue;
-            var dir = (float2)(neighborCellData.gridIndex - curCell.gridIndex);
-            if (dir.x == 0 || dir.y == 0)
+            if (diff == 0) continue;
+            else if (diff > 0)
             {
-                curCell.bestDir += gradient * dir;
+                dir = (float2)(neighborCell.gridIndex - curCell.gridIndex);
+                lowerDir += diff * dir / (math.abs(dir.x) + math.abs(dir.y));
             }
             else
             {
-                curCell.bestDir += gradient * dir / 2;
+                dir = (float2)(neighborCell.gridIndex - curCell.gridIndex);
+                upperDir += diff * dir / (math.abs(dir.x) + math.abs(dir.y));
             }
         }
+        curCell.bestDir = math.normalizesafe(lowerDir) + 0.5f * math.normalizesafe(upperDir);
+        curCell.targetDir = math.normalizesafe(targetPos.xz - curCell.worldPos.xz);
+        curCell.debugField.x = UnityEngine.Vector2.Angle(curCell.bestDir, curCell.targetDir);
         cells[index] = curCell;
     }
 }
@@ -354,3 +379,88 @@ public struct UpdateDataToBufferJob : IJobParallelFor
         target[index] = source[index];
     }
 }
+
+// [BurstCompile]
+// public struct CalCulateIntegration_FSMJob : IJob
+// {
+//     public NativeArray<CellData> cells;
+//     [ReadOnly] public FlowFieldSettingData settingData;
+
+//     public void Execute()
+//     {
+//         var gridSetSize = settingData.gridSetSize;
+
+//         var destinationIndex = FlowFieldUtility.GetCellIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
+//         // Update Destination Cell's cost and bestCost
+//         int flatDestinationIndex = FlowFieldUtility.ToFlatIndex(destinationIndex, gridSetSize.y);
+//         CellData destinationCell = cells[flatDestinationIndex];
+//         destinationCell.cost = 0;
+//         destinationCell.bestCost = 0;
+//         destinationCell.tempCost = 0;
+//         cells[flatDestinationIndex] = destinationCell;
+
+//         int row = gridSetSize.x, column = gridSetSize.y;
+//         int3x4 horizontal = new int3x4(new int3(0, column - 1, 1), new int3(column - 1, 0, -1), new int3(column - 1, 0, -1), new int3(0, column - 1, 1));
+//         int3x4 vertical = new int3x4(new int3(0, row - 1, 1), new int3(0, row - 1, 1), new int3(row - 1, 0, -1), new int3(row - 1, 0, -1));
+
+//         float2 midValue = float2.zero;
+//         float newCost = 0;
+//         int i, j;
+//         // double h = 0.5, f = 1.0;
+
+//         for (int iter = 0; iter < 4; iter++)
+//         {
+
+//             for (i = vertical[iter].x; vertical[iter].z * i <= vertical[iter].y; i += vertical[iter].z)
+//             {
+//                 for (j = horizontal[iter].x; horizontal[iter].z * j <= horizontal[iter].y; j += horizontal[iter].z)
+//                 {
+//                     var currentIndex = FlowFieldUtility.ToFlatIndex(i, j, gridSetSize.y);
+//                     var current = cells[currentIndex];
+
+//                     if (current.cost < 255)
+//                     {
+//                         // === neighboring cells (Upwind Godunov) ===
+//                         if (i == 0)
+//                         {
+//                             midValue.y = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i + 1, j, gridSetSize.y)].tempCost);
+//                         }
+//                         else if (i == (row - 1))
+//                         {
+//                             midValue.y = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i - 1, j, gridSetSize.y)].tempCost);
+//                         }
+//                         else
+//                         {
+//                             midValue.y = math.min(cells[FlowFieldUtility.ToFlatIndex(i - 1, j, gridSetSize.y)].tempCost, cells[FlowFieldUtility.ToFlatIndex(i + 1, j, gridSetSize.y)].tempCost);
+//                         }
+
+//                         if (j == 0)
+//                         {
+//                             midValue.x = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i, j + 1, gridSetSize.y)].tempCost);
+//                         }
+//                         else if (j == (column - 1))
+//                         {
+//                             midValue.x = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i, j - 1, gridSetSize.y)].tempCost);
+//                         }
+//                         else
+//                         {
+//                             midValue.x = math.min(cells[FlowFieldUtility.ToFlatIndex(i, j - 1, gridSetSize.y)].tempCost, cells[FlowFieldUtility.ToFlatIndex(i, j + 1, gridSetSize.y)].tempCost);
+//                         }
+
+//                         if (math.abs(midValue.x - midValue.y) < 0.5f * current.cost)
+//                         {
+//                             newCost = (midValue.x + midValue.y + math.sqrt(0.5f * current.cost * current.cost - (midValue.x - midValue.y) * (midValue.x - midValue.y))) * 0.5f;
+//                         }
+//                         else
+//                         {
+//                             newCost = math.min(midValue.x, midValue.y) + 0.5f;
+//                         }
+
+//                         current.tempCost = math.min(newCost, current.tempCost);
+//                         cells[currentIndex] = current;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }

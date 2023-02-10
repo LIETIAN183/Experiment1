@@ -4,27 +4,37 @@ using Unity.Entities;
 using System.Linq;
 using Obi;
 using Unity.Mathematics;
+using Drawing;
 
-// TODO: 获得所有 Fluid 位置
+[RequireComponent(typeof(ObiSolver))]
 public class FluidGOManager : MonoBehaviour
 {
+    // 待生成流体的预制体
     public GameObject fluidPrefab;
 
+    // 生成流体位置偏移
     private static readonly float3 offset = new float3(0, 0.1f, 0);
-
+    // 辅助变量
     private EntityManager entityManager;
     private EntityQuery fluidQuery;
-
+    // 渲染配置变量
     private List<ObiFluidRenderer> renderers;
     private List<ObiParticleRenderer> particleList;
+    // 获取全局流体粒子坐标
+    private ObiSolver solver;
+
+    private List<float2> fluidPosList;
     // Start is called before the first frame update
     void Start()
     {
         particleList = new List<ObiParticleRenderer>();
         entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         fluidQuery = entityManager.CreateEntityQuery(typeof(FluidInfoBuffer));
-        // clearQuery = entityManager.CreateEntityQuery(typeof(ClearFluidEvent));
+        solver = GetComponent<ObiSolver>();
         renderers = new List<ObiFluidRenderer>();
+        fluidPosList = new List<float2>();
+        //  设置 0.5f 启动一次，因为路径算法也是0.5f启动一次
+        InvokeRepeating("GetAllFluidPostion", 0, 0.5f);
     }
 
     // Update is called once per frame
@@ -35,6 +45,23 @@ public class FluidGOManager : MonoBehaviour
             fluidQuery = entityManager.CreateEntityQuery(typeof(FluidInfoBuffer));
         }
 
+        GenerateFluid();
+
+        // using (Draw.ingame.WithColor(Color.green))
+        // {
+        //     foreach (var item in fluidPosList)
+        //     {
+        //         Draw.ingame.WireSphere(new float3(item.x, 0, item.y), 0.1f);
+        //     }
+        // }
+
+        AssingToFluidRender();
+
+        ClearEventCheck();
+    }
+
+    public void GenerateFluid()
+    {
         var list = fluidQuery.GetSingletonBuffer<FluidInfoBuffer>().Reinterpret<fluidInfo>();
         while (list.Length > 0)
         {
@@ -48,11 +75,31 @@ public class FluidGOManager : MonoBehaviour
             fluid.transform.rotation = lastInfo.rotation;
             particleList.Add(fluid.GetComponent<ObiParticleRenderer>());
         }
+    }
 
+    // 在相机中的 ObiFluidRenderer 组件中配置生成的新流体
+    public void AssingToFluidRender()
+    {
+        if (renderers.Count == 0)
+        {
+            var cameraQuery = entityManager.CreateEntityQuery(typeof(CameraRefData));
+            var cameraRef = cameraQuery.GetSingleton<CameraRefData>();
+            renderers.Add(cameraRef.mainCamera.GetComponent<ObiFluidRenderer>());
+            renderers.Add(cameraRef.overHeadCamera.GetComponent<ObiFluidRenderer>());
+        }
 
-        assingToFluidRender();
+        if (particleList.Count > 0)
+        {
+            var component = renderers[0];
+            // 合并原有数据
+            particleList.AddRange(component.particleRenderers.ToList());
+            // 重新赋值回原组件
+            component.particleRenderers = particleList.ToArray();
 
-        ClearEventCheck();
+            renderers[1].particleRenderers = particleList.ToArray();
+            // 清空本地数据
+            particleList.Clear();
+        }
     }
 
     public void ClearEventCheck()
@@ -82,28 +129,28 @@ public class FluidGOManager : MonoBehaviour
         }
     }
 
-    // 在相机中的 ObiFluidRenderer 组件中配置生成的新流体
-    public void assingToFluidRender()
+    public void GetAllFluidPostion()
     {
-        if (renderers.Count == 0)
-        {
-            var cameraQuery = entityManager.CreateEntityQuery(typeof(CameraRefData));
-            var cameraRef = cameraQuery.GetSingleton<CameraRefData>();
-            renderers.Add(cameraRef.mainCamera.GetComponent<ObiFluidRenderer>());
-            renderers.Add(cameraRef.overHeadCamera.GetComponent<ObiFluidRenderer>());
-        }
+        var fluidEntity = fluidQuery.GetSingletonEntity();
+        var pos2DBuffer = entityManager.GetBuffer<Pos2DBuffer>(fluidEntity);
 
-        if (particleList.Count > 0)
+        pos2DBuffer.Clear();
+        for (int i = 0; i < solver.positions.count; i += 10)
         {
-            var component = renderers[0];
-            // 合并原有数据
-            particleList.AddRange(component.particleRenderers.ToList());
-            // 重新赋值回原组件
-            component.particleRenderers = particleList.ToArray();
-
-            renderers[1].particleRenderers = particleList.ToArray();
-            // 清空本地数据
-            particleList.Clear();
+            var pos = transform.TransformPoint(solver.positions.GetVector3(i));
+            // 存在 (0,0.44f,0)相对 Obisolver 世界坐标的错误点位置，因此需要剔除
+            // if (pos.x == transform.position.x && pos.z == transform.position.z && math.abs(pos.y - transform.position.y - 0.44f) < 0.01f)
+            // {
+            //     continue;
+            // }
+            // 简化版本
+            if (pos.y > 0.4f) continue;
+            var temp = new float2(pos.x, pos.z);
+            foreach (var item in fluidPosList)
+            {
+                if (math.lengthsq(temp - item) < 0.01f) break;
+            }
+            pos2DBuffer.Add(temp);
         }
     }
 }

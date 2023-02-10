@@ -78,7 +78,6 @@ public partial struct SimControlSystem : ISystem
                 SystemAPI.SetSingleton(message);
             }
 
-            // TODO: MultiRound Error
             SystemInit(ref state, startEvent.index, startEvent.targetPGA).Complete();
 
             SubSystemManager(ref state, true);

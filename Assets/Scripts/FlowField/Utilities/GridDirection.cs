@@ -15,17 +15,25 @@ public struct GridDirection
     public static readonly GridDirection SouthEast = new GridDirection(1, -1);
     public static readonly GridDirection SouthWest = new GridDirection(-1, -1);
 
-    public static readonly GridDirection[] CardinalAndIntercardinalDirections = new GridDirection[8] {
+    public static readonly GridDirection[] EightDirections = new GridDirection[8] {
+        NorthWest,
         North,
-        East,
-        South,
-        West,
         NorthEast,
+        East,
         SouthEast,
+        South,
         SouthWest,
-        NorthWest
+        West
+        // North,
+        // East,
+        // South,
+        // West,
+        // NorthEast,
+        // SouthEast,
+        // SouthWest,
+        // NorthWest
     };
-    public static readonly GridDirection[] CardinalDirections = new GridDirection[4]
+    public static readonly GridDirection[] FourDirections = new GridDirection[4]
     {
         North,
         East,

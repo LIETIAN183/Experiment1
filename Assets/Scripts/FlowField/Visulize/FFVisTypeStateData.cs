@@ -14,5 +14,8 @@ public enum FlowFieldVisulizeType
     IntegrationField,
     IntegrationHeatMap,
     FlowField,
-    DebugField
+    TargetField,
+    DebugField1,
+    DebugField2,
+    DebugField3
 };

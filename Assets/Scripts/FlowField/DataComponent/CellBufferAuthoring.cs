@@ -25,6 +25,10 @@ public struct CellData
     public float2 bestDir;
     public float2 targetDir;
 
+    public float3 debugField;
+
+    public static readonly CellData zero = new CellData();
+
     // 用于判断不可通行区域的最外层网格是否更新过
     // public bool updated;
     // public float sumMass, maxY;
