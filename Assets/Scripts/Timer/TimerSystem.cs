@@ -46,15 +46,7 @@ public partial struct TimerSystem : ISystem
         var simulationSetting = SystemAPI.GetSingleton<SimConfigData>();
 
         // 有行人时所有行人逃出后结束仿真
-        if (simulationSetting.simAgent)
-        {//TODO: 移到人群系统
-         // var escaping = escapingQuery.CalculateEntityCount();
-         // if (escaping == 0)
-         // {
-         //     SystemAPI.SetSingleton(new EndSeismicEvent { isActivate = true });
-         // }
-        }
-        else if (!simulationSetting.performStatistics && data.elapsedTime >= data.eventDuration + 2)
+        if (!simulationSetting.performStatistics && !simulationSetting.simAgent && data.elapsedTime >= data.eventDuration + 2)
         // else if (!simulationSetting.performStatistics && data.elapsedTime >= 3)
         {
             SystemAPI.SetSingleton(new EndSeismicEvent { isActivate = true });

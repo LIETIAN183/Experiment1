@@ -19,8 +19,8 @@ namespace InitialPrefabs.NimGui.Loop
             // -----------------------------------------------------------------
             Texture2D tex = Resources.Load<Texture2D>("FontData/UbuntuMono/UbuntuMono-Regular_Atlas");
             SerializedFontData fontDataAsset = Resources.Load<SerializedFontData>("FontData/UbuntuMono/UbuntuMono-Regular_Glyphs");
-            // Texture2D tex = Resources.Load<Texture2D>("FontData/Times New Roman/Times New Roman_Atlas");
-            // SerializedFontData fontDataAsset = Resources.Load<SerializedFontData>("FontData/Times New Roman/Times New Roman_Glyphs");
+            // Texture2D tex = Resources.Load<Texture2D>("Font/TimesNewRoman_Atlas");
+            // SerializedFontData fontDataAsset = Resources.Load<SerializedFontData>("Font/TimesNewRoman_Glyphs");
 
             if (tex == null)
             {

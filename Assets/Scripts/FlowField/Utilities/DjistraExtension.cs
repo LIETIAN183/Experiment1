@@ -66,5 +66,6 @@ public struct CalCulateIntegration_DjistraJob : IJob
                 }
             }
         }
+        indicesToCheck.Dispose();
     }
 }

@@ -10,9 +10,11 @@ using Unity.Mathematics;
 [BurstCompile]
 public partial struct FlowFieldMovementSystem : ISystem
 {
+    private EntityQuery escapedQuery;
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        escapedQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Escaped>().WithOptions(EntityQueryOptions.IncludeDisabledEntities).Build(ref state);
         state.Enabled = false;
     }
 
@@ -28,6 +30,13 @@ public partial struct FlowFieldMovementSystem : ISystem
             settingData = SystemAPI.GetSingleton<FlowFieldSettingData>(),
             deltaTime = SystemAPI.Time.DeltaTime
         }.ScheduleParallel(state.Dependency);
+
+        var escaped = escapedQuery.CalculateEntityCount();
+        var simulationSetting = SystemAPI.GetSingleton<SimConfigData>();
+        if (!simulationSetting.performStatistics && escaped.Equals(SystemAPI.GetSingleton<SpawnerData>().desireCount))
+        {
+            SystemAPI.SetSingleton(new EndSeismicEvent { isActivate = true });
+        }
     }
 }
 

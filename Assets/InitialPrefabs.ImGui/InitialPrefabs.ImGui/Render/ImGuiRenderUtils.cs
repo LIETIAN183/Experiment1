@@ -38,6 +38,7 @@ namespace InitialPrefabs.NimGui.Render
         {
             if (Glyphs.IsCreated())
             {
+                return;
                 Glyphs.Dispose();
                 Debug.LogWarning("Releasing allocated Glyphs for reinitializtion");
             }

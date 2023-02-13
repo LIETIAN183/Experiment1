@@ -1,7 +1,9 @@
 using Unity.Mathematics;
+using Unity.Burst;
+[BurstCompile]
 public static class Constants
 {
-    public const float gravity = 9.81f;
+    public static readonly float gravity = 9.81f;
 
     public static readonly int2 notInGridSet = new int2(-1, -1);
 

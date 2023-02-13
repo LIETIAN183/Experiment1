@@ -156,7 +156,17 @@ public struct DrawFlowFieldJob : IJob
                         var halfLength = cellRadius.x * 0.8f;
                         var originPos = cell.worldPos + heightOffset;
                         builder.Arrow(originPos - halfLength * dir, originPos + halfLength * dir, Color.black);
-
+                    }
+                }
+                break;
+            case FlowFieldVisulizeType.TargetField:
+                foreach (var cell in cells)
+                {
+                    if (cell.tempCost == 0) builder.CircleXZ(cell.worldPos + heightOffset, cellRadius.x * 0.8f, Color.yellow);
+                    // else if (cell.bestDirection.Equals(GridDirection.None)) drawCross45(draw, cell.worldPos + heightOffset, setting.cellRadius * 0.8f, Color.red);
+                    else if (cell.bestDir.Equals(float2.zero)) builder.drawCross45(cell.worldPos + heightOffset, cellRadius * 0.8f, Color.red);
+                    else
+                    {
                         var tdir = math.normalize(new float3(cell.targetDir.x, 0, cell.targetDir.y));
                         var thalfLength = cellRadius.x * 0.8f;
                         var toriginPos = cell.worldPos + heightOffset;
@@ -164,26 +174,6 @@ public struct DrawFlowFieldJob : IJob
                     }
                 }
                 break;
-            // case FlowFieldVisulizeType.TargetField:
-            //     foreach (var cell in cells)
-            //     {
-            //         if (cell.tempCost == 0) builder.CircleXZ(cell.worldPos + heightOffset, cellRadius.x * 0.8f, Color.yellow);
-            //         // else if (cell.bestDirection.Equals(GridDirection.None)) drawCross45(draw, cell.worldPos + heightOffset, setting.cellRadius * 0.8f, Color.red);
-            //         else if (cell.targetDir.Equals(float2.zero)) builder.drawCross45(cell.worldPos + heightOffset, cellRadius * 0.8f, Color.red);
-            //         else
-            //         {
-            //             var dir = math.normalize(new float3(cell.bestDir.x, 0, cell.bestDir.y));
-            //             var halfLength = cellRadius.x * 0.8f;
-            //             var originPos = cell.worldPos + heightOffset;
-            //             builder.Arrow(originPos - halfLength * dir, originPos + halfLength * dir, Color.black);
-
-            //             var tdir = math.normalize(new float3(cell.targetDir.x, 0, cell.targetDir.y));
-            //             var thalfLength = cellRadius.x * 0.8f;
-            //             var toriginPos = cell.worldPos + heightOffset;
-            //             builder.Arrow(toriginPos - thalfLength * tdir, toriginPos + thalfLength * tdir, Color.red);
-            //         }
-            //     }
-            //     break;
             case FlowFieldVisulizeType.DebugField1:
 
                 builder.WireGrid(center, Quaternion.identity, gridSize, gridSetSize.xz, Color.black);

@@ -56,7 +56,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                     {
                         isActivate = true,
                         message = "Simulation Finished",
-                        displayType = 1
+                        displayForever = true
                     });
                     this.Enabled = false;
                     return;
@@ -139,7 +139,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
             {
                 ecb = ecb,
                 physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
-                randomInitSeed = (uint)(SystemAPI.Time.ElapsedTime * 1000),
+                randomInitSeed = (uint)(SystemAPI.GetSingleton<RandomSeed>().seed + SystemAPI.Time.ElapsedTime.GetHashCode()),
             }.Schedule(Dependency).Complete();
             ecb.Playback(this.EntityManager);
             ecb.Dispose();
@@ -147,7 +147,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
             var message = SystemAPI.GetSingleton<MessageEvent>();
             message.isActivate = true;
             message.message = "Spawning Agents";
-            message.displayType = 0;
+            message.displayForever = false;
             SystemAPI.SetSingleton(message);
         }
         // 开始仿真

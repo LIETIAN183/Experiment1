@@ -21,8 +21,7 @@ partial struct SpawnerJob : IJobEntity
         var posBuffer = buffer.Reinterpret<float3>();
         ComponentTypeSet components = new ComponentTypeSet(ComponentType.ReadWrite<Idle>(), ComponentType.ReadWrite<Escaping>(), ComponentType.ReadWrite<Escaped>());
         NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.Temp);
-        var random = new Random();
-        random.InitState(randomInitSeed);
+        var random = Random.CreateFromIndex(randomInitSeed);
         while (spawner.currentCount < spawner.desireCount)
         {
             var spawnedEntity = ecb.Instantiate(spawner.prefab);

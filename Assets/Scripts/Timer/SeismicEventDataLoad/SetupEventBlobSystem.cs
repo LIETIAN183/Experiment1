@@ -34,7 +34,7 @@ public partial class SetupEventBlobSystem : SystemBase
                 var message = SystemAPI.GetSingleton<MessageEvent>();
                 message.isActivate = true;
                 message.message = "SeismicData Folder don't exist in StreamingAsset Folder";
-                message.displayType = 1;
+                message.displayForever = true;
                 SystemAPI.SetSingleton(message);
                 return;
             }
@@ -52,7 +52,7 @@ public partial class SetupEventBlobSystem : SystemBase
                 var message = SystemAPI.GetSingleton<MessageEvent>();
                 message.isActivate = true;
                 message.message = "No Seismic Event in SeismicData Folder";
-                message.displayType = 1;
+                message.displayForever = true;
                 SystemAPI.SetSingleton(message);
                 return;
             }
@@ -68,7 +68,7 @@ public partial class SetupEventBlobSystem : SystemBase
                     var message = SystemAPI.GetSingleton<MessageEvent>();
                     message.isActivate = true;
                     message.message = "Read AT2 File Error";
-                    message.displayType = 1;
+                    message.displayForever = true;
                     SystemAPI.SetSingleton(message);
                     return;
                 }

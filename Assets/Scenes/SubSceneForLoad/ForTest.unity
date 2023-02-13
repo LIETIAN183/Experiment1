@@ -162,7 +162,7 @@ Transform:
   - {fileID: 223667045}
   - {fileID: 745625661}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &223667044
 GameObject:
@@ -1079,12 +1079,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 435841565}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.14, z: -1.82}
+  m_LocalPosition: {x: 0, y: 1.14, z: -1.71}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &612099616
 GameObject:
@@ -1440,7 +1440,7 @@ Transform:
   - {fileID: 1933352970}
   - {fileID: 1561336193}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &728419719
 GameObject:
@@ -2357,12 +2357,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 935702995}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.14, z: 0}
+  m_LocalPosition: {x: 0, y: 1.14, z: 0.110000014}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1127570997
 GameObject:
@@ -11889,6 +11889,7 @@ MonoBehaviour:
   c: 20
   mass: 10
   directionConstrain: 0
+  randomInitialize: 1
 --- !u!1 &4639422600367651289
 GameObject:
   m_ObjectHideFlags: 0
@@ -11899,7 +11900,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5415959990699909987}
   - component: {fileID: 4639422600367651288}
-  - component: {fileID: 5415959990699909988}
   m_Layer: 0
   m_Name: DoubleShelf
   m_TagString: Shelf
@@ -12086,20 +12086,8 @@ Transform:
   - {fileID: 6826800781375304312}
   - {fileID: 6826800782404202369}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5415959990699909988
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4639422600367651289}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec5b6d47b03f828419d97e1428550e2b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5435647334645878919
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.Collections;
 
@@ -57,6 +56,7 @@ public static class FlowFieldUtility
         }
         return neighbors;
     }
+
     public static int2 GetIndexAtRelativePosition(int2 currentPos, int2 relativePos, int2 gridSize)
     {
         return DeterminingInGridSet(currentPos + relativePos, gridSize);
@@ -66,22 +66,16 @@ public static class FlowFieldUtility
     {
         return DeterminingInGridSet(currentPos + relativePos, gridSize).Equals(Constants.notInGridSet) ? -1 : ToFlatIndex(currentPos + relativePos, gridSize.y);
     }
+
     public static int ToFlatIndex(int2 index2D, int columnNumber) => columnNumber * index2D.x + index2D.y;
+
     public static int ToFlatIndex(int x, int y, int columnNumber) => columnNumber * x + y;
+
     public static int2 GetCellIndexFromWorldPos(float3 worldPos, float3 originPoint, int2 gridSize, float3 cellDiameter)
     {
-        float percentX = (worldPos.x - originPoint.x) / (gridSize.x * cellDiameter.x);
-        float percentY = (worldPos.z - originPoint.z) / (gridSize.y * cellDiameter.z);
-
-        percentX = math.clamp(percentX, 0f, 1f);
-        percentY = math.clamp(percentY, 0f, 1f);
-
-        int2 cellIndex = new int2
-        {
-            x = math.clamp((int)math.floor((gridSize.x) * percentX), 0, gridSize.x - 1),
-            y = math.clamp((int)math.floor((gridSize.y) * percentY), 0, gridSize.y - 1)
-        };
-        return DeterminingInGridSet(cellIndex, gridSize);
+        int indexX = (int)((worldPos.x - originPoint.x) / cellDiameter.x);
+        int indexY = (int)((worldPos.z - originPoint.z) / cellDiameter.z);
+        return DeterminingInGridSet(new int2(indexX, indexY), gridSize);
     }
 
     /// <summary>
@@ -94,17 +88,19 @@ public static class FlowFieldUtility
     /// <returns></returns>
     public static int GetCellFlatIndexFromWorldPos(float2 worldPos, float3 originPoint, int2 gridSize, float3 cellDiameter)
     {
-        float percentX = (worldPos.x - originPoint.x) / (gridSize.x * cellDiameter.x);
-        float percentY = (worldPos.y - originPoint.z) / (gridSize.y * cellDiameter.z);
+        int indexX = (int)((worldPos.x - originPoint.x) / cellDiameter.x);
+        int indexY = (int)((worldPos.y - originPoint.z) / cellDiameter.z);
 
-        percentX = math.clamp(percentX, 0f, 1f);
-        percentY = math.clamp(percentY, 0f, 1f);
+        int2 cellIndex = new int2(indexX, indexY);
+        return DeterminingInGridSet(cellIndex, gridSize).Equals(Constants.notInGridSet) ? -1 : ToFlatIndex(cellIndex, gridSize.y);
+    }
 
-        int2 cellIndex = new int2
-        {
-            x = math.clamp((int)math.floor((gridSize.x) * percentX), 0, gridSize.x - 1),
-            y = math.clamp((int)math.floor((gridSize.y) * percentY), 0, gridSize.y - 1)
-        };
+    public static int GetCellFlatIndexFromWorldPos(float3 worldPos, float3 originPoint, int2 gridSize, float3 cellDiameter)
+    {
+        int indexX = (int)((worldPos.x - originPoint.x) / cellDiameter.x);
+        int indexY = (int)((worldPos.z - originPoint.z) / cellDiameter.z);
+
+        int2 cellIndex = new int2(indexX, indexY);
         return DeterminingInGridSet(cellIndex, gridSize).Equals(Constants.notInGridSet) ? -1 : ToFlatIndex(cellIndex, gridSize.y);
     }
 

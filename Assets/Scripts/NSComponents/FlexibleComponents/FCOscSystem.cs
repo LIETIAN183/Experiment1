@@ -12,6 +12,7 @@ using Unity.Physics;
 public partial struct FCOscSystem : ISystem, ISystemStartStop
 {
     private ComponentLookup<FCData> m_fcDataLookup;
+    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<FCData>();
@@ -62,11 +63,9 @@ public partial struct FCOscSystem : ISystem, ISystemStartStop
 [BurstCompile]
 partial struct ResetFCDataJob : IJobEntity
 {
-    void Execute(ref FCData fcData, in FCKCInitData initData)
+    void Execute(ref FCData fcData)
     {
         fcData.topDis = fcData.topVel = 0;
-        fcData.k += initData.k;
-        fcData.c += initData.c;
     }
 }
 [BurstCompile]
@@ -133,17 +132,5 @@ partial struct CalSubFCMotionJob : IJobEntity
         RigidTransform rgTransform = new RigidTransform(math.mul(subFCData.orgRot, quaternion.Euler(radius, 0, 0)), subFCData.orgPos + parentData.forward * curmovement);
 
         velocity = PhysicsVelocity.CalculateVelocityToTarget(mass, localTransform.Position, localTransform.Rotation, rgTransform, 1 / deltaTime);
-    }
-}
-
-[BurstCompile]
-partial struct FCKCInitJob : IJobEntity
-{
-    [ReadOnly] public int seed;
-    void Execute(ref FCKCInitData data, [EntityIndexInQuery] int index)
-    {
-        var random = new Random((uint)((index + 1) * seed + 1));
-        data.k += random.NextFloat(-5, 5);
-        data.c += random.NextFloat(-0.2f, 0.2f);
     }
 }

@@ -29,12 +29,13 @@ public partial struct SimControlSystem : ISystem
     [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         StartCheck(ref state);
         EndCheck(ref state);
     }
-
+    [BurstCompile]
     public void StartCheck(ref SystemState state)
     {
         var startEvent = SystemAPI.GetComponent<StartSeismicEvent>(state.SystemHandle);
@@ -46,7 +47,7 @@ public partial struct SimControlSystem : ISystem
                 var message = SystemAPI.GetSingleton<MessageEvent>();
                 message.isActivate = true;
                 message.message = "Data Read Error, Cant Exceed Simulation";
-                message.displayType = 1;
+                message.displayForever = true;
                 SystemAPI.SetSingleton(message);
                 return;
             }
@@ -66,7 +67,7 @@ public partial struct SimControlSystem : ISystem
                 {
                     ecb = ecb,
                     physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
-                    randomInitSeed = (uint)(SystemAPI.Time.ElapsedTime * 1000),
+                    randomInitSeed = (uint)(SystemAPI.GetSingleton<RandomSeed>().seed + SystemAPI.Time.ElapsedTime.GetHashCode()),
                 }.Schedule(state.Dependency).Complete();
                 ecb.Playback(state.EntityManager);
                 ecb.Dispose();
@@ -74,7 +75,7 @@ public partial struct SimControlSystem : ISystem
                 var message = SystemAPI.GetSingleton<MessageEvent>();
                 message.isActivate = true;
                 message.message = "Spawning Agents";
-                message.displayType = 0;
+                message.displayForever = false;
                 SystemAPI.SetSingleton(message);
             }
 
@@ -84,7 +85,7 @@ public partial struct SimControlSystem : ISystem
 
         }
     }
-
+    [BurstCompile]
     public void EndCheck(ref SystemState state)
     {
         var endEvent = SystemAPI.GetComponent<EndSeismicEvent>(state.SystemHandle);
@@ -99,6 +100,7 @@ public partial struct SimControlSystem : ISystem
         }
     }
 
+    [BurstCompile]
     public JobHandle SystemInit(ref SystemState state, int eventIndex, float simPGA)
     {
         var initJobDependency = new TimerInitJob

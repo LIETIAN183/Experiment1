@@ -9,6 +9,13 @@ using InitialPrefabs.NimGui.Text;
 using System.Text;
 using Unity.Collections;
 
+using Unity.Transforms;
+using Unity.Physics;
+using Unity.Jobs;
+using System.Reflection;
+using System.IO;
+using Unity.Burst;
+
 // string 为 managedData，同时 FixedString32Bytes.ToString()也为 managed method，且 Burst 不支持 String Format 0.0，因此使用 SystemBase
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public partial class UISystem : SystemBase
@@ -26,6 +33,8 @@ public partial class UISystem : SystemBase
     private ImDropDownStyle dropStyle;
     private ImButtonStyle buttonStyle;
 
+    private bool debugFlag;
+
     // 地震事件名数组, FlowField可视化类型数组,辅助字符串数组
     private string[] eventNameArray, ffVisTypeArray, fontSizeArray, timeStepArray, pgaThresholdArray, pgaStepArray, spawnNumberArray;
 
@@ -36,8 +45,6 @@ public partial class UISystem : SystemBase
 
         EntityManager.AddComponentData<UIDisplayStateData>(this.SystemHandle, new UIDisplayStateData { isDisplay = true });
         EntityManager.AddComponentData<MessageEvent>(this.SystemHandle, new MessageEvent());
-
-
 
         // 设置样式
         textStyle = ImTextStyle.New();
@@ -58,6 +65,8 @@ public partial class UISystem : SystemBase
         pgaThresholdArray = Enumerable.Range(0, 11).Select(x => (x * 0.1f).ToString()).ToArray();
         pgaStepArray = Enumerable.Range(0, 6).Select(x => (x * 0.01f).ToString()).ToArray();
         spawnNumberArray = new string[] { "1", "10", "50", "100", "200", "300" };
+
+        debugFlag = false;
     }
 
     protected override void OnUpdate()
@@ -65,8 +74,7 @@ public partial class UISystem : SystemBase
         // 给事件名称数组赋值，放在这里是因为数据读取需要时间，不能一开始就初始化好
         if (eventNameArray.Length <= 0 && SystemAPI.GetSingleton<DataLoadStateData>().isLoadSuccessed)
         {
-            var temp = SystemAPI.GetSingletonBuffer<BlobRefBuffer>(true).Reinterpret<BlobAssetReference<SeismicEventBlobAsset>>().ToList();
-            eventNameArray = temp.Select(item => item.Value.eventName.ToString()).ToArray();
+            eventNameArray = SystemAPI.GetSingletonBuffer<BlobRefBuffer>(true).GetNameArry();
         }
 
         // 控制 UI 显示
@@ -87,7 +95,7 @@ public partial class UISystem : SystemBase
         {
             this.message = messageEvent.message.ToString();
             messageEvent.isActivate = false;
-            if (messageEvent.displayType == 0)
+            if (!messageEvent.displayForever)
             {
                 messageResetTimer = 2;
             }
@@ -110,7 +118,8 @@ public partial class UISystem : SystemBase
         textStyle.WithColor(DefaultStyles.Text);// 重置白色
 
         // Debug 用
-        SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle) });
+        // TODO:注意运行仿真后，下方同类的另一个选项生效，会覆盖该选项
+        // SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle) });
 
         // 判断是否开始仿真
         if (unmanagedWorld.GetExistingSystemState<TimerSystem>().Enabled | managedWorld.GetExistingSystemManaged<MultiRoundStatisticsSystem>().Enabled)
@@ -179,6 +188,39 @@ public partial class UISystem : SystemBase
                 cameraRef.overHeadCamera.enabled = true;
                 managedWorld.GetExistingSystemManaged<MultiRoundStatisticsSystem>().StartMultiRoundStatistics(pgaThreshold, pgaStep);
             }
+
+
+            using (var collapse = new ImCollapsibleArea(debugFlag ? "Close Debug" : "Enter Debug", true, in buttonStyle))
+            {
+                if (debugFlag = collapse.IsVisible)
+                {
+                    SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle) });
+                    unmanagedWorld.GetExistingSystemState<CellDebugSystem>().Enabled = debugFlag;
+                    var handle = unmanagedWorld.GetExistingUnmanagedSystem<CellDebugSystem>();
+                    var curDebugCell = unmanagedWorld.GetUnsafeSystemRef<CellDebugSystem>(handle).curDebugCell;
+
+                    var structFields = typeof(CellData).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    var dataFields = curDebugCell.GetType().GetFields();
+
+                    for (int i = 0; i < structFields.Length; ++i)
+                    {
+                        ImGui.Label(structFields[i].Name + ":" + dataFields[i].GetValue(curDebugCell).ToString(), in textStyle);
+                    }
+                }
+                else
+                {
+                    SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.None });
+                    unmanagedWorld.GetExistingSystemState<CellDebugSystem>().Enabled = debugFlag;
+                }
+            }
+
+            var sceneNameArray = managedWorld.GetExistingSystemManaged<SimInitializeSystem>().GetSceneNameArray();
+            var index = ImGui.Dropdown("Select Scene", sceneNameArray, in dropStyle);
+            if (index != managedWorld.GetExistingSystemManaged<SimInitializeSystem>().curSceneIndex)
+            {
+                managedWorld.GetExistingSystemManaged<SimInitializeSystem>().ChangeScene(index);
+            }
+
         }
     }
 
@@ -257,11 +299,12 @@ public partial class UISystem : SystemBase
             if (ImGui.Toggle("Choose Destination", in buttonStyle))
             {
                 SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.FlowField });
-                managedWorld.GetExistingSystemManaged<SelectDestinationSystem>().Enabled = true;
+                unmanagedWorld.GetExistingSystemState<SelectDestinationSystem>().Enabled = true;
             }
             else
             {
-                managedWorld.GetExistingSystemManaged<SelectDestinationSystem>().Enabled = false;
+                SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.None });
+                unmanagedWorld.GetExistingSystemState<SelectDestinationSystem>().Enabled = false;
             }
 
             if (ImGui.Toggle("Modify Display Height", in buttonStyle))

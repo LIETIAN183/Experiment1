@@ -55,7 +55,7 @@ public partial struct FlowFieldSystem : ISystem
         localTransformList.Update(ref state);
         physicsMassList.Update(ref state);
 
-        var costJob = new CalculateCostJob()
+        var costJob = new CalculateCostJob
         {
             cells = localArray,
             physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
@@ -97,13 +97,20 @@ public partial struct FlowFieldSystem : ISystem
         //     state.Dependency = integrationJob;
         // }
 
-        var integrationJob = new CalCulateIntegration_FSMJob()
+        // var intFloodingJob = new CalculateIntegration_FloodingJob
+        // {
+        //     cells = localArray,
+        //     settingData = settingData,
+        //     physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld
+        // }.Schedule(costJob);
+
+        var integrationJob = new CalCulateIntegration_FSMJob
         {
             cells = localArray,
             settingData = settingData
         }.Schedule(costJob);
 
-        var flowFieldJob = new CalculateFlowFieldJob()
+        var flowFieldJob = new CalculateFlowFieldJob
         {
             cells = localArray,
             // gridSetSize = settingData.gridSetSize
@@ -231,6 +238,63 @@ public struct CalculateFluidCostJob : IJobEntity
             if (flatIndex < 0) continue;
             // cells[flatIndex] 配置
         }
+    }
+}
+
+[BurstCompile]
+public struct CalculateIntegration_FloodingJob : IJob
+{
+    public NativeArray<CellData> cells;
+    [ReadOnly] public FlowFieldSettingData settingData;
+    [ReadOnly] public PhysicsWorld physicsWorld;
+
+    public void Execute()
+    {
+        NativeQueue<int> flatIndicesToCheck = new NativeQueue<int>(Allocator.TempJob);
+
+        var gridSetSize = settingData.gridSetSize;
+
+        var desFlatIndex = FlowFieldUtility.GetCellFlatIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
+        CellData destinationCell = cells[desFlatIndex];
+        destinationCell.cost = 0;
+        destinationCell.bestCost = 0;
+        destinationCell.tempCost = 0;
+        cells[desFlatIndex] = destinationCell;
+        var desWorldPos = destinationCell.worldPos;
+
+        flatIndicesToCheck.Enqueue(desFlatIndex);
+        while (flatIndicesToCheck.Count > 0)
+        {
+            int cellFlatIndex = flatIndicesToCheck.Dequeue();
+            CellData curCellData = cells[cellFlatIndex];
+
+            foreach (int flatNeighborIndex in FlowFieldUtility.Get8NeighborFlatIndices(curCellData.gridIndex, gridSetSize))
+            {
+                CellData neighborCellData = cells[flatNeighborIndex];
+                // 更新第一层障碍物的最佳方向
+                if (neighborCellData.cost == 1)
+                {
+                    var RaycastInput = new RaycastInput
+                    {
+                        Start = neighborCellData.worldPos,
+                        End = desWorldPos,
+                        Filter = CollisionFilter.Default
+                    };
+                    if (!physicsWorld.CastRay(RaycastInput, out RaycastHit hit))
+                    {
+                        var temp = math.length(neighborCellData.worldPos - desWorldPos);
+                        if (neighborCellData.tempCost > temp)
+                        {
+                            neighborCellData.tempCost = temp;
+                            cells[flatNeighborIndex] = neighborCellData;
+                            flatIndicesToCheck.Enqueue(flatNeighborIndex);
+                        }
+
+                    }
+                }
+            }
+        }
+        flatIndicesToCheck.Dispose();
     }
 }
 

@@ -4,9 +4,11 @@ using UnityEngine;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Burst;
 using System;
 using Drawing;
 
+[BurstCompile]
 public static class ExtensionMethod
 {
     /// <summary>
@@ -14,6 +16,7 @@ public static class ExtensionMethod
     /// </summary>
     /// <param name="accList">NatiList 中存储的数据类型为 float3，代表每一时刻的加速度</param>
     /// <returns>event PGA</returns>
+    [BurstCompile]
     public static float maxPGA(this ref BlobArray<float3> accList)
     {
         float midRes = 0;
@@ -21,10 +24,6 @@ public static class ExtensionMethod
         {
             midRes = math.max(midRes, math.lengthsq(accList[i]));
         }
-        // foreach (var item in accList)
-        // {
-        //     midRes = math.max(midRes, math.lengthsq(item));
-        // }
         return math.sqrt(midRes) / Constants.gravity;
     }
 
@@ -36,6 +35,7 @@ public static class ExtensionMethod
     /// <param name="max">范围上界</param>
     /// <param name="defaultValue">超时范围时使用的默认值</param>
     /// <returns>InRange: Value, OutRange: defaultValue</returns>
+    [BurstCompile]
     public static float inRange(this float value, float min, float max, float defaultValue)
     {
         return (value < min | value > max) ? defaultValue : value;
@@ -55,6 +55,16 @@ public static class ExtensionMethod
             res.Add(item);
         }
         return res;
+    }
+
+    public static string[] GetNameArry(this DynamicBuffer<BlobRefBuffer> source)
+    {
+        string[] eventNameArray = new string[source.Length];
+        for (int i = 0; i < source.Length; ++i)
+        {
+            eventNameArray[i] = source[i].Value.Value.eventName.ToString();
+        }
+        return eventNameArray;
     }
 
     /// <summary>
@@ -119,6 +129,13 @@ public static class ExtensionMethod
         return secondMaxTempCost;
     }
 
+    /// <summary>
+    /// 给 Drawing 添加绘制叉号的功能
+    /// </summary>
+    /// <param name="builder"></param>
+    /// <param name="position"></param>
+    /// <param name="size"></param>
+    /// <param name="color"></param>
     public static void drawCross45(this CommandBuilder builder, float3 position, float3 size, Color color)
     {
         builder.PushColor(color);
