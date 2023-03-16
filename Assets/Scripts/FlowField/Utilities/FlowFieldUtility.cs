@@ -1,6 +1,9 @@
 using Unity.Mathematics;
 using Unity.Collections;
 
+/// <summary>
+/// 返回值为 NaticeContainer 的需要手动 Dispose
+/// </summary>
 public static class FlowFieldUtility
 {
     /// <summary>

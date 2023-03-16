@@ -5,6 +5,8 @@ using Unity.Collections;
 using Unity.Physics;
 using Unity.Burst;
 
+// TODO: 单次仿真后，行人不销毁，因此下一次单次仿真出错
+// 不管单次还是多次仿真结束后，都应该销毁 Agent
 /// <summary>
 /// Spawner Agent Job
 /// </summary>
@@ -31,7 +33,8 @@ partial struct SpawnerJob : IJobEntity
             {
                 outHits.Clear();
                 flag = true;
-                position = spawner.center + new float3(random.NextFloat(-spawner.sideLength, spawner.sideLength), 0, random.NextFloat(-spawner.sideLength, spawner.sideLength));
+                // position = spawner.center + new float3(random.NextFloat(-spawner.sideLength, spawner.sideLength), 0, random.NextFloat(-spawner.sideLength, spawner.sideLength));
+                position = new float3(-10.25f, 1f, -1.25f);
                 physicsWorld.OverlapBox(position, quaternion.identity, Constants.halfHumanSize3D, ref outHits, CollisionFilter.Default);
 
                 foreach (var pos in posBuffer)
@@ -48,8 +51,7 @@ partial struct SpawnerJob : IJobEntity
             ecb.AddComponent(spawnedEntity, components);
             ecb.SetComponentEnabled<Escaping>(spawnedEntity, false);
             ecb.SetComponentEnabled<Escaped>(spawnedEntity, false);
-            // ecb.SetComponent<LocalTransform>(spawnedEntity, LocalTransform.FromPositionRotationScale(new float3(3, 1, -3.5f), quaternion.identity, 0.5f));
-            ecb.SetComponent<LocalTransform>(spawnedEntity, LocalTransform.FromPositionRotationScale(position, quaternion.identity, 0.5f));
+            ecb.SetComponent<LocalTransform>(spawnedEntity, LocalTransform.FromPosition(position));
             posBuffer.Add(position);
             spawner.currentCount++;
         }

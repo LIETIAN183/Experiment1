@@ -36,7 +36,7 @@ public partial class UISystem : SystemBase
     private bool debugFlag;
 
     // 地震事件名数组, FlowField可视化类型数组,辅助字符串数组
-    private string[] eventNameArray, ffVisTypeArray, fontSizeArray, timeStepArray, pgaThresholdArray, pgaStepArray, spawnNumberArray;
+    private string[] eventNameArray, ffVisTypeArray, fontSizeArray, timeStepArray, pgaThresholdArray, pgaStepArray, spawnNumberArray, sceneNameArray;
 
     protected override void OnCreate()
     {
@@ -58,6 +58,7 @@ public partial class UISystem : SystemBase
         messageResetTimer = 0;
 
         eventNameArray = new string[] { };
+        sceneNameArray = new string[] { };
         // 存储 FlowField 可视化类型数组
         ffVisTypeArray = Enum.GetNames(typeof(FlowFieldVisulizeType));
         fontSizeArray = Enumerable.Range(5, 16).Select(x => (x * 2).ToString()).ToArray();
@@ -72,48 +73,16 @@ public partial class UISystem : SystemBase
     protected override void OnUpdate()
     {
         // 给事件名称数组赋值，放在这里是因为数据读取需要时间，不能一开始就初始化好
-        if (eventNameArray.Length <= 0 && SystemAPI.GetSingleton<DataLoadStateData>().isLoadSuccessed)
-        {
-            eventNameArray = SystemAPI.GetSingletonBuffer<BlobRefBuffer>(true).GetNameArry();
-        }
+        CheckArrayData();
 
         // 控制 UI 显示
         if (!SystemAPI.GetSingleton<UIDisplayStateData>().isDisplay) return;
-
-        // UnityEngine.Debug.Log(ImGuiContext.Windows.Count);
-        // if (ImGuiContext.Windows.Count == 0)
-        // {
-        //     var size = new int2(Screen.width, Screen.height);
-        //     var position = (float2)size / 2f;
-        //     ImGuiContext.Windows.Add(new ImWindow(50, size, position, "Primary_Window"));
-        // }
         // 显示 FPS
         ImGui.Label($"{SystemAPI.GetSingleton<FPSData>().curFPS} FPS", in textStyle);
 
-        var messageEvent = SystemAPI.GetSingleton<MessageEvent>();
-        if (messageEvent.isActivate)
-        {
-            this.message = messageEvent.message.ToString();
-            messageEvent.isActivate = false;
-            if (!messageEvent.displayForever)
-            {
-                messageResetTimer = 2;
-            }
-            SystemAPI.SetSingleton(messageEvent);
-        }
-
-        // 显示 2s 后清除信息
-        if (messageResetTimer > 0)
-        {
-            messageResetTimer -= SystemAPI.Time.DeltaTime;
-            if (messageResetTimer <= 0)
-            {
-                message = " ";
-            }
-        }
-
         // 显示通知
         ImGui.SameLine(); // 显示在同一行
+        ProcessMessage();
         ImGui.Label(message, in textStyle.WithColor(Color.red));
         textStyle.WithColor(DefaultStyles.Text);// 重置白色
 
@@ -126,31 +95,26 @@ public partial class UISystem : SystemBase
         {
             // 开始仿真时显示事件相关信息
             ShowEventInformation();
-            if (SystemAPI.GetSingleton<SimConfigData>().simFlowField)
-            {
-                // 选择 FlowField 可视化效果
-                var visType = (FlowFieldVisulizeType)ImGui.Dropdown("FlowField", ffVisTypeArray, in dropStyle);
-                SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = visType });
-            }
+            SelectFlowFieldVisulizeTypeIfSimulateFlowField();
         }
         else
         {
             // 未仿真时显示配置选项
             int eventIndex = ImGui.Dropdown("Select Seismic", eventNameArray, in dropStyle);
 
-            float pgaThreshold = 0;
             var pgaThresholdListIndex = ImGui.Dropdown("PGA Threshold", 0, pgaThresholdArray, in dropStyle);
-            if (!float.TryParse(pgaThresholdArray[pgaThresholdListIndex], out pgaThreshold)) pgaThreshold = 0;
+            if (!float.TryParse(pgaThresholdArray[pgaThresholdListIndex], out var pgaThreshold)) pgaThreshold = 0;
 
-            float pgaStep = 0;
             var pgaStepListIndex = ImGui.Dropdown("PGA Step", 0, pgaStepArray, in dropStyle);
-            if (!float.TryParse(pgaStepArray[pgaStepListIndex], out pgaStep)) pgaStep = 0;
+            if (!float.TryParse(pgaStepArray[pgaStepListIndex], out var pgaStep)) pgaStep = 0;
 
             // 已修改 BeginCollapsible 函数中的 size，使得 CollapsibleArea 占据的区域为屏幕 x 轴的 1/10
             using (var collapse = new ImCollapsibleArea("Config", true, in buttonStyle))
             {
                 if (collapse.IsVisible)
                 {
+                    SelectScene();
+
                     SetupFontSize();
                     // 已修改 LineInternal 函数中的 size，使得 Line 占据的区域为屏幕 x 轴的 1/10
                     ImGui.Line();
@@ -163,6 +127,7 @@ public partial class UISystem : SystemBase
                 }
                 else
                 {
+                    SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.None });
                     ImGui.SameLine();
                 }
             }
@@ -188,40 +153,19 @@ public partial class UISystem : SystemBase
                 cameraRef.overHeadCamera.enabled = true;
                 managedWorld.GetExistingSystemManaged<MultiRoundStatisticsSystem>().StartMultiRoundStatistics(pgaThreshold, pgaStep);
             }
-
-
-            using (var collapse = new ImCollapsibleArea(debugFlag ? "Close Debug" : "Enter Debug", true, in buttonStyle))
-            {
-                if (debugFlag = collapse.IsVisible)
-                {
-                    SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle) });
-                    unmanagedWorld.GetExistingSystemState<CellDebugSystem>().Enabled = debugFlag;
-                    var handle = unmanagedWorld.GetExistingUnmanagedSystem<CellDebugSystem>();
-                    var curDebugCell = unmanagedWorld.GetUnsafeSystemRef<CellDebugSystem>(handle).curDebugCell;
-
-                    var structFields = typeof(CellData).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                    var dataFields = curDebugCell.GetType().GetFields();
-
-                    for (int i = 0; i < structFields.Length; ++i)
-                    {
-                        ImGui.Label(structFields[i].Name + ":" + dataFields[i].GetValue(curDebugCell).ToString(), in textStyle);
-                    }
-                }
-                else
-                {
-                    SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.None });
-                    unmanagedWorld.GetExistingSystemState<CellDebugSystem>().Enabled = debugFlag;
-                }
-            }
-
-            var sceneNameArray = managedWorld.GetExistingSystemManaged<SimInitializeSystem>().GetSceneNameArray();
-            var index = ImGui.Dropdown("Select Scene", sceneNameArray, in dropStyle);
-            if (index != managedWorld.GetExistingSystemManaged<SimInitializeSystem>().curSceneIndex)
-            {
-                managedWorld.GetExistingSystemManaged<SimInitializeSystem>().ChangeScene(index);
-            }
-
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        DebugField();
+        ImGui.Label($"Acc Equals 0", in textStyle);
+        var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
+        ImGui.Label($"agentIndex:" + setting.agentIndex, in textStyle);
+        ImGui.Label($"agentIndex=0:Find lowerest Neighbor + 4 Grid GlobalDir", in textStyle);
+        ImGui.Label($"agentIndex=1:Find lowerest Neighbor + 4 Grid LocalDir", in textStyle);
+        ImGui.Label($"agentIndex=2:Find lowerest Neighbor + GlobalDir", in textStyle);
+        ImGui.Label($"agentIndex=3:Find lowerest Neighbor + LocalDir", in textStyle);
+#endif
+
     }
 
     /// <summary>
@@ -291,25 +235,20 @@ public partial class UISystem : SystemBase
         if (simConfigData.simFlowField = ImGui.Toggle("Simulate FlowField", in buttonStyle, simConfigData.simFlowField))
         {
             // TODO: 后续继续调整
-            // 选择 FlowField 可视化效果
-            var visType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle);
-            SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = visType });
-            // managedWorld.GetExistingSystemManaged<CalculateCostFieldSystem>().Enabled = true;
             // 选择流场目标点
             if (ImGui.Toggle("Choose Destination", in buttonStyle))
             {
-                SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.FlowField });
+                SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.GlobalFlowField });
                 unmanagedWorld.GetExistingSystemState<SelectDestinationSystem>().Enabled = true;
             }
             else
             {
-                SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.None });
                 unmanagedWorld.GetExistingSystemState<SelectDestinationSystem>().Enabled = false;
             }
 
             if (ImGui.Toggle("Modify Display Height", in buttonStyle))
             {
-                SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.FlowField });
+                SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.GlobalFlowField });
                 // 已修改 Slider 函数中的 size，使得 Slider 占据的区域为屏幕 x 轴的 1/10
                 // 不添加空label，该slider不生效
                 var heightOffset = ImGui.Slider("", -1f, 4f, in sliderStyle, 0.2f);
@@ -336,5 +275,101 @@ public partial class UISystem : SystemBase
         simConfigData.performStatistics = ImGui.Toggle("Perform Statistics", in buttonStyle, simConfigData.performStatistics);
 
         SystemAPI.SetSingleton(simConfigData);
+    }
+
+    private void SelectScene()
+    {
+        var index = ImGui.Dropdown("Select Scene", sceneNameArray, in dropStyle);
+        if (index != managedWorld.GetExistingSystemManaged<SimInitializeSystem>().curSceneIndex)
+        {
+            managedWorld.GetExistingSystemManaged<SimInitializeSystem>().ChangeScene(index);
+        }
+    }
+
+    private void CheckArrayData()
+    {
+        if (eventNameArray.Length <= 0 && SystemAPI.GetSingleton<DataLoadStateData>().isLoadSuccessed)
+        {
+            eventNameArray = SystemAPI.GetSingletonBuffer<BlobRefBuffer>(true).GetNameArry();
+        }
+        if (sceneNameArray.Length <= 0 && managedWorld.GetExistingSystemManaged<SimInitializeSystem>().GetSceneNameArray(out var array))
+        {
+            sceneNameArray = array;
+        }
+    }
+
+    private void ProcessMessage()
+    {
+        var messageEvent = SystemAPI.GetSingleton<MessageEvent>();
+        if (messageEvent.isActivate)
+        {
+            this.message = messageEvent.message.ToString();
+            messageEvent.isActivate = false;
+            if (!messageEvent.displayForever)
+            {
+                messageResetTimer = 2;
+            }
+            SystemAPI.SetSingleton(messageEvent);
+        }
+
+        // 显示 2s 后清除信息
+        if (messageResetTimer > 0)
+        {
+            messageResetTimer -= SystemAPI.Time.DeltaTime;
+            if (messageResetTimer <= 0)
+            {
+                message = " ";
+            }
+        }
+    }
+
+    private void SelectFlowFieldVisulizeTypeIfSimulateFlowField()
+    {
+        if (SystemAPI.GetSingleton<SimConfigData>().simFlowField)
+        {
+            // 选择 FlowField 可视化效果
+            SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("FlowField", ffVisTypeArray, in dropStyle) });
+        }
+    }
+
+    private void DebugField()
+    {
+        using (var collapse = new ImCollapsibleArea(debugFlag ? "Close Debug" : "Enter Debug", true, in buttonStyle))
+        {
+            if (debugFlag = collapse.IsVisible)
+            {
+                // if (ImGui.Toggle("Simulate FlowField", in buttonStyle))
+                // {
+                CellDebug();
+                // }
+            }
+            else
+            {
+                unmanagedWorld.GetExistingSystemState<CellDebugSystem>().Enabled = debugFlag;
+            }
+        }
+    }
+
+    private void CellDebug()
+    {
+        SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = (FlowFieldVisulizeType)ImGui.Dropdown("Visulize Type", ffVisTypeArray, in dropStyle) });
+        unmanagedWorld.GetExistingSystemState<CellDebugSystem>().Enabled = debugFlag;
+        var handle = unmanagedWorld.GetExistingUnmanagedSystem<CellDebugSystem>();
+        var curDebugCell = unmanagedWorld.GetUnsafeSystemRef<CellDebugSystem>(handle).curDebugCell;
+
+        var structFields = typeof(CellData).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+        var dataFields = curDebugCell.GetType().GetFields();
+
+        textStyle.WithColor(Color.red);// 设置红色
+        ImGui.Label("FlatIndex:" + FlowFieldUtility.ToFlatIndex(curDebugCell.gridIndex, SystemAPI.GetSingleton<FlowFieldSettingData>().gridSetSize.y), in textStyle);
+        for (int i = 0; i < structFields.Length; ++i)
+        {
+            ImGui.Label(structFields[i].Name + ":" + dataFields[i].GetValue(curDebugCell).ToString(), in textStyle);
+        }
+        textStyle.WithColor(DefaultStyles.Text);// 重置白色
+    }
+    private void CleanCellDebug()
+    {
+        SystemAPI.SetSingleton<FFVisTypeStateData>(new FFVisTypeStateData { ffVisType = FlowFieldVisulizeType.None });
     }
 }

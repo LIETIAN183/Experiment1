@@ -16,14 +16,14 @@ public partial struct TrajectoryDisplaySystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var builder = DrawingManager.GetBuilder(true);
-        builder.PushLineWidth(2f);
+
 
         var drawJob = new DrawTrajectoriesJob
         {
             builder = builder
         }.ScheduleParallel(state.Dependency);
 
-        builder.PopLineWidth();
+
         builder.DisposeAfter(drawJob);
         drawJob.Complete();
     }
@@ -39,6 +39,9 @@ partial struct DrawTrajectoriesJob : IJobEntity
     public CommandBuilder builder;
     public void Execute(in DynamicBuffer<PosBuffer> posList)
     {
+        // PushLineWidth 在 Job 外使用不生效
+        builder.PushLineWidth(4f);
         builder.Polyline(posList.Reinterpret<float3>().AsNativeArray(), Color.white);
+        builder.PopLineWidth();
     }
 }

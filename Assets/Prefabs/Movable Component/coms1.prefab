@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 808136199726287460}
   - component: {fileID: 3380458117899278214}
   m_Layer: 8
-  m_Name: Coms1
+  m_Name: coms1
   m_TagString: c1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,6 +32,7 @@ Transform:
     w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -55,6 +56,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -99,7 +101,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MotionType: 0
   m_Smoothing: 0
-  m_Mass: 1
+  m_Mass: 2
   m_LinearDamping: 0.01
   m_AngularDamping: 0.05
   m_InitialLinearVelocity:
@@ -126,6 +128,7 @@ MonoBehaviour:
     x: 0.4
     y: 0.4
     z: 0.4
+  m_WorldIndex: 0
   m_CustomTags:
     Tag00: 0
     Tag01: 0
@@ -181,7 +184,7 @@ MonoBehaviour:
   m_ForceUnique: 0
   m_Material:
     m_SupportsTemplate: 1
-    m_Template: {fileID: 11400000, guid: 7c40f4d27334efc4d8650f63dd9d452f, type: 2}
+    m_Template: {fileID: 11400000, guid: 4c8d16778804f5b49aac9c7cdb296695, type: 2}
     m_CollisionResponse:
       m_Override: 0
       m_Value: 0
@@ -290,14 +293,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  previous_VelInY: 0
-  originPosition:
-    x: 0
-    y: 0
-    z: 0
-  originRotation:
-    value:
-      x: 0
-      y: 0
-      z: 0
-      w: 0

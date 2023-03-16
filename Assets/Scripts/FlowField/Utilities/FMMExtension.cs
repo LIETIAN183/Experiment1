@@ -24,9 +24,8 @@ public struct CalCulateIntegration_FMMJob : IJob
         // Update Destination Cell's cost and bestCost
         int flatDestinationIndex = FlowFieldUtility.ToFlatIndex(destinationIndex, gridSetSize.y);
         CellData destinationCell = cells[flatDestinationIndex];
-        destinationCell.cost = 0;
-        destinationCell.bestCost = 0;
-        destinationCell.tempCost = 0;
+        destinationCell.localCost = 0;
+        destinationCell.integrationCost = 0;
         // destinationCell.state = State.Open;
         cells[flatDestinationIndex] = destinationCell;
 
@@ -44,7 +43,7 @@ public struct CalCulateIntegration_FMMJob : IJob
         while (sortOpenList.Count > 0)
         {
 
-            sortOpenList = sortOpenList.OrderByDescending(i => i.tempCost).ToList();
+            sortOpenList = sortOpenList.OrderByDescending(i => i.integrationCost).ToList();
             var current = sortOpenList.Last();
             sortOpenList.RemoveAt(sortOpenList.Count - 1);
 
@@ -55,7 +54,8 @@ public struct CalCulateIntegration_FMMJob : IJob
 
             // cells[currentIndex] = current;
 
-            foreach (int2 neighborIndex in FlowFieldUtility.Get4NeighborIndices(current.gridIndex, gridSetSize))
+            var neighborIndexList = FlowFieldUtility.Get4NeighborIndices(current.gridIndex, gridSetSize);
+            foreach (int2 neighborIndex in neighborIndexList)
             {
                 int flatNeighborIndex = FlowFieldUtility.ToFlatIndex(neighborIndex, gridSetSize.y);
                 CellData neighborCellData = cells[flatNeighborIndex];
@@ -78,29 +78,29 @@ public struct CalCulateIntegration_FMMJob : IJob
                 float t1, t2;
                 if (northIndex.x < 0)
                 {
-                    t1 = cells[FlowFieldUtility.ToFlatIndex(southIndex, gridSetSize.y)].tempCost;
+                    t1 = cells[FlowFieldUtility.ToFlatIndex(southIndex, gridSetSize.y)].integrationCost;
                 }
                 else if (southIndex.x < 0)
                 {
-                    t1 = cells[FlowFieldUtility.ToFlatIndex(northIndex, gridSetSize.y)].tempCost;
+                    t1 = cells[FlowFieldUtility.ToFlatIndex(northIndex, gridSetSize.y)].integrationCost;
                 }
                 else
                 {
-                    t1 = math.min(cells[FlowFieldUtility.ToFlatIndex(southIndex, gridSetSize.y)].tempCost, cells[FlowFieldUtility.ToFlatIndex(northIndex, gridSetSize.y)].tempCost);
+                    t1 = math.min(cells[FlowFieldUtility.ToFlatIndex(southIndex, gridSetSize.y)].integrationCost, cells[FlowFieldUtility.ToFlatIndex(northIndex, gridSetSize.y)].integrationCost);
                 }
 
 
                 if (eastIndex.x < 0)
                 {
-                    t2 = cells[FlowFieldUtility.ToFlatIndex(westIndex, gridSetSize.y)].tempCost;
+                    t2 = cells[FlowFieldUtility.ToFlatIndex(westIndex, gridSetSize.y)].integrationCost;
                 }
                 else if (westIndex.x < 0)
                 {
-                    t2 = cells[FlowFieldUtility.ToFlatIndex(eastIndex, gridSetSize.y)].tempCost;
+                    t2 = cells[FlowFieldUtility.ToFlatIndex(eastIndex, gridSetSize.y)].integrationCost;
                 }
                 else
                 {
-                    t2 = math.min(cells[FlowFieldUtility.ToFlatIndex(westIndex, gridSetSize.y)].tempCost, cells[FlowFieldUtility.ToFlatIndex(eastIndex, gridSetSize.y)].tempCost);
+                    t2 = math.min(cells[FlowFieldUtility.ToFlatIndex(westIndex, gridSetSize.y)].integrationCost, cells[FlowFieldUtility.ToFlatIndex(eastIndex, gridSetSize.y)].integrationCost);
                 }
 
                 float t;
@@ -113,10 +113,11 @@ public struct CalCulateIntegration_FMMJob : IJob
                     t = math.min(t1, t2) + 0.5f;
                 }
 
-                neighborCellData.tempCost = math.min(neighborCellData.tempCost, t);
+                neighborCellData.integrationCost = math.min(neighborCellData.integrationCost, t);
                 cells[FlowFieldUtility.ToFlatIndex(neighborCellData.gridIndex, gridSetSize.y)] = neighborCellData;
                 sortOpenList.Add(neighborCellData);
             }
+            neighborIndexList.Dispose();
         }
     }
 }

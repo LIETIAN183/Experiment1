@@ -3,22 +3,23 @@ using Unity.Entities;
 using Unity.Physics.Authoring;
 using Obi;
 
-[RequireComponent(typeof(DestroyFluidGroundInEditMode), typeof(PhysicsShapeAuthoring))]
+[RequireComponent(typeof(PhysicsShapeAuthoring))]
 public class GenerateFluidGroundInGOAuthoring : MonoBehaviour
 {
-    // Subscene 内的 Baking 在 Edit 模式下就会运行，所以总会提前生成一个 GroundInGo 对象
-    // 同时进入 PlayMode 后 Baker也会运行，生成的 GameObject 退出 PlayMode 后不消失，这个问题暂时不知道如何解决
+    // TODO: 1. 在未来版本实现 “用于和流体交互的地板” 无需手动辅助的功能
+    // Subscene 内的 Baking 在 Edit 模式下就会运行，所以会提前生成一个 GroundInGo 对象
+    // 该对象在需要在 Build 前存在，因为目前测试 Build 后不生成该 GameObject
+    // 注意：！！！ 还需要手动拖到 SubScene 之前，这是目前版本的问题，暂时无法解决
     class Baker : Baker<GenerateFluidGroundInGOAuthoring>
     {
+        public static readonly string name = "GroundInGO(Move Above SubScene Manually)";
         public override void Bake(GenerateFluidGroundInGOAuthoring authoring)
         {
-            // 删除所有存在的并重写生成
-            // 还是需要再检测一次的
-            var go = GameObject.Find("GroundInGo(Work in Play Mode)");
-            while (go != null)
+            // 检测有无已经生成，若已经生成则不再生成新的
+            var go = GameObject.Find(name);
+            if (go != null)
             {
-                Object.DestroyImmediate(go);
-                go = GameObject.Find("GroundInGo(Work in Play Mode)");
+                return;
             }
 
             //获取目标数据
@@ -26,10 +27,8 @@ public class GenerateFluidGroundInGOAuthoring : MonoBehaviour
             var sourceTransform = authoring.transform;
 
             // 创建物体并设置尺寸
-            GameObject groundInGo = new GameObject("GroundInGo(Work in Play Mode)");
-            groundInGo.transform.position = sourceTransform.position;
-            groundInGo.transform.rotation = sourceTransform.rotation;
-            groundInGo.transform.localScale = sourceTransform.localScale;
+            GameObject groundInGo = new GameObject(name);
+            groundInGo.transform.CopyPosRotScale(sourceTransform);
 
             // 配置 Collider
             // 地板的 PhysicsShape 的 Orientation 必须设置为 0

@@ -254,7 +254,8 @@ partial struct DCReplaceJob : IJob
                 var data = orgInfoList[child];
                 // 计算每个子物体要替换的位置和旋转角度
                 // (float3 p, quaternion r) = Utilities.rotateAroundPoint(float3.zero, targetRot, data.orgPos, data.orgRot);
-                Utilities.rotateAroundOriginPoint(targetRot, data.orgPos, data.orgRot, out var p, out var r);
+                // Utilities.rotateAroundOriginPoint(targetRot, data.orgPos, data.orgRot, out var p, out var r);
+                var (p, r) = Utilities.rotateAroundPoint(float3.zero, targetRot, data.orgPos, data.orgRot);
                 // rotateAroundPoint(float3.zero, targetRot, data.orgPos, data.orgRot, out var p, out var r);
                 // 设置位置、旋转角度和速度
                 ecb.SetComponent<PhysicsVelocity>(child, targetVelocity);

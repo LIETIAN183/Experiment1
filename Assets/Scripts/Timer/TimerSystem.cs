@@ -35,7 +35,10 @@ public partial struct TimerSystem : ISystem
         data.elapsedTime = data.accListIndex * data.eventDeltaTime;
         if (data.elapsedTime < data.eventDuration)
         {
-            data.curAcc = accList[data.accListIndex] * data.adjustmentPGAFactor;
+            // data.curAcc = accList[data.accListIndex] * data.adjustmentPGAFactor;
+
+            data.curAcc = 0;
+            // data.curPGA = 1;
             data.curPGA = math.max(data.curPGA, math.length(data.curAcc) / Constants.gravity);
         }
         else { data.curAcc = float3.zero; }

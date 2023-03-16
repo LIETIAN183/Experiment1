@@ -52,12 +52,12 @@ public partial class AgentMovementSystem : SystemBase
             int flatLocalCellIndex = FlowFieldUtility.ToFlatIndex(localCellIndex, settingData.gridSetSize.y);
 
             // var SFMDirection = math.normalizesafe(SFMtarget - translation.Value.xz);
-            float2 desireDirection = math.normalizesafe(cellBuffer[flatLocalCellIndex].bestDir);
+            float2 desireDirection = math.normalizesafe(cellBuffer[flatLocalCellIndex].globalDir);
             if (localTransform.Position.z > 5 || localTransform.Position.x < -5)
             {
-                int2 neighberIndex = FlowFieldUtility.GetIndexAtRelativePosition(localCellIndex, (int2)cellBuffer[flatLocalCellIndex].bestDir, settingData.gridSetSize);
+                int2 neighberIndex = FlowFieldUtility.GetIndexAtRelativePosition(localCellIndex, (int2)cellBuffer[flatLocalCellIndex].globalDir, settingData.gridSetSize);
                 int flatNeigborIndex = FlowFieldUtility.ToFlatIndex(neighberIndex, settingData.gridSetSize.y);
-                if (cellBuffer[flatNeigborIndex].cost == 1)
+                if (cellBuffer[flatNeigborIndex].localCost == 1)
                 {
                     desireDirection = math.normalizesafe(SFMtarget - localTransform.Position.xz);
                 }

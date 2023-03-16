@@ -20,12 +20,11 @@ public class FlowFieldSettingDataAuthoring : MonoBehaviour
                 cellRadius = authoring.cellRadius,
                 destination = authoring.destination,
                 displayOffset = authoring.displayOffset,
-                index = 2
+                agentIndex = -1
             });
         }
     }
 }
-
 
 public struct FlowFieldSettingData : IComponentData
 {
@@ -35,10 +34,7 @@ public struct FlowFieldSettingData : IComponentData
     public float3 destination;
     public float3 displayOffset;
 
-    public float3 rotation;
+    public uint index;
 
-    public int index;
-
-    public float debugValue;
+    public int agentIndex;
 }
-

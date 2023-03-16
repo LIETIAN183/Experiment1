@@ -14,8 +14,14 @@ public partial struct FlowFieldSystem : ISystem
 {
     private ComponentLookup<LocalTransform> localTransformList;
     private ComponentLookup<PhysicsMass> physicsMassList;
-
     private NativeArray<CellData> localArray;
+    private NativeArray<int> localDests;
+    private NativeParallelMultiHashMap<Entity, float2> bigObstacleHashMap;
+
+    //-------------辅助变量------------------------
+    private float gridVolume, pgaInms2;
+
+    private PhysicsWorld physicsWorld;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -30,16 +36,20 @@ public partial struct FlowFieldSystem : ISystem
             destination = new float3(-10.8f, 0, 8.8f),
             // displayOffset = math.up(),
             displayOffset = new float3(0, -0.9f, 0),
-            index = 2,
-            debugValue = 0.5f
+            agentIndex = -1
         });
         state.EntityManager.AddBuffer<CellBuffer>(entity);
+        var desBuffer = state.EntityManager.AddBuffer<DestinationBuffer>(entity);
+        // desBuffer.Add(117);
+        desBuffer.Add(1657);
 
         localTransformList = SystemAPI.GetComponentLookup<LocalTransform>(true);
         physicsMassList = SystemAPI.GetComponentLookup<PhysicsMass>(true);
-
+        bigObstacleHashMap = new NativeParallelMultiHashMap<Entity, float2>(1000, Allocator.Persistent);
+        gridVolume = 0;
         // state.Enabled = false;
     }
+
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -55,74 +65,26 @@ public partial struct FlowFieldSystem : ISystem
         localTransformList.Update(ref state);
         physicsMassList.Update(ref state);
 
-        var costJob = new CalculateCostJob
+        localDests = SystemAPI.GetSingletonBuffer<DestinationBuffer>(true).Reinterpret<int>().AsNativeArray();
+
+        // 更新辅助变量
+        if (gridVolume == 0)
         {
-            cells = localArray,
-            physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
-            pgaInms2 = SystemAPI.GetSingleton<TimerData>().curPGA * Constants.gravity,
-            cellRadius = settingData.cellRadius,
-            localTransformList = localTransformList,
-            physicsMassList = physicsMassList
-        }.Schedule(localArray.Length, 32, state.Dependency);
+            gridVolume = settingData.GetCellGridVolume();
+        }
+        pgaInms2 = SystemAPI.GetSingleton<TimerData>().curPGA * Constants.gravity;
+        physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
-        // CalculateFluidCostJob
-        // TODO:计算流体代价
+        //----------END----------------
 
-        // 并行快速扫描法，虽然实行并行化，但相比非并行版本，需要迭代更多次，因此放弃并行快速扫描法
-        // {
-        //     state.Dependency = PFSMExtension.CalculateIntegration_PFSM(costJob, cells, settingData);
-        //     for (int i = 0; i < 10; i++)
-        //     {
-        //         state.Dependency = PFSMExtension.CalculateIntegration_PFSM(state.Dependency, cells, settingData);
-        //     }
-        // }
-
-        // 快速行进法
-        // {
-        //     var integrationJob = new CalCulateIntegration_FMMJob()
-        //     {
-        //         cells = cells,
-        //         settingData = settingData
-        //     }.Schedule(costJob);
-        //     state.Dependency = integrationJob;
-        // }
-
-        // Djistra
-        // {
-        //     var integrationJob = new CalCulateIntegration_DjistraJob()
-        //     {
-        //         cells = cells,
-        //         settingData = settingData
-        //     }.Schedule(costJob);
-        //     state.Dependency = integrationJob;
-        // }
-
-        // var intFloodingJob = new CalculateIntegration_FloodingJob
-        // {
-        //     cells = localArray,
-        //     settingData = settingData,
-        //     physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld
-        // }.Schedule(costJob);
-
-        var integrationJob = new CalCulateIntegration_FSMJob
-        {
-            cells = localArray,
-            settingData = settingData
-        }.Schedule(costJob);
-
-        var flowFieldJob = new CalculateFlowFieldJob
-        {
-            cells = localArray,
-            // gridSetSize = settingData.gridSetSize
-            settingData = settingData
-        }.Schedule(localArray.Length, 32, integrationJob);
-
-        var cells = SystemAPI.GetSingletonBuffer<CellBuffer>().Reinterpret<CellData>().AsNativeArray();
+        state.Dependency = CostJob(ref state, settingData);
+        state.Dependency = IntegrationJob(ref state, settingData);
+        state.Dependency = FlowFieldJob(ref state, settingData);
         var updateJob = new UpdateDataToBufferJob
         {
             source = localArray,
-            target = cells
-        }.Schedule(localArray.Length, 32, flowFieldJob);
+            target = SystemAPI.GetSingletonBuffer<CellBuffer>().Reinterpret<CellData>().AsNativeArray()
+        }.Schedule(localArray.Length, localArray.Length / 4, state.Dependency);
 
         state.Dependency = updateJob;
     }
@@ -130,10 +92,9 @@ public partial struct FlowFieldSystem : ISystem
     [BurstCompile]
     public void OnDestroy(ref SystemState state)
     {
-        if (localArray.IsCreated)
-        {
-            localArray.Dispose();
-        }
+        if (localArray.IsCreated) localArray.Dispose();
+        if (bigObstacleHashMap.IsCreated) bigObstacleHashMap.Dispose();
+        if (localDests.IsCreated) localDests.Dispose();
     }
 
     [BurstCompile]
@@ -167,134 +128,209 @@ public partial struct FlowFieldSystem : ISystem
         }
         return new JobHandle();
     }
+
+    [BurstCompile]
+    public JobHandle CostJob(ref SystemState state, FlowFieldSettingData settingData)
+    {
+        // 判断数量有无超出
+        if (bigObstacleHashMap.Count() > 990)
+        {
+            SystemAPI.SetSingleton(new MessageEvent
+            {
+                isActivate = true,
+                message = $"bigObstacleHashMap Length Not Enough,Max:1000,Now:{bigObstacleHashMap.Count()}",
+                displayForever = true
+            });
+        }
+        bigObstacleHashMap.Clear();
+        var costJob1 = new CalculateCostStep1Job
+        {
+            cells = localArray,
+            physicsWorld = this.physicsWorld,
+            cellRadius = settingData.cellRadius,
+            localTransformList = localTransformList,
+            physicsMassList = physicsMassList,
+            bigObstacleHashMapWriter = bigObstacleHashMap.AsParallelWriter()
+        }.Schedule(localArray.Length, localArray.Length / 4, state.Dependency);
+
+        var costJob2 = new CalculateCostStep2Job
+        {
+            cells = localArray,
+            fluidPosArray = SystemAPI.GetSingletonBuffer<Pos2DBuffer>().Reinterpret<float2>().AsNativeArray(),
+            settingData = settingData,
+            bigObstacleHashMap = bigObstacleHashMap
+        }.Schedule(costJob1);
+
+        var costJob3 = new CalculateCostStep3Job
+        {
+            cells = localArray,
+            pgaInms2 = this.pgaInms2,
+            gridVolume = this.gridVolume
+        }.Schedule(localArray.Length, localArray.Length / 4, costJob2);
+
+        var costJob4 = new CalculateCostStep4Job
+        {
+            cells = localArray,
+            physicsWorld = this.physicsWorld,
+            dests = localDests,
+            detectArea = math.PI * Constants.destinationAgentOverlapRadius * Constants.destinationAgentOverlapRadius
+        }.Schedule(localDests.Length, localArray.Length / 4, costJob3);
+        return costJob4;
+    }
+
+    public JobHandle IntegrationJob(ref SystemState state, FlowFieldSettingData settingData)
+    {
+        var integrationJob1 = new CalculateIntegration_destsInit
+        {
+            dests = localDests,
+            cells = localArray
+        }.Schedule(localDests.Length, localArray.Length / 4, state.Dependency);
+
+        var integrationJob2 = new CalculateIntegration_FloodingJob
+        {
+            cells = localArray,
+            dests = localDests,
+            halfExtents = settingData.cellRadius,
+            physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld
+        }.Schedule(localArray.Length, localArray.Length / 4, integrationJob1);
+
+        var integrationJob3 = new CalCulateIntegration_FSMJob
+        {
+            cells = localArray,
+            settingData = settingData
+        }.Schedule(integrationJob2);
+        // 并行快速扫描法，虽然实行并行化，但相比非并行版本，需要迭代更多次，因此放弃并行快速扫描法
+        // var integrationJob3 = PFSMExtension.CalculateIntegration_PFSM(integrationJob1, localArray, settingData);
+
+        // 快速行进法
+        // {
+        //     var integrationJob = new CalCulateIntegration_FMMJob()
+        //     {
+        //         cells = cells,
+        //         settingData = settingData
+        //     }.Schedule(costJob);
+        //     state.Dependency = integrationJob;
+        // }
+
+        // Djistra
+        // {
+        //     var integrationJob = new CalCulateIntegration_DjistraJob()
+        //     {
+        //         cells = cells,
+        //         settingData = settingData
+        //     }.Schedule(costJob);
+        //     state.Dependency = integrationJob;
+        // }
+        return integrationJob3;
+    }
+
+    public JobHandle FlowFieldJob(ref SystemState state, FlowFieldSettingData settingData)
+    {
+        // TODO:仅仅适用于8通量
+        // var flowFieldJob1 = new CalculateGlobalFlowFieldJob_NotDestGrid
+        // {
+        //     cells = localArray,
+        //     settingData = settingData,
+        //     pgaInms2 = this.pgaInms2
+        // }.Schedule(localArray.Length, localArray.Length / 4, state.Dependency);
+
+        var flowFieldJob1 = new CalculateGlobalFlowFieldJob_NotDestGrid_8Neighbor
+        {
+            cells = localArray,
+            settingData = settingData
+        }.Schedule(localArray.Length, localArray.Length / 4, state.Dependency);
+
+
+        var flowFieldJob2 = new CalculateGlobalFlowFieldJob_DestGrid
+        {
+            cells = localArray,
+            dests = localDests
+        }.Schedule(localDests.Length, localArray.Length / 4, flowFieldJob1);
+
+        // var flowFieldJob3 = new CalculateLocalFlowFieldJob_NotDestGrid
+        // {
+        //     cells = localArray,
+        //     pgaInms2 = this.pgaInms2,
+        //     gridSetSize = settingData.gridSetSize
+        // }.Schedule(localArray.Length, localArray.Length / 4, flowFieldJob2);
+
+        var flowFieldJob3 = new CalculateLocalFlowFieldJob_NotDestGrid_8Neighbor
+        {
+            cells = localArray,
+            gridSetSize = settingData.gridSetSize
+        }.Schedule(localArray.Length, localArray.Length / 4, flowFieldJob2);
+
+        var flowFieldJob4 = new CalculateLocalFlowFieldJob_DestGrid
+        {
+            cells = localArray,
+            dests = localDests,
+            pgaInms2 = this.pgaInms2,
+            gridVolume = this.gridVolume,
+            gridSetSize = settingData.gridSetSize
+        }.Schedule(flowFieldJob3);
+
+        return flowFieldJob4;
+    }
 }
 
+/// <summary>
+/// 计算目标网格的总代价
+/// </summary>
 [BurstCompile]
-public struct CalculateCostJob : IJobParallelFor
+public struct CalculateIntegration_destsInit : IJobParallelFor
 {
+    [ReadOnly] public NativeArray<int> dests;
+    [NativeDisableParallelForRestriction]
     public NativeArray<CellData> cells;
-    [ReadOnly] public PhysicsWorld physicsWorld;
-    [ReadOnly] public float pgaInms2;
-    [ReadOnly] public float3 cellRadius;
-    [ReadOnly] public ComponentLookup<LocalTransform> localTransformList;
-    [ReadOnly] public ComponentLookup<PhysicsMass> physicsMassList;
+
     public void Execute(int index)
     {
-        var curCell = cells[index];
-        NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.Temp);
-        physicsWorld.OverlapBox(curCell.worldPos, quaternion.identity, cellRadius, ref outHits, CollisionFilter.Default);
-        float cost = 0, max_height = 0, sum_mass = 0;
-        foreach (var hit in outHits)
-        {
-            if (cost < 255)
-            {
-                if ((hit.Material.CustomTags & 0b_0000_1000) != 0)
-                {
-                    cost = 255;
-                    break;
-                }
-
-                var entityPos = localTransformList[hit.Entity].Position;
-                if ((hit.Material.CustomTags & 0b_0000_0011) != 0)
-                {
-                    // 小障碍物的customtags值为1，所以无影响，中等障碍物的customtags值为2，所以计算高度时为其坐标×2
-                    if (entityPos.y * hit.Material.CustomTags > max_height) max_height = hit.Material.CustomTags * entityPos.y;
-
-                    var component = physicsMassList[hit.Entity];
-                    sum_mass += 1 / component.InverseMass;
-                    // max_height = 1;
-                    // sum_mass += 1;
-                }
-            }
-        }
-        // cost += math.exp(-pgaInms2) * sum_mass * max_height * 2 + math.exp(max_height);
-        cost += sum_mass * max_height * 2 + math.exp(max_height);
-        // cost += math.exp(-pgaInms2) * sum_mass * max_height * 2;
-        if (cost > 255) cost = 255;
-        curCell.cost = (byte)cost;
-        curCell.bestCost = ushort.MaxValue;
-        // curCell.updated = false;
-        curCell.bestDir = float2.zero;
-        curCell.tempCost = float.MaxValue;
-        // curCell.state = State.Far;
-        cells[index] = curCell;
-        outHits.Dispose();
+        var curCell = cells[dests[index]];
+        curCell.integrationCost = curCell.localCost;
+        cells[dests[index]] = curCell;
     }
 }
 
 [BurstCompile]
-[WithAll(typeof(Pos2DBuffer), typeof(ClearFluidEvent))]
-public struct CalculateFluidCostJob : IJobEntity
+public struct CalculateIntegration_FloodingJob : IJobParallelFor
 {
+    [NativeDisableParallelForRestriction]
     public NativeArray<CellData> cells;
-    [ReadOnly] public FlowFieldSettingData settingData;
-    public void Execute(in DynamicBuffer<Pos2DBuffer> posList)
-    {
-        var gridSetSize = settingData.gridSetSize;
-        var cellDiameter = settingData.cellRadius * 2;
-        foreach (var item in posList.Reinterpret<float2>())
-        {
-            var flatIndex = FlowFieldUtility.GetCellFlatIndexFromWorldPos(item, settingData.originPoint, gridSetSize, cellDiameter);
-            if (flatIndex < 0) continue;
-            // cells[flatIndex] 配置
-        }
-    }
-}
 
-[BurstCompile]
-public struct CalculateIntegration_FloodingJob : IJob
-{
-    public NativeArray<CellData> cells;
-    [ReadOnly] public FlowFieldSettingData settingData;
+    [ReadOnly] public NativeArray<int> dests;
+    [ReadOnly] public float3 halfExtents;
     [ReadOnly] public PhysicsWorld physicsWorld;
 
-    public void Execute()
+    public void Execute(int flatIndex)
     {
-        NativeQueue<int> flatIndicesToCheck = new NativeQueue<int>(Allocator.TempJob);
-
-        var gridSetSize = settingData.gridSetSize;
-
-        var desFlatIndex = FlowFieldUtility.GetCellFlatIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
-        CellData destinationCell = cells[desFlatIndex];
-        destinationCell.cost = 0;
-        destinationCell.bestCost = 0;
-        destinationCell.tempCost = 0;
-        cells[desFlatIndex] = destinationCell;
-        var desWorldPos = destinationCell.worldPos;
-
-        flatIndicesToCheck.Enqueue(desFlatIndex);
-        while (flatIndicesToCheck.Count > 0)
+        CellData curCellData = cells[flatIndex];
+        if (curCellData.localCost == 1)
         {
-            int cellFlatIndex = flatIndicesToCheck.Dequeue();
-            CellData curCellData = cells[cellFlatIndex];
-
-            foreach (int flatNeighborIndex in FlowFieldUtility.Get8NeighborFlatIndices(curCellData.gridIndex, gridSetSize))
+            int minIndex = 0;
+            float minDisSquare = float.MaxValue, temp, dis;
+            float3 curDir, minDir = float3.zero;
+            foreach (var index in dests)
             {
-                CellData neighborCellData = cells[flatNeighborIndex];
-                // 更新第一层障碍物的最佳方向
-                if (neighborCellData.cost == 1)
+                curDir = cells[index].worldPos - curCellData.worldPos;
+                temp = math.lengthsq(curDir);
+                if (temp < minDisSquare)
                 {
-                    var RaycastInput = new RaycastInput
-                    {
-                        Start = neighborCellData.worldPos,
-                        End = desWorldPos,
-                        Filter = CollisionFilter.Default
-                    };
-                    if (!physicsWorld.CastRay(RaycastInput, out RaycastHit hit))
-                    {
-                        var temp = math.length(neighborCellData.worldPos - desWorldPos);
-                        if (neighborCellData.tempCost > temp)
-                        {
-                            neighborCellData.tempCost = temp;
-                            cells[flatNeighborIndex] = neighborCellData;
-                            flatIndicesToCheck.Enqueue(flatNeighborIndex);
-                        }
+                    minDisSquare = temp;
+                    minDir = curDir;
+                    minIndex = index;
+                }
+            }
 
-                    }
+            dis = math.sqrt(minDisSquare);
+            if (!physicsWorld.BoxCast(curCellData.worldPos, quaternion.identity, halfExtents, minDir, dis, Constants.ignorAgentGroundFilter))
+            {
+                if (curCellData.integrationCost > dis + cells[minIndex].integrationCost)
+                {
+                    curCellData.integrationCost = dis + cells[minIndex].integrationCost;
+                    cells[flatIndex] = curCellData;
                 }
             }
         }
-        flatIndicesToCheck.Dispose();
     }
 }
 
@@ -307,135 +343,73 @@ public struct CalCulateIntegration_FSMJob : IJob
     public void Execute()
     {
         var gridSetSize = settingData.gridSetSize;
-
-        var destinationIndex = FlowFieldUtility.GetCellIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
-        // Update Destination Cell's cost and bestCost
-        int flatDestinationIndex = FlowFieldUtility.ToFlatIndex(destinationIndex, gridSetSize.y);
-        CellData destinationCell = cells[flatDestinationIndex];
-        destinationCell.cost = 0;
-        destinationCell.bestCost = 0;
-        destinationCell.tempCost = 0;
-        cells[flatDestinationIndex] = destinationCell;
-
         int row = gridSetSize.x, column = gridSetSize.y;
         int3x4 horizontal = new int3x4(new int3(0, column - 1, 1), new int3(column - 1, 0, -1), new int3(column - 1, 0, -1), new int3(0, column - 1, 1));
         int3x4 vertical = new int3x4(new int3(0, row - 1, 1), new int3(0, row - 1, 1), new int3(row - 1, 0, -1), new int3(row - 1, 0, -1));
 
         float2 midValue = float2.zero;
-        float newCost = 0;
+        float newIntCost = 0;
         int i, j;
-        // double h = 0.5, f = 1.0;
+        float width = settingData.cellRadius.x * 2;
+        float twoWidth2 = 2 * width * width;
 
-        for (int iter = 0; iter < 4; iter++)
+        bool changed;
+        uint count = 0;
+
+        do
         {
-
-            for (i = vertical[iter].x; vertical[iter].z * i <= vertical[iter].y; i += vertical[iter].z)
+            count++;
+            changed = false;
+            for (int iter = 0; iter < 4; iter++)
             {
-                for (j = horizontal[iter].x; horizontal[iter].z * j <= horizontal[iter].y; j += horizontal[iter].z)
+                for (i = vertical[iter].x; vertical[iter].z * i <= vertical[iter].y; i += vertical[iter].z)
                 {
-                    var currentIndex = FlowFieldUtility.ToFlatIndex(i, j, gridSetSize.y);
-                    var current = cells[currentIndex];
-
-                    if (current.cost < 255)
+                    for (j = horizontal[iter].x; horizontal[iter].z * j <= horizontal[iter].y; j += horizontal[iter].z)
                     {
-                        float left, right;
-                        left = (i == 0 ? current.tempCost : cells[FlowFieldUtility.ToFlatIndex(i - 1, j, gridSetSize.y)].tempCost);
-                        right = (i == (row - 1) ? current.tempCost : cells[FlowFieldUtility.ToFlatIndex(i + 1, j, gridSetSize.y)].tempCost);
-                        midValue.y = math.min(left, right);
+                        var currentIndex = FlowFieldUtility.ToFlatIndex(i, j, column);
+                        var current = cells[currentIndex];
 
-                        left = (j == 0 ? current.tempCost : cells[FlowFieldUtility.ToFlatIndex(i, j - 1, gridSetSize.y)].tempCost);
-                        right = (j == (column - 1) ? current.tempCost : cells[FlowFieldUtility.ToFlatIndex(i, j + 1, gridSetSize.y)].tempCost);
-                        midValue.x = math.min(left, right);
-
-                        if (math.abs(midValue.x - midValue.y) < 0.5f * current.cost)
+                        if (current.localCost < Constants.T_c)
                         {
-                            newCost = (midValue.x + midValue.y + math.sqrt(0.5f * current.cost * current.cost - (midValue.x - midValue.y) * (midValue.x - midValue.y))) * 0.5f;
-                        }
-                        else
-                        {
-                            newCost = math.min(midValue.x, midValue.y) + 0.5f;
-                        }
+                            float left, right;
+                            left = (i == 0 ? current.integrationCost : cells[FlowFieldUtility.ToFlatIndex(i - 1, j, column)].integrationCost);
+                            right = (i == (row - 1) ? current.integrationCost : cells[FlowFieldUtility.ToFlatIndex(i + 1, j, column)].integrationCost);
+                            midValue.y = math.min(left, right);
 
-                        current.tempCost = math.min(newCost, current.tempCost);
-                        cells[currentIndex] = current;
+                            left = (j == 0 ? current.integrationCost : cells[FlowFieldUtility.ToFlatIndex(i, j - 1, column)].integrationCost);
+                            right = (j == (column - 1) ? current.integrationCost : cells[FlowFieldUtility.ToFlatIndex(i, j + 1, column)].integrationCost);
+                            midValue.x = math.min(left, right);
+
+                            if (math.abs(midValue.x - midValue.y) < width * current.localCost)
+                            {
+                                newIntCost = (midValue.x + midValue.y + math.sqrt(twoWidth2 * current.localCost * current.localCost - (midValue.x - midValue.y) * (midValue.x - midValue.y))) * 0.5f;
+                            }
+                            else
+                            {
+                                newIntCost = math.min(midValue.x, midValue.y) + width * current.localCost;
+                            }
+
+                            if (newIntCost < current.integrationCost)
+                            {
+                                current.integrationCost = newIntCost;
+                                if (changed == false)
+                                {
+                                    changed = true;
+                                }
+                            }
+                            // current.integrationCost = math.min(newCost, current.integrationCost);
+                            cells[currentIndex] = current;
+                        }
                     }
                 }
             }
-        }
-    }
-}
-
-[BurstCompile]
-public struct CalculateFlowFieldJob : IJobParallelFor
-{
-    [NativeDisableContainerSafetyRestriction]
-    public NativeArray<CellData> cells;
-    // [ReadOnly] public int2 gridSetSize;
-    [ReadOnly] public FlowFieldSettingData settingData;
-    public void Execute(int index)
-    {
-        var gridSetSize = settingData.gridSetSize;
-
-        var destinationIndex = FlowFieldUtility.GetCellIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
-        int flatDestinationIndex = FlowFieldUtility.ToFlatIndex(destinationIndex, gridSetSize.y);
-        CellData destinationCell = cells[flatDestinationIndex];
-        var targetPos = destinationCell.worldPos;
-
-        var curCell = cells[index];
-        // if (curCell.tempCost == float.MaxValue)
-        // {
-        //     return;
-        // }
-        float2 lowerDir = new float2(), upperDir = new float2(), dir = new float2();
-        float diff;
-        foreach (int flatNeighborIndex in FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, gridSetSize))
-        {
-            CellData neighborCell = cells[flatNeighborIndex];
-            if (neighborCell.tempCost.Equals(float.MaxValue))
-            {
-                if (curCell.tempCost.Equals(float.MaxValue))
-                {
-                    diff = 0;
-                }
-                else
-                {
-                    diff = -curCell.tempCost;
-                }
-            }
-            else
-            {
-                if (curCell.tempCost.Equals(float.MaxValue))
-                {
-                    diff = neighborCell.tempCost;
-                }
-                else
-                {
-                    diff = curCell.tempCost - neighborCell.tempCost;
-                }
-            }
-            if (diff == 0) continue;
-            else if (diff > 0)
-            {
-                dir = (float2)(neighborCell.gridIndex - curCell.gridIndex);
-                lowerDir += diff * dir / (math.abs(dir.x) + math.abs(dir.y));
-            }
-            else
-            {
-                dir = (float2)(neighborCell.gridIndex - curCell.gridIndex);
-                upperDir += diff * dir / (math.abs(dir.x) + math.abs(dir.y));
-            }
-        }
-        curCell.bestDir = math.normalizesafe(lowerDir) + 0.5f * math.normalizesafe(upperDir);
-        curCell.targetDir = math.normalizesafe(targetPos.xz - curCell.worldPos.xz);
-        curCell.debugField.x = UnityEngine.Vector2.Angle(curCell.bestDir, curCell.targetDir);
-        cells[index] = curCell;
+        } while (changed);
     }
 }
 
 [BurstCompile]
 public struct UpdateDataToBufferJob : IJobParallelFor
 {
-
     [ReadOnly] public NativeArray<CellData> source;
     public NativeArray<CellData> target;
     public void Execute(int index)
@@ -443,88 +417,3 @@ public struct UpdateDataToBufferJob : IJobParallelFor
         target[index] = source[index];
     }
 }
-
-// [BurstCompile]
-// public struct CalCulateIntegration_FSMJob : IJob
-// {
-//     public NativeArray<CellData> cells;
-//     [ReadOnly] public FlowFieldSettingData settingData;
-
-//     public void Execute()
-//     {
-//         var gridSetSize = settingData.gridSetSize;
-
-//         var destinationIndex = FlowFieldUtility.GetCellIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
-//         // Update Destination Cell's cost and bestCost
-//         int flatDestinationIndex = FlowFieldUtility.ToFlatIndex(destinationIndex, gridSetSize.y);
-//         CellData destinationCell = cells[flatDestinationIndex];
-//         destinationCell.cost = 0;
-//         destinationCell.bestCost = 0;
-//         destinationCell.tempCost = 0;
-//         cells[flatDestinationIndex] = destinationCell;
-
-//         int row = gridSetSize.x, column = gridSetSize.y;
-//         int3x4 horizontal = new int3x4(new int3(0, column - 1, 1), new int3(column - 1, 0, -1), new int3(column - 1, 0, -1), new int3(0, column - 1, 1));
-//         int3x4 vertical = new int3x4(new int3(0, row - 1, 1), new int3(0, row - 1, 1), new int3(row - 1, 0, -1), new int3(row - 1, 0, -1));
-
-//         float2 midValue = float2.zero;
-//         float newCost = 0;
-//         int i, j;
-//         // double h = 0.5, f = 1.0;
-
-//         for (int iter = 0; iter < 4; iter++)
-//         {
-
-//             for (i = vertical[iter].x; vertical[iter].z * i <= vertical[iter].y; i += vertical[iter].z)
-//             {
-//                 for (j = horizontal[iter].x; horizontal[iter].z * j <= horizontal[iter].y; j += horizontal[iter].z)
-//                 {
-//                     var currentIndex = FlowFieldUtility.ToFlatIndex(i, j, gridSetSize.y);
-//                     var current = cells[currentIndex];
-
-//                     if (current.cost < 255)
-//                     {
-//                         // === neighboring cells (Upwind Godunov) ===
-//                         if (i == 0)
-//                         {
-//                             midValue.y = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i + 1, j, gridSetSize.y)].tempCost);
-//                         }
-//                         else if (i == (row - 1))
-//                         {
-//                             midValue.y = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i - 1, j, gridSetSize.y)].tempCost);
-//                         }
-//                         else
-//                         {
-//                             midValue.y = math.min(cells[FlowFieldUtility.ToFlatIndex(i - 1, j, gridSetSize.y)].tempCost, cells[FlowFieldUtility.ToFlatIndex(i + 1, j, gridSetSize.y)].tempCost);
-//                         }
-
-//                         if (j == 0)
-//                         {
-//                             midValue.x = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i, j + 1, gridSetSize.y)].tempCost);
-//                         }
-//                         else if (j == (column - 1))
-//                         {
-//                             midValue.x = math.min(current.tempCost, cells[FlowFieldUtility.ToFlatIndex(i, j - 1, gridSetSize.y)].tempCost);
-//                         }
-//                         else
-//                         {
-//                             midValue.x = math.min(cells[FlowFieldUtility.ToFlatIndex(i, j - 1, gridSetSize.y)].tempCost, cells[FlowFieldUtility.ToFlatIndex(i, j + 1, gridSetSize.y)].tempCost);
-//                         }
-
-//                         if (math.abs(midValue.x - midValue.y) < 0.5f * current.cost)
-//                         {
-//                             newCost = (midValue.x + midValue.y + math.sqrt(0.5f * current.cost * current.cost - (midValue.x - midValue.y) * (midValue.x - midValue.y))) * 0.5f;
-//                         }
-//                         else
-//                         {
-//                             newCost = math.min(midValue.x, midValue.y) + 0.5f;
-//                         }
-
-//                         current.tempCost = math.min(newCost, current.tempCost);
-//                         cells[currentIndex] = current;
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }

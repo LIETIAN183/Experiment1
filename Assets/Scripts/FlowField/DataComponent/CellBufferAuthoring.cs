@@ -17,21 +17,22 @@ public struct CellData
 {
     public float3 worldPos;
     public int2 gridIndex;
-    public byte cost;
-    public ushort bestCost;
-    public float tempCost;
-    public float targetCost;
-    // public int2 bestDirection;
-    public float2 bestDir;
+    public float localCost;
+    public float integrationCost;
+    public float2 globalDir;
+    public float2 localDir;
+
+    // 用于计算 localCost 的辅助变量
+    public float massVariable;
+    public float maxHeight;
+    public int fluidElementCount;
+}
+
+public struct DebugCellData
+{
+    public int flatIndex;
     public float2 targetDir;
-
-    public float3 debugField;
-
-    public static readonly CellData zero = new CellData();
-
-    // 用于判断不可通行区域的最外层网格是否更新过
-    // public bool updated;
-    // public float sumMass, maxY;
+    public float debugField;
 }
 
 [InternalBufferCapacity(250)]

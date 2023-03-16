@@ -46,12 +46,70 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 analysisCircledata.curStage = AnalysisStage.Start;
                 break;
             case AnalysisStage.Start:
-                // 仿真下标超过地震事件数目，结束仿真
-                if (analysisCircledata.curSeismicIndex >= analysisCircledata.seismicEventsCount)
-                {
-                    var handle = unmanagedWorld.GetExistingUnmanagedSystem<SingleStatisticSystem>();
-                    unmanagedWorld.GetUnsafeSystemRef<SingleStatisticSystem>(handle).ExportData();
 
+                // Normal
+                // 仿真下标超过地震事件数目，结束仿真
+                // if (analysisCircledata.curSeismicIndex >= analysisCircledata.seismicEventsCount)
+                // {
+                //     var handle = unmanagedWorld.GetExistingUnmanagedSystem<SingleStatisticSystem>();
+                //     unmanagedWorld.GetUnsafeSystemRef<SingleStatisticSystem>(handle).ExportData();
+
+                //     SystemAPI.SetSingleton(new MessageEvent
+                //     {
+                //         isActivate = true,
+                //         message = "Simulation Finished",
+                //         displayForever = true
+                //     });
+                //     this.Enabled = false;
+                //     return;
+                // }
+                // else
+                // {
+                //     // 配置 仿真系统参数
+                //     if (analysisCircledata.pgaThreshold.Equals(0) | analysisCircledata.pgaStep.Equals(0))
+                //     {
+                //         SystemAPI.SetSingleton(new StartSeismicEvent
+                //         {
+                //             isActivate = true,
+                //             index = analysisCircledata.curSeismicIndex++,
+                //             targetPGA = analysisCircledata.pgaThreshold
+                //         });
+                //     }
+                //     else
+                //     {
+                //         analysisCircledata.curSimulationTargetPGA += analysisCircledata.pgaStep;
+                //         // 单个地震事件结束，选择下一个地震事件
+                //         if (analysisCircledata.curSimulationTargetPGA > analysisCircledata.pgaThreshold)
+                //         {
+                //             // 当 pgaStep>pgaThreshold 时只会循环跳过，不进行仿真
+                //             analysisCircledata.curSeismicIndex++;
+                //             analysisCircledata.curSimulationTargetPGA = 0;
+                //             break;
+                //         }
+                //         // 设置当前仿真参数
+                //         SystemAPI.SetSingleton(new StartSeismicEvent
+                //         {
+                //             isActivate = true,
+                //             index = analysisCircledata.curSeismicIndex,
+                //             targetPGA = analysisCircledata.curSimulationTargetPGA
+                //         });
+                //     }
+
+                //     // 更新状态
+                //     analysisCircledata.curStage = AnalysisStage.Simulation;
+                // }
+
+                var set = SystemAPI.GetSingleton<FlowFieldSettingData>();
+                set.agentIndex++;
+                SystemAPI.SetSingleton(set);
+
+                if (set.agentIndex > 3)
+                {
+                    if (SystemAPI.GetSingleton<SimConfigData>().performStatistics)
+                    {
+                        var handle = unmanagedWorld.GetExistingUnmanagedSystem<SingleStatisticSystem>();
+                        unmanagedWorld.GetUnsafeSystemRef<SingleStatisticSystem>(handle).ExportData();
+                    }
                     SystemAPI.SetSingleton(new MessageEvent
                     {
                         isActivate = true,
@@ -63,35 +121,15 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 }
                 else
                 {
+
                     // 配置 仿真系统参数
-                    if (analysisCircledata.pgaThreshold.Equals(0) | analysisCircledata.pgaStep.Equals(0))
+
+                    SystemAPI.SetSingleton(new StartSeismicEvent
                     {
-                        SystemAPI.SetSingleton(new StartSeismicEvent
-                        {
-                            isActivate = true,
-                            index = analysisCircledata.curSeismicIndex++,
-                            targetPGA = analysisCircledata.pgaThreshold
-                        });
-                    }
-                    else
-                    {
-                        analysisCircledata.curSimulationTargetPGA += analysisCircledata.pgaStep;
-                        // 单个地震事件结束，选择下一个地震事件
-                        if (analysisCircledata.curSimulationTargetPGA > analysisCircledata.pgaThreshold)
-                        {
-                            // 当 pgaStep>pgaThreshold 时只会循环跳过，不进行仿真
-                            analysisCircledata.curSeismicIndex++;
-                            analysisCircledata.curSimulationTargetPGA = 0;
-                            break;
-                        }
-                        // 设置当前仿真参数
-                        SystemAPI.SetSingleton(new StartSeismicEvent
-                        {
-                            isActivate = true,
-                            index = analysisCircledata.curSeismicIndex,
-                            targetPGA = analysisCircledata.curSimulationTargetPGA
-                        });
-                    }
+                        isActivate = true,
+                        index = 0,
+                        targetPGA = 0
+                    });
 
                     // 更新状态
                     analysisCircledata.curStage = AnalysisStage.Simulation;

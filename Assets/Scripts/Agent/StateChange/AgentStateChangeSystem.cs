@@ -4,6 +4,7 @@ using Unity.Burst;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Jobs;
+using Unity.Physics;
 
 [UpdateInGroup(typeof(AgentSimulationSystemGroup)), UpdateAfter(typeof(AgentMovementSystemGroup))]
 [BurstCompile]
@@ -27,7 +28,8 @@ public partial struct AgentStateChangeSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        if (idleQuery.CalculateEntityCount() > 0)
+        // TODO：时间限制为了物品掉落先
+        if (idleQuery.CalculateEntityCount() > 0 && SystemAPI.GetSingleton<TimerData>().elapsedTime > 1)
         {
             idleList.Update(ref state);
             escapingList.Update(ref state);
@@ -50,7 +52,8 @@ public partial struct AgentStateChangeSystem : ISystem
                 parallelECB = ecb.AsParallelWriter(),
                 escapingList = escapingList,
                 escapedList = escapedList,
-                destination = SystemAPI.GetSingleton<FlowFieldSettingData>().destination.xz
+                dests = SystemAPI.GetSingletonBuffer<DestinationBuffer>(true).Reinterpret<int>().AsNativeArray(),
+                cells = SystemAPI.GetSingletonBuffer<CellBuffer>(true).Reinterpret<CellData>().AsNativeArray()
             }.ScheduleParallel(state.Dependency).Complete();
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
@@ -77,7 +80,9 @@ partial struct ActiveEscapeJob : IJobEntity
 [WithAll(typeof(AgentMovementData), typeof(Escaping)), WithNone(typeof(Idle), typeof(Escaped))]
 partial struct CheckArriveJob : IJobEntity
 {
-    public float2 destination;
+    [ReadOnly] public NativeArray<int> dests;
+    [NativeDisableParallelForRestriction]
+    [ReadOnly] public NativeArray<CellData> cells;
     [NativeDisableParallelForRestriction]
     public ComponentLookup<Escaping> escapingList;
     [NativeDisableParallelForRestriction]
@@ -85,9 +90,19 @@ partial struct CheckArriveJob : IJobEntity
 
     public EntityCommandBuffer.ParallelWriter parallelECB;
 
+
     void Execute(Entity e, [EntityIndexInQuery] int entityIndex, in LocalTransform localTransform)
     {
-        if (math.lengthsq(destination - localTransform.Position.xz) < 0.25f)
+        float minDisSquare = float.MaxValue, temp;
+        foreach (var index in dests)
+        {
+            temp = math.lengthsq(cells[index].worldPos.xz - localTransform.Position.xz);
+            if (temp < minDisSquare)
+            {
+                minDisSquare = temp;
+            }
+        }
+        if (minDisSquare < 0.25f)
         {
             escapingList.SetComponentEnabled(e, false);
             escapedList.SetComponentEnabled(e, true);

@@ -6,6 +6,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Physics;
 
+// TODO: BUG 单次仿真后该系统结束，但子物体还有速度，因此还会变化
 // [AlwaysSynchronizeSystem]
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateAfter(typeof(TimerSystem))]
 [BurstCompile]

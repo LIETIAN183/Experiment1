@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79f877434772c463192af154345455c9, type: 3}
-  m_Name: Shelf Obstacle
+  m_Name: Big Rough Solid Obstacle
   m_EditorClassIdentifier: 
   m_Value:
     m_SupportsTemplate: 0
@@ -61,8 +61,8 @@ MonoBehaviour:
         Category27: 1
         Category28: 1
         Category29: 1
-        Category30: 1
-        Category31: 1
+        Category30: 0
+        Category31: 0
     m_CollidesWithCategories:
       m_Override: 0
       m_Value:
@@ -102,11 +102,11 @@ MonoBehaviour:
       m_Override: 0
       m_Value:
         Tag00: 0
-        Tag01: 0
-        Tag02: 0
-        Tag03: 1
+        Tag01: 1
+        Tag02: 1
+        Tag03: 0
         Tag04: 0
-        Tag05: 0
+        Tag05: 1
         Tag06: 0
         Tag07: 0
     m_SerializedVersion: 1

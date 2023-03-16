@@ -22,9 +22,8 @@ public struct CalCulateIntegration_DjistraJob : IJob
         // Update Destination Cell's cost and bestCost
         int flatDestinationIndex = FlowFieldUtility.ToFlatIndex(destinationIndex, gridSize.y);
         CellData destinationCell = cells[flatDestinationIndex];
-        destinationCell.cost = 0;
-        destinationCell.bestCost = 0;
-        destinationCell.tempCost = 0;
+        destinationCell.localCost = 0;
+        destinationCell.integrationCost = 0;
         cells[flatDestinationIndex] = destinationCell;
 
         // Integration Field, Flow Field
@@ -36,12 +35,13 @@ public struct CalCulateIntegration_DjistraJob : IJob
             int cellFlatIndex = FlowFieldUtility.ToFlatIndex(cellIndex, gridSize.y);
             CellData curCellData = cells[cellFlatIndex];
 
-            foreach (int2 neighborIndex in FlowFieldUtility.Get8NeighborIndices(cellIndex, gridSize))
+            var neighborIndexList = FlowFieldUtility.Get8NeighborIndices(cellIndex, gridSize);
+            foreach (int2 neighborIndex in neighborIndexList)
             {
                 int flatNeighborIndex = FlowFieldUtility.ToFlatIndex(neighborIndex, gridSize.y);
                 CellData neighborCellData = cells[flatNeighborIndex];
                 // 更新第一层障碍物的最佳方向
-                if (neighborCellData.cost == byte.MaxValue)
+                if (neighborCellData.localCost >= Constants.T_c)
                 {
                     continue;
                 }
@@ -50,21 +50,22 @@ public struct CalCulateIntegration_DjistraJob : IJob
                 float targetBestCost;
                 if (dir.x == 0 || dir.y == 0)
                 {
-                    targetBestCost = (neighborCellData.cost + curCellData.tempCost) + 0.5f;
+                    targetBestCost = (neighborCellData.localCost + curCellData.integrationCost) + 0.5f;
                 }
                 else
                 {
-                    targetBestCost = (neighborCellData.cost + curCellData.tempCost) + math.sqrt(2) * 0.5f;
+                    targetBestCost = (neighborCellData.localCost + curCellData.integrationCost) + math.sqrt(2) * 0.5f;
                     // targetBestCost = (ushort)(neighborCellData.cost + curCellData.tempCost) + math.sqrt(2);
                 }
-                if (targetBestCost < neighborCellData.tempCost)
+                if (targetBestCost < neighborCellData.integrationCost)
                 {
-                    neighborCellData.tempCost = targetBestCost;
+                    neighborCellData.integrationCost = targetBestCost;
                     // neighborCellData.bestDirection = cellIndex - neighborIndex;
                     cells[flatNeighborIndex] = neighborCellData;
                     indicesToCheck.Enqueue(neighborIndex);
                 }
             }
+            neighborIndexList.Dispose();
         }
         indicesToCheck.Dispose();
     }

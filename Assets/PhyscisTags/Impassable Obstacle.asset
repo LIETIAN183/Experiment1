@@ -61,8 +61,8 @@ MonoBehaviour:
         Category27: 1
         Category28: 1
         Category29: 1
-        Category30: 1
-        Category31: 1
+        Category30: 0
+        Category31: 0
     m_CollidesWithCategories:
       m_Override: 0
       m_Value:
@@ -104,9 +104,9 @@ MonoBehaviour:
         Tag00: 0
         Tag01: 0
         Tag02: 0
-        Tag03: 1
+        Tag03: 0
         Tag04: 0
         Tag05: 0
-        Tag06: 0
+        Tag06: 1
         Tag07: 0
     m_SerializedVersion: 1

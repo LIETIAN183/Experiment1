@@ -84,15 +84,15 @@ namespace Obi
             }
         }
 
-        public NativeHashMap<int4, int> grid;
+        public NativeParallelHashMap<int4, int> grid;
         public NativeList<Cell<T>> usedCells;
-        public NativeHashMap<int, int> populatedLevels;
+        public NativeParallelHashMap<int, int> populatedLevels;
 
         public NativeMultilevelGrid(int capacity, Allocator label)
         {
-            grid = new NativeHashMap<int4, int>(capacity, label);
+            grid = new NativeParallelHashMap<int4, int>(capacity, label);
             usedCells = new NativeList<Cell<T>>(label);
-            populatedLevels = new NativeHashMap<int, int>(10, label);
+            populatedLevels = new NativeParallelHashMap<int, int>(10, label);
         }
 
         public int CellCount

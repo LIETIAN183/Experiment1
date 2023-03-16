@@ -91,31 +91,15 @@ public static class ExtensionMethod
     /// </summary>
     /// <param name="source"></param>
     /// <returns></returns>
-    public static byte SecondMaxCost(this NativeArray<CellData> source)
+    public static float SecondMaxCost(this NativeArray<CellData> source)
     {
-        byte secondMaxCost = 0;
+        float secondMaxCost = 0;
         foreach (var cell in source)
         {
-            if (cell.cost == byte.MaxValue) continue;
-            if (cell.cost > secondMaxCost) secondMaxCost = cell.cost;
+            if (cell.localCost >= Constants.T_c) continue;
+            secondMaxCost = math.max(secondMaxCost, cell.localCost);
         }
         return secondMaxCost;
-    }
-
-    /// <summary>
-    /// 获得非 MaxValue 的最大 BestCost
-    /// </summary>
-    /// <param name="source"></param>
-    /// <returns></returns>
-    public static ushort SecondMaxBestCost(this List<CellData> source)
-    {
-        ushort secondMaxBestCost = 0;
-        foreach (var cell in source)
-        {
-            if (cell.bestCost == ushort.MaxValue) continue;
-            if (cell.bestCost > secondMaxBestCost) secondMaxBestCost = cell.bestCost;
-        }
-        return secondMaxBestCost;
     }
 
     public static float SecondMaxTempCost(this NativeArray<CellData> source)
@@ -123,8 +107,8 @@ public static class ExtensionMethod
         float secondMaxTempCost = 0;
         foreach (var cell in source)
         {
-            if (cell.tempCost == float.MaxValue) continue;
-            if (cell.tempCost > secondMaxTempCost) secondMaxTempCost = cell.tempCost;
+            if (cell.integrationCost >= Constants.T_i) continue;
+            secondMaxTempCost = math.max(secondMaxTempCost, cell.integrationCost);
         }
         return secondMaxTempCost;
     }
@@ -136,11 +120,54 @@ public static class ExtensionMethod
     /// <param name="position"></param>
     /// <param name="size"></param>
     /// <param name="color"></param>
-    public static void drawCross45(this CommandBuilder builder, float3 position, float3 size, Color color)
+    public static void DrawCross45(this CommandBuilder builder, float3 position, float3 size, Color color)
     {
         builder.PushColor(color);
         builder.Line(position - new float3(size.x, 0, size.z), position + new float3(size.x, 0, size.z));
         builder.Line(position - new float3(size.x, 0, -size.z), position + new float3(size.x, 0, -size.z));
         builder.PopColor();
+    }
+
+    /// <summary>
+    /// 复制目标 Transform 的 position, rotation 和 localScale
+    /// </summary>
+    /// <param name="targetTransform"></param>
+    /// <param name="sourceTransform"></param>
+    public static void CopyPosRotScale(this Transform targetTransform, Transform sourceTransform)
+    {
+        targetTransform.position = sourceTransform.position;
+        targetTransform.rotation = sourceTransform.rotation;
+        targetTransform.localScale = sourceTransform.localScale;
+    }
+
+    public static bool Contain(this DynamicBuffer<DestinationBuffer> source, int target)
+    {
+        foreach (var item in source)
+        {
+            if (item.desFlatIndex == target)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static bool TryGetIndex(this DynamicBuffer<DestinationBuffer> source, int target, out int index)
+    {
+        for (int i = 0; i < source.Length; i++)
+        {
+            if (source[i].desFlatIndex == target)
+            {
+                index = i;
+                return true;
+            }
+        }
+        index = -1;
+        return false;
+    }
+
+    public static float GetCellGridVolume(this FlowFieldSettingData data)
+    {
+        return data.cellRadius.x * data.cellRadius.y * data.cellRadius.z * 8;
     }
 }

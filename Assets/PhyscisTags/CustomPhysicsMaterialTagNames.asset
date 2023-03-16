@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TagNames:
   - Small
-  - Medium
-  - 
+  - Big
+  - Rough
+  - Smooth
+  - Sharp
+  - Solid
   - Impassable
   - Agent
-  - 
-  - 
-  - 

@@ -6,11 +6,15 @@ using Unity.Burst;
 using Unity.Jobs;
 using Unity.Physics;
 using Unity.Collections;
+using Unity.Transforms;
+using Unity.Mathematics;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup)), UpdateBefore(typeof(TimerSystem))]
 [BurstCompile]
 public partial struct SimControlSystem : ISystem
 {
+    private bool screenShotFlag;
+    private float screenShotTimer;
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
@@ -25,11 +29,13 @@ public partial struct SimControlSystem : ISystem
             displayTrajectories = false,
             performStatistics = false
         });
+        screenShotFlag = false;
+        screenShotTimer = 0;
     }
     [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
-    [BurstCompile]
+    // [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         StartCheck(ref state);
@@ -85,18 +91,37 @@ public partial struct SimControlSystem : ISystem
 
         }
     }
-    [BurstCompile]
+    // [BurstCompile]
     public void EndCheck(ref SystemState state)
     {
         var endEvent = SystemAPI.GetComponent<EndSeismicEvent>(state.SystemHandle);
+        // 截屏延时后，结束本轮仿真
+        if (screenShotFlag)
+        {
+            screenShotTimer -= SystemAPI.Time.DeltaTime;
+            if (screenShotTimer < 0)
+            {
+                screenShotFlag = false;
+                screenShotTimer = 0;
+                // 重置事件状态
+                endEvent.isActivate = false;
+                SystemAPI.SetComponent<EndSeismicEvent>(state.SystemHandle, endEvent);
+
+                // 关闭仿真子系统
+                SubSystemManager(ref state, false);
+            }
+            return;
+        }
+
         if (endEvent.isActivate)
         {
-            // 重置事件状态
-            endEvent.isActivate = false;
-            SystemAPI.SetComponent<EndSeismicEvent>(state.SystemHandle, endEvent);
+            // 截图
+            var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
 
-            // 关闭仿真子系统
-            SubSystemManager(ref state, false);
+            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/PedestrianDir" + setting.agentIndex + ".png");
+            screenShotFlag = true;
+            screenShotTimer = 0.5f;
+
         }
     }
 

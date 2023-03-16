@@ -18,7 +18,6 @@ public static class Utilities
         finalRotation = math.mul(targetRotation, itemRotation);
     }
 
-    // [BurstCompile],元组返回形式 Burst 暂不支持
     public static (float3 position, quaternion rotation) rotateAroundPoint(float3 pivot, quaternion targetRotation, float3 itemPosition, quaternion itemRotation)
     {
         itemPosition = math.mul(targetRotation, itemPosition - pivot) + pivot;

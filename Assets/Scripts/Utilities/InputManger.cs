@@ -51,27 +51,44 @@ public partial class InputManger : SystemBase
         // 截图快捷键
         if (Input.GetKeyUp(KeyCode.L))
         {
+            var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
             var debugtype = SystemAPI.GetSingleton<FFVisTypeStateData>().ffVisType;
-            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + debugtype.ToString() + "_" + UnityEngine.Time.time + ".png");
+            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + debugtype.ToString() + "_" + setting.index + ".png");
         }
 
+        // TODO：不适用于人群系统 
         if (Input.GetKeyUp(KeyCode.R))
         {
             // var sceneSystem = World.GetExistingSystemManaged<SceneSystem>();
             // var guid = sceneSystem.GetSceneGUID("Assets/Scenes/SubScene/EnvironmentWithFluid.unity");
             // sceneSystem.UnloadScene(guid);
             // sceneSystem.LoadSceneAsync(guid, new SceneSystem.LoadParameters() { AutoLoad = true });
+            SystemAPI.SetSingleton<ClearFluidEvent>(new ClearFluidEvent { isActivate = true });
             simulation.GetExistingSystemManaged<SimInitializeSystem>().ReloadSubScene();
         }
 
-        if (Input.GetKeyUp(KeyCode.T))
+        // 
+        if (Input.GetKeyUp(KeyCode.K))
         {
-            // SimUtility.instance.InvokeSeismic(0, 0);
-            var settingData = SystemAPI.GetSingleton<FlowFieldSettingData>();
-            settingData.index = math.select(1, 2, settingData.index == 1);
-            SystemAPI.SetSingleton(settingData);
+            var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
+            setting.index += 1;
+            if (setting.index < 0 || setting.index > 3)
+            {
+                setting.index = 0;
+            }
+            SystemAPI.SetSingleton(setting);
         }
 
+        if (Input.GetKeyUp(KeyCode.J))
+        {
+            var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
+            setting.agentIndex += 1;
+            if (setting.agentIndex < -1 || setting.agentIndex > 3)
+            {
+                setting.agentIndex = 0;
+            }
+            SystemAPI.SetSingleton(setting);
+        }
 
     }
 }

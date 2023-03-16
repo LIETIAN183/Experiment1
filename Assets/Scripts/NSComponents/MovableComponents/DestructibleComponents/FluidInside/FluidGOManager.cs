@@ -6,6 +6,8 @@ using Obi;
 using Unity.Mathematics;
 using Drawing;
 
+// 经测试，0.5mx0.5mx0.5m= 0.125m^3 需要 obi 粒子15w个 即1m^3 需要120w个 液体视作水，则120w粒子质量为1000kg，则1200个粒子1kg，体积1L，则单个粒子0.83g
+// 由于传输粒子坐标10取1，则单个传输坐标包含10个粒子，即8.3g每个坐标=0.0083kg
 [RequireComponent(typeof(ObiSolver))]
 public class FluidGOManager : MonoBehaviour
 {

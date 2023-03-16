@@ -11,7 +11,7 @@ namespace Unity.Entities
     [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
     [UpdateAfter(typeof(BeginSimulationEntityCommandBufferSystem))]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(FlowFieldSimulationSystemGroup))]
+    // [UpdateAfter(typeof(FlowFieldSimulationSystemGroup))]
     public class AgentSimulationSystemGroup : ComponentSystemGroup
     {
         [Preserve]
