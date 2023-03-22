@@ -11,15 +11,15 @@ using Unity.Jobs;
 [BurstCompile]
 public struct CalculateGlobalFlowFieldJob_NotDestGrid_8Neighbor : IJobParallelFor
 {
-    [NativeDisableContainerSafetyRestriction]
+    [NativeDisableParallelForRestriction]
     public NativeArray<CellData> cells;
-    [ReadOnly] public FlowFieldSettingData settingData;
+    [ReadOnly] public int2 gridSetSize;
     public void Execute(int flatIndex)
     {
         var curCell = cells[flatIndex];
         float2 dir = float2.zero;
         float lowerestInt = float.MaxValue;
-        var flatNeighborIndexList = FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, settingData.gridSetSize);
+        var flatNeighborIndexList = FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, gridSetSize);
         foreach (int flatNeighborIndex in flatNeighborIndexList)
         {
             CellData neighborCell = cells[flatNeighborIndex];
@@ -39,7 +39,7 @@ public struct CalculateGlobalFlowFieldJob_NotDestGrid_8Neighbor : IJobParallelFo
 [BurstCompile]
 public struct CalculateLocalFlowFieldJob_NotDestGrid_8Neighbor : IJobParallelFor
 {
-    [NativeDisableContainerSafetyRestriction]
+    [NativeDisableParallelForRestriction]
     public NativeArray<CellData> cells;
     [ReadOnly] public int2 gridSetSize;
     public void Execute(int flatIndex)

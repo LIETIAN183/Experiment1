@@ -11,6 +11,7 @@ using Unity.Collections;
 // [DisableAutoCreation]
 public partial class MultiRoundStatisticsSystem : SystemBase
 {
+    private int counter;
     World managedWorld;
     WorldUnmanaged unmanagedWorld;
     private bool recoverSceneTag;
@@ -21,6 +22,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
         unmanagedWorld = managedWorld.Unmanaged;
         recoverSceneTag = false;
         this.Enabled = false;
+        counter = -1;
     }
 
     protected override void OnStartRunning()
@@ -99,17 +101,17 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 //     analysisCircledata.curStage = AnalysisStage.Simulation;
                 // }
 
-                var set = SystemAPI.GetSingleton<FlowFieldSettingData>();
-                set.agentIndex++;
-                SystemAPI.SetSingleton(set);
 
-                if (set.agentIndex > 3)
+
+
+                if (counter >= 3)
                 {
                     if (SystemAPI.GetSingleton<SimConfigData>().performStatistics)
                     {
                         var handle = unmanagedWorld.GetExistingUnmanagedSystem<SingleStatisticSystem>();
                         unmanagedWorld.GetUnsafeSystemRef<SingleStatisticSystem>(handle).ExportData();
                     }
+
                     SystemAPI.SetSingleton(new MessageEvent
                     {
                         isActivate = true,
@@ -121,6 +123,26 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 }
                 else
                 {
+                    var set = SystemAPI.GetSingleton<FlowFieldSettingData>();
+                    counter++;
+                    switch (counter)
+                    {
+                        case 0:
+                            set.index = 0;
+                            break;
+                        case 1:
+                            set.index = 1;
+                            break;
+                        case 2:
+                            set.index = 2;
+                            break;
+                        case 3:
+                            set.index = 3;
+                            break;
+                        default:
+                            break;
+                    }
+                    SystemAPI.SetSingleton(set);
 
                     // 配置 仿真系统参数
 
@@ -173,7 +195,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
             var ecb = new EntityCommandBuffer(Allocator.Persistent);
             this.EntityManager.CompleteDependencyBeforeRO<PhysicsWorldSingleton>();
 
-            new SpawnerJob
+            new SpawnerAgentJob
             {
                 ecb = ecb,
                 physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,

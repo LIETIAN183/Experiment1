@@ -7,14 +7,26 @@ public static class Constants
 {
     public static readonly float gravity = 9.81f;
 
+    // Flow Field
     public static readonly int2 notInGridSet = new int2(-1, -1);
-
     public static readonly float3 halfHumanSize3D = new float3(0.25f, 0.85f, 0.25f);
-
-    // Threshold_cost
     public static readonly float T_c = 500;
-
     public static readonly float T_i = 65535;
+    public static readonly float c2_fluid = 4;
+    public static readonly float w_s = 10;
+    public static readonly float w_a = 10;
+    public static readonly float c_avoid = 0.5f;
+    public static readonly float destinationAgentOverlapRadius = 5f;
+
+    // 计算行人指导方向时使用的位置偏移
+    public static readonly float pedDirOffset = 0.2f;
+
+    public static readonly CollisionFilter agentWallOnlyFilter = new CollisionFilter
+    {
+        BelongsTo = ~0u,
+        CollidesWith = 101u << 29,
+        GroupIndex = 0
+    };
 
     public static readonly CollisionFilter agentOnlyFilter = new CollisionFilter
     {
@@ -29,12 +41,5 @@ public static class Constants
         CollidesWith = ~0u >> 2,
         GroupIndex = 0
     };
-
-    public static readonly float c2_fluid = 4;
-    public static readonly float c3 = 10;
-    public static readonly float w_a = 10;
-    public static readonly float c_avoid = 0.5f;
-
-    public static readonly float destinationAgentOverlapRadius = 5f;
 
 }

@@ -69,7 +69,7 @@ public partial struct SimControlSystem : ISystem
                 // 这里需要 Allocator.Persistent，因为生成 Agent 需要花费较多时间， Allocator.TempJob 时间不够
                 var ecb = new EntityCommandBuffer(Allocator.Persistent);
 
-                new SpawnerJob
+                new SpawnerAgentJob
                 {
                     ecb = ecb,
                     physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
@@ -84,7 +84,6 @@ public partial struct SimControlSystem : ISystem
                 message.displayForever = false;
                 SystemAPI.SetSingleton(message);
             }
-
             SystemInit(ref state, startEvent.index, startEvent.targetPGA).Complete();
 
             SubSystemManager(ref state, true);
@@ -118,7 +117,7 @@ public partial struct SimControlSystem : ISystem
             // 截图
             var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
 
-            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/PedestrianDir" + setting.agentIndex + ".png");
+            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/Index" + setting.index + ".png");
             screenShotFlag = true;
             screenShotTimer = 0.5f;
 

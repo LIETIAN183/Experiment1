@@ -2,18 +2,20 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
-public class SpawnerDataAuthoring : MonoBehaviour
+public class AgentSpawnerDataAuthoring : MonoBehaviour
 {
     public GameObject agentPrefab;
-    public class SpawnerDataAuthoringBaker : Baker<SpawnerDataAuthoring>
+    class Baker : Baker<AgentSpawnerDataAuthoring>
     {
-        public override void Bake(SpawnerDataAuthoring authoring)
+        public override void Bake(AgentSpawnerDataAuthoring authoring)
         {
             AddComponent(new SpawnerData
             {
                 prefab = GetEntity(authoring.agentPrefab),
                 center = new float3(0, 0.9f, 0),
-                sideLength = 10
+                sideLength = 10,
+                currentCount = 0,
+                desireCount = 0
             });
             AddBuffer<PosBuffer>();
         }

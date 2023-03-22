@@ -11,17 +11,12 @@ using Unity.Jobs;
 [BurstCompile]
 public struct CalculateGlobalFlowFieldJob_NotDestGrid : IJobParallelFor
 {
-    [NativeDisableContainerSafetyRestriction]
+    [NativeDisableParallelForRestriction]
     public NativeArray<CellData> cells;
     [ReadOnly] public float pgaInms2;
-    [ReadOnly] public FlowFieldSettingData settingData;
+    [ReadOnly] public int2 gridSetSize;
     public void Execute(int flatIndex)
     {
-        var gridSetSize = settingData.gridSetSize;
-        int flatDestinationIndex = FlowFieldUtility.GetCellFlatIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
-        CellData destinationCell = cells[flatDestinationIndex];
-        var targetPos = destinationCell.worldPos;
-
         var curCell = cells[flatIndex];
         float2 lowerDir = float2.zero, upperDir = float2.zero, dir;
         float diff;
@@ -44,9 +39,6 @@ public struct CalculateGlobalFlowFieldJob_NotDestGrid : IJobParallelFor
         flatNeighborIndexList.Dispose();
 
         curCell.globalDir = math.normalizesafe(lowerDir) + Constants.c_avoid * math.exp(-pgaInms2) * math.normalizesafe(upperDir);
-        // curCell.bestDir = math.normalizesafe(lowerDir);
-        // curCell.targetDir = math.normalizesafe(targetPos.xz - curCell.worldPos.xz);
-        // curCell.debugField = UnityEngine.Vector2.Angle(curCell.globalBestDir, curCell.targetDir);
         cells[flatIndex] = curCell;
     }
 }
@@ -54,7 +46,7 @@ public struct CalculateGlobalFlowFieldJob_NotDestGrid : IJobParallelFor
 [BurstCompile]
 public struct CalculateGlobalFlowFieldJob_DestGrid : IJobParallelFor
 {
-    [NativeDisableContainerSafetyRestriction]
+    [NativeDisableParallelForRestriction]
     public NativeArray<CellData> cells;
     [ReadOnly] public NativeArray<int> dests;
     public void Execute(int flatIndex)
@@ -68,27 +60,19 @@ public struct CalculateGlobalFlowFieldJob_DestGrid : IJobParallelFor
 [BurstCompile]
 public struct CalculateLocalFlowFieldJob_NotDestGrid : IJobParallelFor
 {
-    [NativeDisableContainerSafetyRestriction]
+    [NativeDisableParallelForRestriction]
     public NativeArray<CellData> cells;
     [ReadOnly] public float pgaInms2;
     [ReadOnly] public int2 gridSetSize;
     public void Execute(int flatIndex)
     {
         var curCell = cells[flatIndex];
-        float2 localDir = float2.zero;
-        float minLocalCost = float.MaxValue;
         float2 lowerDir = float2.zero, upperDir = float2.zero, dir;
         float diff;
         var flatNeighborIndexList = FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, gridSetSize);
         foreach (int flatNeighborIndex in flatNeighborIndexList)
         {
             CellData neighborCell = cells[flatNeighborIndex];
-            if (neighborCell.localCost > 1 && neighborCell.localCost < minLocalCost)
-            {
-                localDir = neighborCell.gridIndex - curCell.gridIndex;
-                minLocalCost = neighborCell.localCost;
-            }
-
             diff = curCell.localCost - neighborCell.localCost;
             if (diff == 0) continue;
             dir = neighborCell.gridIndex - curCell.gridIndex;
@@ -104,8 +88,6 @@ public struct CalculateLocalFlowFieldJob_NotDestGrid : IJobParallelFor
         flatNeighborIndexList.Dispose();
 
         curCell.localDir = math.normalizesafe(lowerDir) + Constants.c_avoid * math.exp(-pgaInms2) * math.normalizesafe(upperDir);
-        // curCell.localDir = math.normalizesafe(lowerDir);
-        // curCell.localDir = localDir;
         cells[flatIndex] = curCell;
     }
 }
@@ -116,7 +98,7 @@ public struct CalculateLocalFlowFieldJob_NotDestGrid : IJobParallelFor
 [BurstCompile]
 public struct CalculateLocalFlowFieldJob_DestGrid : IJob
 {
-    [NativeDisableContainerSafetyRestriction]
+    [NativeDisableParallelForRestriction]
     public NativeArray<CellData> cells;
     [ReadOnly] public NativeArray<int> dests;
     [ReadOnly] public float pgaInms2, gridVolume;
@@ -141,7 +123,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
             }
             else
             {
-                curLocalCost = (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.c3;
+                curLocalCost = (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.w_s;
             }
             NativeList<int> nbrList = FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, gridSetSize);
             for (int i = 0; i < nbrList.Length; ++i)
@@ -155,7 +137,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
                 }
                 else
                 {
-                    nbrLocalCost = (nbrCell.massVariable + Constants.c2_fluid * nbrCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(nbrCell.maxHeight) + nbrCell.maxHeight * Constants.c3;
+                    nbrLocalCost = (nbrCell.massVariable + Constants.c2_fluid * nbrCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(nbrCell.maxHeight) + nbrCell.maxHeight * Constants.w_s;
                 }
                 //计算邻接网格的本地指导方向
                 float2 lowerDir2 = float2.zero, upperDir2 = float2.zero;
@@ -172,7 +154,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
                     }
                     else
                     {
-                        n2nLocalCost = (n2nCell.massVariable + Constants.c2_fluid * n2nCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(n2nCell.maxHeight) + n2nCell.maxHeight * Constants.c3;
+                        n2nLocalCost = (n2nCell.massVariable + Constants.c2_fluid * n2nCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(n2nCell.maxHeight) + n2nCell.maxHeight * Constants.w_s;
                     }
                     diff = nbrLocalCost - n2nLocalCost;
                     if (diff == 0) continue;

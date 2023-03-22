@@ -107,6 +107,27 @@ public static class FlowFieldUtility
         return DeterminingInGridSet(cellIndex, gridSize).Equals(Constants.notInGridSet) ? -1 : ToFlatIndex(cellIndex, gridSize.y);
     }
 
+    public static NativeList<int> Get4GridFlatIndexFromWorldPos(float3 worldPos, float3 originPoint, int2 gridSize, float3 cellDiameter)
+    {
+        var res = new NativeList<int>(Allocator.Temp);
+        var pos1 = worldPos + new float3(Constants.pedDirOffset, 0, Constants.pedDirOffset);
+        var pos2 = worldPos + new float3(-Constants.pedDirOffset, 0, Constants.pedDirOffset);
+        var pos3 = worldPos + new float3(Constants.pedDirOffset, 0, -Constants.pedDirOffset);
+        var pos4 = worldPos + new float3(-Constants.pedDirOffset, 0, -Constants.pedDirOffset);
+
+        var flatIndex1 = GetCellFlatIndexFromWorldPos(pos1, originPoint, gridSize, cellDiameter);
+        var flatIndex2 = GetCellFlatIndexFromWorldPos(pos2, originPoint, gridSize, cellDiameter);
+        var flatIndex3 = GetCellFlatIndexFromWorldPos(pos3, originPoint, gridSize, cellDiameter);
+        var flatIndex4 = GetCellFlatIndexFromWorldPos(pos4, originPoint, gridSize, cellDiameter);
+
+        if (flatIndex1 > 0) res.Add(flatIndex1);
+        if (flatIndex2 > 0) res.Add(flatIndex2);
+        if (flatIndex3 > 0) res.Add(flatIndex3);
+        if (flatIndex4 > 0) res.Add(flatIndex4);
+
+        return res;
+    }
+
     public static int2 DeterminingInGridSet(int2 index, int2 gridSize)
     {
         return (index.x < 0 || index.y < 0 || index.x >= gridSize.x || index.y >= gridSize.y) ? Constants.notInGridSet : index;

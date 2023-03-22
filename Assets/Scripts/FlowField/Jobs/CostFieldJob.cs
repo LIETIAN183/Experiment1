@@ -106,6 +106,7 @@ public struct CalculateCostStep2Job : IJob
                 int flatIndex = (int)item.x;
                 var curCell = cells[flatIndex];
                 curCell.massVariable += item.y / curFlatIndexCount;
+                // curCell.massVariable += item.y;
                 cells[flatIndex] = curCell;
             }
         }
@@ -130,7 +131,7 @@ public struct CalculateCostStep3Job : IJobParallelFor
         if (curCell.localCost == 0)
         {
             // curCell.localCost = math.exp(-pgaInms2) * (curCell.massVariable + Constants.c3 * curCell.fluidElementCount * 8.3f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.c4;
-            curCell.localCost = (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.c3;
+            curCell.localCost = (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.w_s;
         }
 
         // integration Field & Flow Field参数初始化

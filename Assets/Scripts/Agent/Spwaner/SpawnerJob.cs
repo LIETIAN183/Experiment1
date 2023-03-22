@@ -12,7 +12,7 @@ using Unity.Burst;
 /// </summary>
 [BurstCompile]
 [WithAll(typeof(SpawnerData))]
-partial struct SpawnerJob : IJobEntity
+partial struct SpawnerAgentJob : IJobEntity
 {
     public EntityCommandBuffer ecb;
     [ReadOnly] public PhysicsWorld physicsWorld;
@@ -23,7 +23,7 @@ partial struct SpawnerJob : IJobEntity
         var posBuffer = buffer.Reinterpret<float3>();
         ComponentTypeSet components = new ComponentTypeSet(ComponentType.ReadWrite<Idle>(), ComponentType.ReadWrite<Escaping>(), ComponentType.ReadWrite<Escaped>());
         NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.Temp);
-        var random = Random.CreateFromIndex(randomInitSeed);
+        var random = Random.CreateFromIndex(0);
         while (spawner.currentCount < spawner.desireCount)
         {
             var spawnedEntity = ecb.Instantiate(spawner.prefab);
@@ -33,8 +33,8 @@ partial struct SpawnerJob : IJobEntity
             {
                 outHits.Clear();
                 flag = true;
-                // position = spawner.center + new float3(random.NextFloat(-spawner.sideLength, spawner.sideLength), 0, random.NextFloat(-spawner.sideLength, spawner.sideLength));
-                position = new float3(-10.25f, 1f, -1.25f);
+                position = spawner.center + new float3(random.NextFloat(-spawner.sideLength, spawner.sideLength), 0, random.NextFloat(-spawner.sideLength, spawner.sideLength));
+                // position = new float3(-0.4f, 1f, -3.75f);
                 physicsWorld.OverlapBox(position, quaternion.identity, Constants.halfHumanSize3D, ref outHits, CollisionFilter.Default);
 
                 foreach (var pos in posBuffer)

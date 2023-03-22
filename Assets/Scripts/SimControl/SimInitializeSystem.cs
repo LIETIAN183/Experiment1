@@ -25,7 +25,7 @@ public partial class SimInitializeSystem : SystemBase
     // TODO: 手动添加 Scene 路径
     // 必须先将该 subscene 放置在 main scene 内，同时不可以激活，可以不 AutoLoad，同时还必需加入 Build 的 SceneList
     // public readonly string subScenesFolderPath = "Assets/Scenes/SubScene/ForTest.unity";
-    private static readonly string[] subScenesPath = { "Assets/Scenes/SubSceneForLoad/ForTest.unity", "Assets/Scenes/SubSceneForLoad/EnvironmentWithFluid.unity", "Assets/Scenes/SubSceneForLoad/Empty.unity", "Assets/Scenes/SubSceneForLoad/ForTest.unity", "Assets/Scenes/SubSceneForLoad/Environment.unity" };
+    private static readonly string[] subScenesPath = { "Assets/Scenes/SubSceneForLoad/ForTest.unity", "Assets/Scenes/SubSceneForLoad/EnvironmentWithFluid.unity", "Assets/Scenes/SubSceneForLoad/Empty.unity", "Assets/Scenes/SubSceneForLoad/Environment.unity" };
 
     private static readonly Hash128 notExist = new Hash128();
     private List<sceneRef> sceneRefs;
@@ -49,7 +49,8 @@ public partial class SimInitializeSystem : SystemBase
         Application.targetFrameRate = -1;
         // TODO:
         // Havok StepJob 异常的现版本解决办法
-        // Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount = 6; 
+        // Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount = 6;
+        // this.Enabled = false;
     }
 
     protected override void OnUpdate()

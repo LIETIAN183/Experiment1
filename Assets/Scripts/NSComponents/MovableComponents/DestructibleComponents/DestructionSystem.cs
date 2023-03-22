@@ -8,7 +8,7 @@ using Unity.Physics.Systems;
 using Unity.Jobs;
 
 [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-[UpdateAfter(typeof(PhysicsSystemGroup))]
+// [UpdateAfter(typeof(PhysicsSystemGroup))]
 [BurstCompile]
 public partial struct DestructionSystem : ISystem, ISystemStartStop
 {
@@ -28,7 +28,6 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
     private ComponentLookup<PhysicsVelocity> physicsVelocityList;
     private ComponentLookup<OriginPos_RotInfo> orgInfoList;
     private ComponentLookup<DCData> dcComponentList;
-
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -67,10 +66,10 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
         localTransformList.Update(ref state);
         orgInfoList.Update(ref state);
 
-        var ecb = SystemAPI.GetSingleton<BeginInitializationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
         state.EntityManager.CompleteDependencyBeforeRO<LocalTransform>();
-        var prefabJob = new DCPrefabsInitialize
+        state.Dependency = new DCPrefabsInitialize
         {
             linkedList = linkedList,
             physicsVelocityList = physicsVelocityList,
@@ -79,7 +78,10 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
             ecb = ecb,
         }.Schedule(state.Dependency);
 
-        prefabJob.Complete();
+        // 保证在替换前，完成 Component 的添加
+        state.Dependency.Complete();
+        ecb.Playback(state.EntityManager);
+        ecb.Dispose();
 
         random = Random.CreateFromIndex((uint)(SystemAPI.GetSingleton<RandomSeed>().seed + SystemAPI.Time.ElapsedTime.GetHashCode()));
     }
@@ -94,6 +96,7 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
         state.EntityManager.CompleteDependencyBeforeRW<PhysicsVelocity>();
         state.EntityManager.CompleteDependencyBeforeRO<PhysicsWorldSingleton>();
         state.EntityManager.CompleteDependencyBeforeRW<LocalTransform>();
+        state.EntityManager.CompleteDependencyBeforeRW<WorldTransform>();
 
         childList.Update(ref state);
         linkedList.Update(ref state);
@@ -119,8 +122,9 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
 
             // 判断碰撞事件受力是否达到破碎阈值，破碎阈值为4f
             var force = e.CalculateDetails(ref physicsWorld).EstimatedImpulse;
-            // 碰撞体受到的力大于4f时，破碎
-            if (force < 2f) continue;
+            // 碰撞体受到的力大于15f时，破碎
+            // UnityEngine.Debug.Log(force);
+            if (force < 10f) continue;
 
             if (boolA && !deletedEntity.Contains(e.EntityA))
             {
@@ -140,7 +144,6 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
                     replacedEntity = e.EntityA,
                     ecb = ecb,
                 }.Schedule(state.Dependency);
-                // replaceEntity(e.EntityA, ecb);
             }
 
             if (boolB && !deletedEntity.Contains(e.EntityB))
@@ -161,7 +164,6 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
                     replacedEntity = e.EntityB,
                     ecb = ecb,
                 }.Schedule(state.Dependency);
-                // replaceEntity(e.EntityB, ecb);
             }
         }
     }
@@ -222,10 +224,7 @@ partial struct DCReplaceJob : IJob
         // 如果存在子物体，一同隐藏
         if (childList.HasBuffer(replacedEntity))
         {
-            foreach (var child in childList[replacedEntity].Reinterpret<Entity>())
-            {
-                ecb.AddComponent<Disabled>(child);
-            }
+            ecb.AddComponent<Disabled>(childList[replacedEntity].Reinterpret<Entity>().AsNativeArray());
         }
         ecb.AddComponent<Disabled>(replacedEntity);
 
@@ -233,33 +232,31 @@ partial struct DCReplaceJob : IJob
         // 随机挑选一个替换物
         var CandidateEntities = prefabList[replacedEntity].Reinterpret<Entity>();
         var random = new Random(seed);
-        var targetEntity = CandidateEntities[random.NextInt(0, CandidateEntities.Length)];
-
-        // 配置替换物的位置、旋转角度和速度
+        // var targetEntity = CandidateEntities[random.NextInt(0, CandidateEntities.Length)];
+        var targetEntity = CandidateEntities[1];
+        // 获取替换物的位置、旋转角度和速度
         var targetRot = localTransformList[replacedEntity].Rotation;
         var targetPos = localTransformList[replacedEntity].Position;
         var targetVelocity = physicsVelocityList[replacedEntity];
 
         if (dcComponentList[replacedEntity].fluidInside)
         {
-            // var fluidInfoBuffer = SystemAPI.GetSingletonBuffer<FluidInfoBuffer>();
             fluidInfoBuffer[fluidEntity].Add(new fluidInfo { position = targetPos, rotation = targetRot });
-
         }
 
         foreach (var child in linkedList[targetEntity].Reinterpret<Entity>())
         {
+            if (child == targetEntity) continue;
             if (orgInfoList.HasComponent(child))
             {
                 var data = orgInfoList[child];
                 // 计算每个子物体要替换的位置和旋转角度
-                // (float3 p, quaternion r) = Utilities.rotateAroundPoint(float3.zero, targetRot, data.orgPos, data.orgRot);
-                // Utilities.rotateAroundOriginPoint(targetRot, data.orgPos, data.orgRot, out var p, out var r);
                 var (p, r) = Utilities.rotateAroundPoint(float3.zero, targetRot, data.orgPos, data.orgRot);
-                // rotateAroundPoint(float3.zero, targetRot, data.orgPos, data.orgRot, out var p, out var r);
+                // 不能直接生成只有物理元素的子组件，因为有可能存在渲染子组件
+                // var entity = ecb.Instantiate(child);
                 // 设置位置、旋转角度和速度
-                ecb.SetComponent<PhysicsVelocity>(child, targetVelocity);
                 ecb.SetComponent<LocalTransform>(child, LocalTransform.FromPositionRotation(p + targetPos, r));
+                ecb.SetComponent<PhysicsVelocity>(child, targetVelocity);
                 ecb.SetComponent<MCData>(child, new MCData { preVelinY = targetVelocity.Linear.y });
             }
         }

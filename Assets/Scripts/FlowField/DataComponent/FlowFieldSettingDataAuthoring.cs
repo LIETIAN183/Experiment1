@@ -34,7 +34,7 @@ public struct FlowFieldSettingData : IComponentData
     public float3 destination;
     public float3 displayOffset;
 
-    public uint index;
+    public int index;
 
     public int agentIndex;
 }

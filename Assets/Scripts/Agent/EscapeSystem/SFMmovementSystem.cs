@@ -33,7 +33,7 @@ public partial class SFMmovementSystem : SystemBase
             float2 interactionForce = 0;
             foreach (var hit in outHits)
             {
-                if ((hit.Material.CustomTags & 0b_0001_1110) != 0)
+                if ((hit.Material.CustomTags & 0b_1111_1111) != 0)
                 {
                     if (hit.Entity.Equals(entity)) continue;
                     var direction = math.normalizesafe(localTransform.Position.xz - hit.Position.xz);

@@ -37,14 +37,14 @@ public partial struct FlowFieldVisulizeSystem : ISystem
         // using (Draw.ingame.WithLineWidth(3))
         // {
         //     Draw.ingame.WireGrid(new float3(0, 0, 0), Quaternion.identity, new int2(10, 10), new float2(10, 10), Color.black);
-        //     Draw.ingame.Arrow(new float3(-4.5f, 0, 4.5f), new float3(-4.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
-        //     Draw.ingame.Arrow(new float3(-3.5f, 0, 4.5f), new float3(-3.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
-        //     Draw.ingame.Arrow(new float3(-2.5f, 0, 4.5f), new float3(-2.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
-        //     Draw.ingame.Arrow(new float3(-1.5f, 0, 4.5f), new float3(-1.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
-        //     Draw.ingame.Arrow(new float3(-0.5f, 0, 4.5f), new float3(-0.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
-        //     Draw.ingame.Arrow(new float3(0.5f, 0, 4.5f), new float3(0.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
-        //     Draw.ingame.Arrow(new float3(1.5f, 0, 4.5f), new float3(1.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
-        //     Draw.ingame.Arrow(new float3(2.5f, 0, 4.5f), new float3(2.5f, 0, -2.5f), math.up(), 0.1f, Color.blue);
+        // Draw.ingame.Arrow(new float3(-4.5f, 0, 4.5f), new float3(-4.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
+        // Draw.ingame.Arrow(new float3(-3.5f, 0, 4.5f), new float3(-3.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
+        // Draw.ingame.Arrow(new float3(-2.5f, 0, 4.5f), new float3(-2.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
+        // Draw.ingame.Arrow(new float3(-1.5f, 0, 4.5f), new float3(-1.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
+        // Draw.ingame.Arrow(new float3(-0.5f, 0, 4.5f), new float3(-0.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
+        // Draw.ingame.Arrow(new float3(0.5f, 0, 4.5f), new float3(0.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
+        // Draw.ingame.Arrow(new float3(1.5f, 0, 4.5f), new float3(1.5f, 0, -4.5f), math.up(), 0.1f, Color.blue);
+        // Draw.ingame.Arrow(new float3(2.5f, 0, 4.5f), new float3(2.5f, 0, -2.5f), math.up(), 0.1f, Color.blue);
         // }
         //--------------------------------
         //-----------0-7刻度尺---------------

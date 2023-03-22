@@ -157,15 +157,21 @@ public partial class UISystem : SystemBase
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         DebugField();
-        ImGui.Label($"Acc Equals 0", in textStyle);
+        // ImGui.Label($"Acc Equals 0", in textStyle);
         var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
-        ImGui.Label($"agentIndex:" + setting.agentIndex, in textStyle);
-        ImGui.Label($"agentIndex=0:Find lowerest Neighbor + 4 Grid GlobalDir", in textStyle);
-        ImGui.Label($"agentIndex=1:Find lowerest Neighbor + 4 Grid LocalDir", in textStyle);
-        ImGui.Label($"agentIndex=2:Find lowerest Neighbor + GlobalDir", in textStyle);
-        ImGui.Label($"agentIndex=3:Find lowerest Neighbor + LocalDir", in textStyle);
+        ImGui.Label($"index:" + setting.index, in textStyle);
+        ImGui.Label($"Press K change index", in textStyle);
+        ImGui.Label($"index=0: Basic SFM", in textStyle);
+        ImGui.Label($"index=1: Baisc SFM+LocalFlowField", in textStyle);
+        ImGui.Label($"index=2: GlobalFlowField", in textStyle);
+        ImGui.Label($"index=3: Basic FlowField", in textStyle);
 #endif
-
+        if (ImGui.Button("Switch Camera", in buttonStyle))
+        {
+            var cameraRef = SystemAPI.ManagedAPI.GetSingleton<CameraRefData>();
+            cameraRef.mainCamera.enabled = !cameraRef.mainCamera.enabled;
+            cameraRef.overHeadCamera.enabled = !cameraRef.overHeadCamera.enabled;
+        }
     }
 
     /// <summary>

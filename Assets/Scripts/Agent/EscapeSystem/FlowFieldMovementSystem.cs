@@ -11,11 +11,10 @@ using Unity.Physics;
 [BurstCompile]
 public partial struct FlowFieldMovementSystem : ISystem
 {
-    private EntityQuery escapedQuery;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        escapedQuery = new EntityQueryBuilder(Allocator.Temp).WithAll<Escaped>().WithOptions(EntityQueryOptions.IncludeDisabledEntities).Build(ref state);
         state.Enabled = false;
     }
 
@@ -25,18 +24,48 @@ public partial struct FlowFieldMovementSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         // state.EntityManager.CompleteDependencyBeforeRO<LocalTransform>();
-        state.Dependency = new FlowFieldMovementJob
-        {
-            cells = SystemAPI.GetSingletonBuffer<CellBuffer>(true).Reinterpret<CellData>().AsNativeArray(),
-            settingData = SystemAPI.GetSingleton<FlowFieldSettingData>(),
-            deltaTime = SystemAPI.Time.DeltaTime
-        }.ScheduleParallel(state.Dependency);
+        var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
+        var deltaTime = SystemAPI.Time.DeltaTime;
+        var cells = SystemAPI.GetSingletonBuffer<CellBuffer>(true).Reinterpret<CellData>().AsNativeArray();
+        var des = SystemAPI.GetSingletonBuffer<DestinationBuffer>(true).Reinterpret<int>().AsNativeArray();
 
-        var escaped = escapedQuery.CalculateEntityCount();
-        var simulationSetting = SystemAPI.GetSingleton<SimConfigData>();
-        if (!simulationSetting.performStatistics && escaped.Equals(SystemAPI.GetSingleton<SpawnerData>().desireCount))
+        if (setting.index == 0)
+        {// Basic SFM
+            state.Dependency = new BasicSFMJob
+            {
+                deltaTime = deltaTime,
+                des = cells[des[0]].worldPos.xz,
+                physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld
+            }.ScheduleParallel(state.Dependency);
+        }
+        else if (setting.index == 1)
+        {// Basic SFM + Local FlowField
+            state.Dependency = new BasicSFM_LocalFFJob
+            {
+                deltaTime = deltaTime,
+                des = cells[des[0]].worldPos.xz,
+                physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
+                cells = cells,
+                settingData = setting
+            }.ScheduleParallel(state.Dependency);
+        }
+        else if (setting.index == 2)
         {
-            SystemAPI.SetSingleton(new EndSeismicEvent { isActivate = true });
+            // Global FlowField
+            state.Dependency = new GlobalFlowFieldJob
+            {
+                cells = cells,
+                settingData = setting
+            }.ScheduleParallel(state.Dependency);
+        }
+        else if (setting.index == 3)
+        {
+            // Basic FlowField
+            state.Dependency = new BasicFlowFieldJob
+            {
+                cells = cells,
+                settingData = setting
+            }.ScheduleParallel(state.Dependency);
         }
     }
 }
@@ -48,7 +77,7 @@ partial struct FlowFieldMovementJob : IJobEntity
     [ReadOnly] public NativeArray<CellData> cells;
     [ReadOnly] public FlowFieldSettingData settingData;
     [ReadOnly] public float deltaTime;
-    void Execute(ref PhysicsVelocity velocity, ref LocalTransform localTransform)
+    void Execute(ref PhysicsVelocity velocity, in LocalTransform localTransform)
     {
         int vel = 4;
 
@@ -122,37 +151,11 @@ partial struct FlowFieldMovementJob : IJobEntity
                 count++;
             }
             var targetPos = new float3(8.75f, 1f, -1.25f);
-            var dir = math.normalize(targetPos.xz - localTransform.Position.xz) + 0.9f * targetDir / count;
+            var dir = math.normalizesafe(targetPos.xz - localTransform.Position.xz) + 0.75f * math.normalizesafe(targetDir / 4);
 
             // localTransform.Position.xz += dir2 * deltaTime * vel;
             velocity.Linear.xz = math.normalizesafe(dir) * vel;
 
         }
-        else if (settingData.agentIndex == 2)
-        {
-            // localTransform.Position.xz += math.normalizesafe(cells[localCellIndex].globalDir) * deltaTime * vel;
-            velocity.Linear.xz = math.normalizesafe(cells[localCellIndex].globalDir) * vel;
-        }
-        else if (settingData.agentIndex == 3)
-        {
-            var targetPos = new float3(8.75f, 1f, -1.25f);
-            var dir = math.normalize(targetPos.xz - localTransform.Position.xz) + 0.9f * math.normalizesafe(cells[localCellIndex].localDir);
-            // localTransform.Position.xz += dir2 * deltaTime * vel;
-            velocity.Linear.xz = math.normalizesafe(dir) * vel;
-        }
-
-        // velocity.Linear.xz = new float2(1, 0) + 0.5f * math.normalizesafe(targetDir);
-
-
-
-
-        // if (!localCellIndex.Equals(Constants.notInGridSet))
-        // {
-        //     int flatLocalCellIndex = FlowFieldUtility.ToFlatIndex(localCellIndex, settingData.gridSetSize.y);
-        //     var targetDir = math.normalizesafe(cells[flatLocalCellIndex].bestDir);
-
-        //     velocity.Linear.xz = targetDir * 2;
-        //     // localTransform.Position.xz += targetDir * 2 * deltaTime;
-        // }
     }
 }

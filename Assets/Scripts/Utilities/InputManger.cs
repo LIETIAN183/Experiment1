@@ -36,10 +36,10 @@ public partial class InputManger : SystemBase
         // 启动单次仿真
         if (Input.GetKeyUp(KeyCode.N))
         {
-            var startEvent = SystemAPI.GetSingleton<StartSeismicEvent>();
-            startEvent.isActivate = true;
-            startEvent.targetPGA = startEvent.index = 0;
-            SystemAPI.SetSingleton(startEvent);
+            // var startEvent = SystemAPI.GetSingleton<StartSeismicEvent>();
+            // startEvent.isActivate = true;
+            // startEvent.targetPGA = startEvent.index = 0;
+            // SystemAPI.SetSingleton(startEvent);
         }
 
         // 启动多次仿真
@@ -53,7 +53,7 @@ public partial class InputManger : SystemBase
         {
             var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
             var debugtype = SystemAPI.GetSingleton<FFVisTypeStateData>().ffVisType;
-            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + debugtype.ToString() + "_" + setting.index + ".png");
+            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + debugtype.ToString() + "_" + SystemAPI.Time.ElapsedTime + ".png");
         }
 
         // TODO：不适用于人群系统 
@@ -72,7 +72,7 @@ public partial class InputManger : SystemBase
         {
             var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
             setting.index += 1;
-            if (setting.index < 0 || setting.index > 3)
+            if (setting.index < -1 || setting.index > 3)
             {
                 setting.index = 0;
             }
