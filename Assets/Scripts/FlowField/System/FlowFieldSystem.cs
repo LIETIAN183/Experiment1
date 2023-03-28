@@ -35,15 +35,23 @@ public partial struct FlowFieldSystem : ISystem
             cellRadius = new float3(0.25f, 1, 0.25f),
             destination = new float3(-10.8f, 0, 8.8f),
             // displayOffset = math.up(),
-            displayOffset = new float3(0, -0.9f, 0),
-            index = 2
-            // agentIndex = -1,
-            // index = -1
+            displayOffset = new float3(0, -0.9f, 0)
+            // index = 2
+            // agentIndex = -1
         });
         state.EntityManager.AddBuffer<CellBuffer>(entity);
         var desBuffer = state.EntityManager.AddBuffer<DestinationBuffer>(entity);
-        desBuffer.Add(117);
-        // desBuffer.Add(1657);
+        // desBuffer.Add(117);
+
+        // desBuffer.Add(158);
+        // desBuffer.Add(157);
+        // desBuffer.Add(156);
+        // desBuffer.Add(155);
+        // desBuffer.Add(154);
+        // desBuffer.Add(153);
+        // desBuffer.Add(152);
+        desBuffer.Add(1537);
+        // desBuffer.Add(1619);
 
         localTransformList = SystemAPI.GetComponentLookup<LocalTransform>(true);
         physicsMassList = SystemAPI.GetComponentLookup<PhysicsMass>(true);
@@ -145,51 +153,40 @@ public partial struct FlowFieldSystem : ISystem
             });
         }
         bigObstacleHashMap.Clear();
-        var costJob4 = new JobHandle();
-        if (settingData.index == 3)
+
+        var costJob1 = new CalculateCostStep1Job
         {
-            costJob4 = new BasicCalculateCostJob
-            {
-                cells = localArray,
-                physicsWorld = this.physicsWorld,
-                cellRadius = settingData.cellRadius
-            }.Schedule(localArray.Length, localArray.Length / 4, state.Dependency);
-        }
-        else
+            cells = localArray,
+            physicsWorld = this.physicsWorld,
+            cellRadius = settingData.cellRadius,
+            localTransformList = localTransformList,
+            physicsMassList = physicsMassList,
+            bigObstacleHashMapWriter = bigObstacleHashMap.AsParallelWriter()
+        }.Schedule(localArray.Length, localArray.Length / 4, state.Dependency);
+
+        var costJob2 = new CalculateCostStep2Job
         {
-            var costJob1 = new CalculateCostStep1Job
-            {
-                cells = localArray,
-                physicsWorld = this.physicsWorld,
-                cellRadius = settingData.cellRadius,
-                localTransformList = localTransformList,
-                physicsMassList = physicsMassList,
-                bigObstacleHashMapWriter = bigObstacleHashMap.AsParallelWriter()
-            }.Schedule(localArray.Length, localArray.Length / 4, state.Dependency);
+            cells = localArray,
+            fluidPosArray = SystemAPI.GetSingletonBuffer<Pos2DBuffer>().Reinterpret<float2>().AsNativeArray(),
+            settingData = settingData,
+            bigObstacleHashMap = bigObstacleHashMap
+        }.Schedule(costJob1);
 
-            var costJob2 = new CalculateCostStep2Job
-            {
-                cells = localArray,
-                fluidPosArray = SystemAPI.GetSingletonBuffer<Pos2DBuffer>().Reinterpret<float2>().AsNativeArray(),
-                settingData = settingData,
-                bigObstacleHashMap = bigObstacleHashMap
-            }.Schedule(costJob1);
+        var costJob3 = new CalculateCostStep3Job
+        {
+            cells = localArray,
+            pgaInms2 = this.pgaInms2,
+            gridVolume = this.gridVolume
+        }.Schedule(localArray.Length, localArray.Length / 4, costJob2);
 
-            var costJob3 = new CalculateCostStep3Job
-            {
-                cells = localArray,
-                pgaInms2 = this.pgaInms2,
-                gridVolume = this.gridVolume
-            }.Schedule(localArray.Length, localArray.Length / 4, costJob2);
+        var costJob4 = new CalculateCostStep4Job
+        {
+            cells = localArray,
+            physicsWorld = this.physicsWorld,
+            dests = localDests,
+            detectArea = math.PI * Constants.destinationAgentOverlapRadius * Constants.destinationAgentOverlapRadius
+        }.Schedule(localDests.Length, localDests.Length / 4, costJob3);
 
-            costJob4 = new CalculateCostStep4Job
-            {
-                cells = localArray,
-                physicsWorld = this.physicsWorld,
-                dests = localDests,
-                detectArea = math.PI * Constants.destinationAgentOverlapRadius * Constants.destinationAgentOverlapRadius
-            }.Schedule(localDests.Length, localDests.Length / 4, costJob3);
-        }
         return costJob4;
     }
 
@@ -201,32 +198,20 @@ public partial struct FlowFieldSystem : ISystem
             cells = localArray
         }.Schedule(localDests.Length, localArray.Length / 4, state.Dependency);
 
-        var integrationJob3 = new JobHandle();
-        if (settingData.index == 3)
+        var integrationJob2 = new CalculateIntegration_FloodingJob
         {
-            integrationJob3 = new CalCulateIntegration_DijkstraJob
-            {
-                cells = localArray,
-                dests = localDests,
-                gridSetSize = settingData.gridSetSize
-            }.Schedule(integrationJob1);
-        }
-        else
-        {
-            var integrationJob2 = new CalculateIntegration_FloodingJob
-            {
-                cells = localArray,
-                dests = localDests,
-                halfExtents = settingData.cellRadius,
-                physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld
-            }.Schedule(localArray.Length, localArray.Length / 4, integrationJob1);
+            cells = localArray,
+            dests = localDests,
+            halfExtents = settingData.cellRadius,
+            physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld
+        }.Schedule(localArray.Length, localArray.Length / 4, integrationJob1);
 
-            integrationJob3 = new CalCulateIntegration_FSMJob
-            {
-                cells = localArray,
-                settingData = settingData
-            }.Schedule(integrationJob2);
-        }
+        var integrationJob3 = new CalCulateIntegration_FSMJob
+        {
+            cells = localArray,
+            settingData = settingData
+        }.Schedule(integrationJob2);
+
         // 并行快速扫描法，虽然实行并行化，但相比非并行版本，需要迭代更多次，因此放弃并行快速扫描法
         // var integrationJob3 = PFSMExtension.CalculateIntegration_PFSM(integrationJob1, localArray, settingData);
 
@@ -257,7 +242,7 @@ public partial struct FlowFieldSystem : ISystem
         {
             cells = localArray,
             gridSetSize = settingData.gridSetSize,
-            pgaInms2 = 0
+            pgaInms2 = this.pgaInms2
         }.Schedule(localArray.Length, localArray.Length / 4, state.Dependency);
 
 
@@ -270,7 +255,7 @@ public partial struct FlowFieldSystem : ISystem
         var flowFieldJob3 = new CalculateLocalFlowFieldJob_NotDestGrid
         {
             cells = localArray,
-            pgaInms2 = 0,
+            pgaInms2 = this.pgaInms2,
             gridSetSize = settingData.gridSetSize
         }.Schedule(localArray.Length, localArray.Length / 4, flowFieldJob2);
 
@@ -278,7 +263,7 @@ public partial struct FlowFieldSystem : ISystem
         {
             cells = localArray,
             dests = localDests,
-            pgaInms2 = 0,
+            pgaInms2 = this.pgaInms2,
             gridVolume = this.gridVolume,
             gridSetSize = settingData.gridSetSize
         }.Schedule(flowFieldJob3);

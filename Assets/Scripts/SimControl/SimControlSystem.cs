@@ -117,7 +117,8 @@ public partial struct SimControlSystem : ISystem
             // 截图
             var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
 
-            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/Index" + setting.index + ".png");
+            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/Index" + setting.index + "pga" + SystemAPI.GetSingleton<TimerData>().simPGA + ".png");
+            // ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/Index" + setting.index + SystemAPI.Time.ElapsedTime + ".png");
             screenShotFlag = true;
             screenShotTimer = 0.5f;
 

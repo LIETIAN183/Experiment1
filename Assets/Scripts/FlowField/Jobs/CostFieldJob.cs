@@ -39,6 +39,7 @@ public struct CalculateCostStep1Job : IJobParallelFor
             if ((hit.Material.CustomTags & 0b_0100_0000) != 0)
             {
                 curCell.localCost = Constants.T_c;
+                // curCell.localCost = float.MaxValue;
                 break;
             }
 
@@ -130,8 +131,12 @@ public struct CalculateCostStep3Job : IJobParallelFor
         // 不超出阈值，即不存在大型障碍物时才计算
         if (curCell.localCost == 0)
         {
-            // curCell.localCost = math.exp(-pgaInms2) * (curCell.massVariable + Constants.c3 * curCell.fluidElementCount * 8.3f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.c4;
-            curCell.localCost = (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.w_s;
+            // curCell.localCost = (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.w_s;
+            curCell.localCost = (uint)(math.exp(-pgaInms2) * (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.c_s);
+        }
+        if (curCell.localCost > Constants.T_c)
+        {
+            curCell.localCost = Constants.T_c;
         }
 
         // integration Field & Flow Field参数初始化
@@ -153,13 +158,13 @@ public struct CalculateCostStep4Job : IJobParallelFor
     [ReadOnly] public float detectArea;
     [NativeDisableParallelForRestriction]
     public NativeArray<CellData> cells;
-
     public void Execute(int index)
     {
         var curCell = cells[dests[index]];
         NativeList<DistanceHit> outHits = new NativeList<DistanceHit>(Allocator.Temp);
         physicsWorld.OverlapSphere(curCell.worldPos, Constants.destinationAgentOverlapRadius, ref outHits, Constants.agentOnlyFilter);
         var agentNumber = outHits.Length;
+        // curCell.localCost += Constants.w_a * outHits.Length / detectArea;
         curCell.localCost += Constants.w_a * outHits.Length / detectArea;
         outHits.Dispose();
         cells[dests[index]] = curCell;

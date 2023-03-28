@@ -104,7 +104,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
 
 
 
-                if (counter >= 3)
+                if (counter >= 5)
                 {
                     if (SystemAPI.GetSingleton<SimConfigData>().performStatistics)
                     {
@@ -124,20 +124,43 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 else
                 {
                     var set = SystemAPI.GetSingleton<FlowFieldSettingData>();
+                    int targetIndex = 0;
+                    float targetPGA = 0;
                     counter++;
+                    var buffer = SystemAPI.GetSingletonBuffer<DestinationBuffer>();
                     switch (counter)
                     {
                         case 0:
                             set.index = 0;
+                            targetPGA = 0.2f;
                             break;
                         case 1:
-                            set.index = 1;
+                            set.index = 0;
+                            targetPGA = 0.3f;
                             break;
                         case 2:
-                            set.index = 2;
+                            set.index = 0;
+                            targetPGA = 0.4f;
                             break;
                         case 3:
-                            set.index = 3;
+                            set.index = 1;
+                            targetPGA = 0.2f;
+                            break;
+                        case 4:
+                            set.index = 1;
+                            targetPGA = 0.3f;
+                            break;
+                        case 5:
+                            set.index = 1;
+                            targetPGA = 0.4f;
+                            break;
+                        case 6:
+                            set.index = 0;
+                            targetPGA = 0.5f;
+                            break;
+                        case 7:
+                            set.index = 1;
+                            targetPGA = 0.8f;
                             break;
                         default:
                             break;
@@ -150,7 +173,8 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                     {
                         isActivate = true,
                         index = 0,
-                        targetPGA = 0
+                        // targetPGA = analysisCircledata.pgaThreshold
+                        targetPGA = targetPGA
                     });
 
                     // 更新状态

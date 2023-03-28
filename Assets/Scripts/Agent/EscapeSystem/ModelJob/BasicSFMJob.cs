@@ -24,7 +24,7 @@ partial struct BasicSFMJob : IJobEntity
             {
                 if (hit.Entity.Equals(e)) continue;
                 var direction = math.normalizesafe(localTransform.Position.xz - hit.Position.xz);
-                interactionForce += 2000 * math.exp((0.25f - math.abs(hit.Fraction)) / 0.08f) * direction;
+                interactionForce += 2000 * math.exp((0.5f - math.abs(hit.Fraction)) / 0.08f) * direction;
             }
         }
         var desireDir = math.normalizesafe(des - localTransform.Position.xz);

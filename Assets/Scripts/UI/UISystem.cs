@@ -161,16 +161,30 @@ public partial class UISystem : SystemBase
         var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
         ImGui.Label($"index:" + setting.index, in textStyle);
         ImGui.Label($"Press K change index", in textStyle);
-        ImGui.Label($"index=0: Basic SFM", in textStyle);
+        ImGui.Label($"index=0: GlobalFlowField", in textStyle);
         ImGui.Label($"index=1: Baisc SFM+LocalFlowField", in textStyle);
-        ImGui.Label($"index=2: GlobalFlowField", in textStyle);
-        ImGui.Label($"index=3: Basic FlowField", in textStyle);
+        // ImGui.Label($"w_a:" + setting.variable, in textStyle);
+        // ImGui.Label($"index=2: GlobalFlowField", in textStyle);
+        // ImGui.Label($"index=3: Basic FlowField", in textStyle);
 #endif
         if (ImGui.Button("Switch Camera", in buttonStyle))
         {
             var cameraRef = SystemAPI.ManagedAPI.GetSingleton<CameraRefData>();
             cameraRef.mainCamera.enabled = !cameraRef.mainCamera.enabled;
             cameraRef.overHeadCamera.enabled = !cameraRef.overHeadCamera.enabled;
+        }
+
+        if (ImGui.Button("Change Camera Render", in buttonStyle))
+        {
+            var cameraRef = SystemAPI.ManagedAPI.GetSingleton<CameraRefData>();
+            if (cameraRef.mainCamera.enabled)
+            {
+                cameraRef.mainCamera.cullingMask = ~cameraRef.mainCamera.cullingMask;
+            }
+            if (cameraRef.overHeadCamera.enabled)
+            {
+                cameraRef.overHeadCamera.cullingMask = ~cameraRef.overHeadCamera.cullingMask;
+            }
         }
     }
 

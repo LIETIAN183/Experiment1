@@ -37,4 +37,6 @@ public struct FlowFieldSettingData : IComponentData
     public int index;
 
     public int agentIndex;
+
+    public float variable;
 }

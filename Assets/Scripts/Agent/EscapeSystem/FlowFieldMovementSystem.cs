@@ -30,12 +30,12 @@ public partial struct FlowFieldMovementSystem : ISystem
         var des = SystemAPI.GetSingletonBuffer<DestinationBuffer>(true).Reinterpret<int>().AsNativeArray();
 
         if (setting.index == 0)
-        {// Basic SFM
-            state.Dependency = new BasicSFMJob
+        {
+            // Global FlowField
+            state.Dependency = new GlobalFlowFieldJob
             {
-                deltaTime = deltaTime,
-                des = cells[des[0]].worldPos.xz,
-                physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld
+                cells = cells,
+                settingData = setting
             }.ScheduleParallel(state.Dependency);
         }
         else if (setting.index == 1)
@@ -45,24 +45,6 @@ public partial struct FlowFieldMovementSystem : ISystem
                 deltaTime = deltaTime,
                 des = cells[des[0]].worldPos.xz,
                 physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
-                cells = cells,
-                settingData = setting
-            }.ScheduleParallel(state.Dependency);
-        }
-        else if (setting.index == 2)
-        {
-            // Global FlowField
-            state.Dependency = new GlobalFlowFieldJob
-            {
-                cells = cells,
-                settingData = setting
-            }.ScheduleParallel(state.Dependency);
-        }
-        else if (setting.index == 3)
-        {
-            // Basic FlowField
-            state.Dependency = new BasicFlowFieldJob
-            {
                 cells = cells,
                 settingData = setting
             }.ScheduleParallel(state.Dependency);

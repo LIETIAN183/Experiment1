@@ -13,9 +13,9 @@ public static class Constants
     public static readonly float T_c = 500;
     public static readonly float T_i = 65535;
     public static readonly float c2_fluid = 4;
-    public static readonly float w_s = 10;
+    public static readonly float c_s = 1;
     public static readonly float w_a = 10;
-    public static readonly float c_avoid = 0.5f;
+    public static readonly float w_avoid = 0.5f;
     public static readonly float destinationAgentOverlapRadius = 5f;
 
     // 计算行人指导方向时使用的位置偏移

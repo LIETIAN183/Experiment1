@@ -38,7 +38,7 @@ public struct CalculateGlobalFlowFieldJob_NotDestGrid : IJobParallelFor
         }
         flatNeighborIndexList.Dispose();
 
-        curCell.globalDir = math.normalizesafe(lowerDir) + Constants.c_avoid * math.exp(-pgaInms2) * math.normalizesafe(upperDir);
+        curCell.globalDir = math.normalizesafe(lowerDir) + Constants.w_avoid * math.exp(-pgaInms2) * math.normalizesafe(upperDir);
         cells[flatIndex] = curCell;
     }
 }
@@ -87,7 +87,8 @@ public struct CalculateLocalFlowFieldJob_NotDestGrid : IJobParallelFor
         }
         flatNeighborIndexList.Dispose();
 
-        curCell.localDir = math.normalizesafe(lowerDir) + Constants.c_avoid * math.exp(-pgaInms2) * math.normalizesafe(upperDir);
+        // curCell.localDir = math.normalizesafe(lowerDir) + Constants.c_avoid * math.exp(-pgaInms2) * math.normalizesafe(upperDir);
+        curCell.localDir = math.normalizesafe(lowerDir) + Constants.w_avoid * math.exp(-pgaInms2) * math.normalizesafe(upperDir);
         cells[flatIndex] = curCell;
     }
 }
@@ -103,7 +104,6 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
     [ReadOnly] public NativeArray<int> dests;
     [ReadOnly] public float pgaInms2, gridVolume;
     [ReadOnly] public int2 gridSetSize;
-
     public void Execute()
     {
         float2 curLowerDir, curUpperDir, nbrLowerDir, nbrUpperDir, dir;
@@ -123,7 +123,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
             }
             else
             {
-                curLocalCost = (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.w_s;
+                curLocalCost = math.exp(-pgaInms2) * (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.c_s;
             }
             NativeList<int> nbrList = FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, gridSetSize);
             for (int i = 0; i < nbrList.Length; ++i)
@@ -137,7 +137,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
                 }
                 else
                 {
-                    nbrLocalCost = (nbrCell.massVariable + Constants.c2_fluid * nbrCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(nbrCell.maxHeight) + nbrCell.maxHeight * Constants.w_s;
+                    nbrLocalCost = math.exp(-pgaInms2) * (nbrCell.massVariable + Constants.c2_fluid * nbrCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(nbrCell.maxHeight) + curCell.maxHeight * Constants.c_s;
                 }
                 //计算邻接网格的本地指导方向
                 float2 lowerDir2 = float2.zero, upperDir2 = float2.zero;
@@ -154,7 +154,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
                     }
                     else
                     {
-                        n2nLocalCost = (n2nCell.massVariable + Constants.c2_fluid * n2nCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(n2nCell.maxHeight) + n2nCell.maxHeight * Constants.w_s;
+                        n2nLocalCost = math.exp(-pgaInms2) * (n2nCell.massVariable + Constants.c2_fluid * n2nCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(n2nCell.maxHeight) + curCell.maxHeight * Constants.c_s;
                     }
                     diff = nbrLocalCost - n2nLocalCost;
                     if (diff == 0) continue;
@@ -168,7 +168,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
                         nbrUpperDir += (diff / (math.abs(dir.x) + math.abs(dir.y))) * dir;
                     }
                 }
-                nbrCell.localDir = math.normalizesafe(nbrLowerDir) + Constants.c_avoid * math.exp(-pgaInms2) * math.normalizesafe(nbrUpperDir);
+                nbrCell.localDir = math.normalizesafe(nbrLowerDir) + Constants.w_avoid * math.exp(-pgaInms2) * math.normalizesafe(nbrUpperDir);
                 cells[nbrFlatIndex] = nbrCell;
                 n2nList.Dispose();
 
@@ -185,7 +185,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
                     curUpperDir += (diff / (math.abs(dir.x) + math.abs(dir.y))) * dir;
                 }
             }
-            curCell.localDir = math.normalizesafe(curLowerDir) + Constants.c_avoid * math.exp(-pgaInms2) * math.normalizesafe(curUpperDir);
+            curCell.localDir = math.normalizesafe(curLowerDir) + Constants.w_avoid * math.exp(-pgaInms2) * math.normalizesafe(curUpperDir);
             cells[curIndex] = curCell;
             nbrList.Dispose();
         }

@@ -39,7 +39,15 @@ partial struct BasicSFM_LocalFFJob : IJobEntity
             var delta = math.abs(cells[item].worldPos.x - localTransform.Position.x) + math.abs(cells[item].worldPos.z - localTransform.Position.z);
             localGuidanceDir += (1 - delta) * cells[item].localDir;
         }
+        // if (math.lengthsq(localGuidanceDir / res.Length) >= 0.5625)
+        // {s
         desireDir = math.normalizesafe(math.normalizesafe(desireDir) + 0.75f * math.normalizesafe(localGuidanceDir / res.Length));
+        // }
+        // else
+        // {
+        //     desireDir = math.normalizesafe(math.normalizesafe(desireDir) + (localGuidanceDir / res.Length));
+        // }
+
 
         velocity.Linear.xz += ((desireDir * movementData.stdVel - velocity.Linear.xz) / 0.5f + interactionForce * mass.InverseMass) * deltaTime;
         outHits.Dispose();

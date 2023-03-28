@@ -34,25 +34,42 @@ public partial struct AgentStateChangeSystem : ISystem
         // TODO：时间限制为了物品掉落先
         if (idleQuery.CalculateEntityCount() > 0)
         {
-            if (SystemAPI.GetSingleton<TimerData>().elapsedTime > 5 && SystemAPI.GetSingleton<SimConfigData>().simEnvironment)
+            if (SystemAPI.GetSingleton<SimConfigData>().simEnvironment)
             {
-                idleList.Update(ref state);
-                escapingList.Update(ref state);
-                new ActiveEscapeJob
+                var data = SystemAPI.GetSingleton<TimerData>();
+                if (data.seismicEventIndex == 0 && data.elapsedTime > 0)
                 {
-                    idleList = idleList,
-                    escapingList = escapingList
-                }.ScheduleParallel(state.Dependency).Complete();
+                    idleList.Update(ref state);
+                    escapingList.Update(ref state);
+                    new ActiveEscapeJob
+                    {
+                        idleList = idleList,
+                        escapingList = escapingList
+                    }.ScheduleParallel(state.Dependency).Complete();
+                }
+                if (data.seismicEventIndex == 1 && data.elapsedTime > 12)
+                {
+                    idleList.Update(ref state);
+                    escapingList.Update(ref state);
+                    new ActiveEscapeJob
+                    {
+                        idleList = idleList,
+                        escapingList = escapingList
+                    }.ScheduleParallel(state.Dependency).Complete();
+                }
+                if (data.seismicEventIndex == 2 && data.elapsedTime > 3)
+                {
+                    idleList.Update(ref state);
+                    escapingList.Update(ref state);
+                    new ActiveEscapeJob
+                    {
+                        idleList = idleList,
+                        escapingList = escapingList
+                    }.ScheduleParallel(state.Dependency).Complete();
+                }
+
+
             }
-            // if(!SystemAPI.GetSingleton<SimConfigData>().simEnvironment){
-            //     idleList.Update(ref state);
-            //     escapingList.Update(ref state);
-            //     new ActiveEscapeJob
-            //     {
-            //         idleList = idleList,
-            //         escapingList = escapingList
-            //     }.ScheduleParallel(state.Dependency).Complete();
-            // }
         }
         else
         {
@@ -124,7 +141,7 @@ partial struct CheckArriveJob : IJobEntity
                 minDisSquare = temp;
             }
         }
-        if (minDisSquare < 1f)
+        if (minDisSquare < 0.25f)
         {
             escapingList.SetComponentEnabled(e, false);
             escapedList.SetComponentEnabled(e, true);

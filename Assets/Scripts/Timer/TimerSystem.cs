@@ -35,10 +35,10 @@ public partial struct TimerSystem : ISystem
         data.elapsedTime = data.accListIndex * data.eventDeltaTime;
         if (data.elapsedTime < data.eventDuration)
         {
-            data.curAcc = accList[data.accListIndex] * data.adjustmentPGAFactor;
-            // data.curAcc = 0;
-            // data.curPGA = 1;
-            data.curPGA = math.max(data.curPGA, math.length(data.curAcc) / Constants.gravity);
+            // data.curAcc = accList[data.accListIndex] * data.adjustmentPGAFactor;
+
+            // data.curPGA = math.max(data.curPGA, math.length(data.curAcc) / Constants.gravity);
+            data.curAcc = 0;
         }
         else { data.curAcc = float3.zero; }
         data.accListIndex += data.accListIndexIncrement;
@@ -85,7 +85,7 @@ partial struct TimerInitJob : IJobEntity
         data.curAcc = float3.zero;
         data.elapsedTime = 0;
         data.eventDuration = dataResource.eventAccArray.Length * dataResource.eventDeltaTime;
-        data.curPGA = 0;
+        data.curPGA = simPGA;
         data.eventPGA = dataResource.eventAccArray.maxPGA();
         data.adjustmentPGAFactor = math.select(data.simPGA / data.eventPGA, 1, data.simPGA.Equals(0));
         data.envEnhanceFactor = math.select(data.envEnhanceFactor, 1, data.envEnhanceFactor.Equals(0));

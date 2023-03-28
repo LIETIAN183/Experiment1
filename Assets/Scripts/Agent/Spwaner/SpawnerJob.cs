@@ -33,8 +33,8 @@ partial struct SpawnerAgentJob : IJobEntity
             {
                 outHits.Clear();
                 flag = true;
-                position = spawner.center + new float3(random.NextFloat(-spawner.sideLength, spawner.sideLength), 0, random.NextFloat(-spawner.sideLength, spawner.sideLength));
-                // position = new float3(-0.4f, 1f, -3.75f);
+                // position = spawner.center + new float3(random.NextFloat(-spawner.sideLength, spawner.sideLength), 0, random.NextFloat(-spawner.sideLength, spawner.sideLength));
+                position = new float3(-9.25f, 1f, -1.25f);
                 physicsWorld.OverlapBox(position, quaternion.identity, Constants.halfHumanSize3D, ref outHits, CollisionFilter.Default);
 
                 foreach (var pos in posBuffer)
