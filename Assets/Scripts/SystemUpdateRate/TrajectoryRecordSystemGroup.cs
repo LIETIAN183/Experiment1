@@ -12,7 +12,7 @@ namespace Unity.Entities
     [UpdateAfter(typeof(BeginSimulationEntityCommandBufferSystem))]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(AgentSimulationSystemGroup))]
-    public class TrajectoryRecordSystemGroup : ComponentSystemGroup
+    public partial class TrajectoryRecordSystemGroup : ComponentSystemGroup
     {
         [Preserve]
         public TrajectoryRecordSystemGroup()

@@ -31,45 +31,18 @@ public partial struct AgentStateChangeSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        // TODO：时间限制为了物品掉落先
         if (idleQuery.CalculateEntityCount() > 0)
         {
-            if (SystemAPI.GetSingleton<SimConfigData>().simEnvironment)
+            idleList.Update(ref state);
+            escapingList.Update(ref state);
+            var timerData = SystemAPI.GetSingleton<TimerData>();
+            new ActiveEscapeJob
             {
-                var data = SystemAPI.GetSingleton<TimerData>();
-                if (data.seismicEventIndex == 0 && data.elapsedTime > 0)
-                {
-                    idleList.Update(ref state);
-                    escapingList.Update(ref state);
-                    new ActiveEscapeJob
-                    {
-                        idleList = idleList,
-                        escapingList = escapingList
-                    }.ScheduleParallel(state.Dependency).Complete();
-                }
-                if (data.seismicEventIndex == 1 && data.elapsedTime > 12)
-                {
-                    idleList.Update(ref state);
-                    escapingList.Update(ref state);
-                    new ActiveEscapeJob
-                    {
-                        idleList = idleList,
-                        escapingList = escapingList
-                    }.ScheduleParallel(state.Dependency).Complete();
-                }
-                if (data.seismicEventIndex == 2 && data.elapsedTime > 3)
-                {
-                    idleList.Update(ref state);
-                    escapingList.Update(ref state);
-                    new ActiveEscapeJob
-                    {
-                        idleList = idleList,
-                        escapingList = escapingList
-                    }.ScheduleParallel(state.Dependency).Complete();
-                }
-
-
-            }
+                idleList = idleList,
+                escapingList = escapingList,
+                PGAInms2 = timerData.curPGA * Constants.gravity,
+                elapsedTime = timerData.elapsedTime
+            }.ScheduleParallel(state.Dependency).Complete();
         }
         else
         {
@@ -109,10 +82,16 @@ partial struct ActiveEscapeJob : IJobEntity
     public ComponentLookup<Idle> idleList;
     [NativeDisableParallelForRestriction]
     public ComponentLookup<Escaping> escapingList;
-    void Execute(Entity e)
+    [ReadOnly] public float PGAInms2;
+    [ReadOnly] public float elapsedTime;
+    void Execute(Entity e, in AgentMovementData data)
     {
-        idleList.SetComponentEnabled(e, false);
-        escapingList.SetComponentEnabled(e, true);
+        // 当时间超过行人的反应时间后，行人开始移动
+        if (elapsedTime > data.reactionCofficient * 3.61f / PGAInms2)
+        {
+            idleList.SetComponentEnabled(e, false);
+            escapingList.SetComponentEnabled(e, true);
+        }
     }
 }
 

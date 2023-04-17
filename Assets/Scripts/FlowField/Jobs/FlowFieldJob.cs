@@ -123,7 +123,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
             }
             else
             {
-                curLocalCost = math.exp(-pgaInms2) * (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.c_s;
+                curLocalCost = math.exp(-pgaInms2) * (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + (uint)(math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.c_s);
             }
             NativeList<int> nbrList = FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, gridSetSize);
             for (int i = 0; i < nbrList.Length; ++i)
@@ -137,7 +137,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
                 }
                 else
                 {
-                    nbrLocalCost = math.exp(-pgaInms2) * (nbrCell.massVariable + Constants.c2_fluid * nbrCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(nbrCell.maxHeight) + curCell.maxHeight * Constants.c_s;
+                    nbrLocalCost = math.exp(-pgaInms2) * (nbrCell.massVariable + Constants.c2_fluid * nbrCell.fluidElementCount * 0.0083f) / gridVolume + (uint)(math.exp(nbrCell.maxHeight) + curCell.maxHeight * Constants.c_s);
                 }
                 //计算邻接网格的本地指导方向
                 float2 lowerDir2 = float2.zero, upperDir2 = float2.zero;
@@ -154,7 +154,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
                     }
                     else
                     {
-                        n2nLocalCost = math.exp(-pgaInms2) * (n2nCell.massVariable + Constants.c2_fluid * n2nCell.fluidElementCount * 0.0083f) / gridVolume + math.exp(n2nCell.maxHeight) + curCell.maxHeight * Constants.c_s;
+                        n2nLocalCost = math.exp(-pgaInms2) * (n2nCell.massVariable + Constants.c2_fluid * n2nCell.fluidElementCount * 0.0083f) / gridVolume + (uint)(math.exp(n2nCell.maxHeight) + curCell.maxHeight * Constants.c_s);
                     }
                     diff = nbrLocalCost - n2nLocalCost;
                     if (diff == 0) continue;

@@ -30,7 +30,8 @@ public class FCDataAuthoring : MonoBehaviour
             {
                 modify_k = modify_c = 0;
             }
-            AddComponent(new FCData
+            Entity entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
+            AddComponent(entity, new FCData
             {
                 length = authoring.length,
                 k = authoring.k + modify_k,

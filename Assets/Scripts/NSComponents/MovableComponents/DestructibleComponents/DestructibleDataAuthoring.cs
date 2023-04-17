@@ -16,12 +16,13 @@ public class DestructibleDataAuthoring : MonoBehaviour
     {
         public override void Bake(DestructibleDataAuthoring authoring)
         {
-            AddComponent(new DCData { fluidInside = authoring.fluidInside });
+            Entity entity = GetEntity(authoring, TransformUsageFlags.Dynamic | TransformUsageFlags.WorldSpace);
+            AddComponent(entity, new DCData { fluidInside = authoring.fluidInside });
 
-            var entityBuffer = AddBuffer<ReplacePrefabsBuffer>();
+            var entityBuffer = AddBuffer<ReplacePrefabsBuffer>(entity);
             foreach (var item in authoring.replaceItems)
             {
-                entityBuffer.Add(new ReplacePrefabsBuffer { replacementItem = GetEntity(item) });
+                entityBuffer.Add(new ReplacePrefabsBuffer { replacementItem = GetEntity(item, TransformUsageFlags.Dynamic | TransformUsageFlags.WorldSpace) });
             }
         }
     }

@@ -42,16 +42,16 @@ public partial struct FlowFieldSystem : ISystem
         state.EntityManager.AddBuffer<CellBuffer>(entity);
         var desBuffer = state.EntityManager.AddBuffer<DestinationBuffer>(entity);
         // desBuffer.Add(117);
+        // desBuffer.Add(386);
+        // desBuffer.Add(1657);
 
-        // desBuffer.Add(158);
-        // desBuffer.Add(157);
-        // desBuffer.Add(156);
-        // desBuffer.Add(155);
-        // desBuffer.Add(154);
-        // desBuffer.Add(153);
-        // desBuffer.Add(152);
-        desBuffer.Add(1537);
-        // desBuffer.Add(1619);
+        desBuffer.Add(158);
+        desBuffer.Add(157);
+        desBuffer.Add(156);
+        desBuffer.Add(155);
+        desBuffer.Add(154);
+        desBuffer.Add(153);
+        desBuffer.Add(152);
 
         localTransformList = SystemAPI.GetComponentLookup<LocalTransform>(true);
         physicsMassList = SystemAPI.GetComponentLookup<PhysicsMass>(true);
@@ -326,10 +326,28 @@ public struct CalculateIntegration_FloodingJob : IJobParallelFor
                 if (curCellData.integrationCost > dis + cells[minIndex].integrationCost)
                 {
                     curCellData.integrationCost = dis + cells[minIndex].integrationCost;
-                    cells[flatIndex] = curCellData;
+                    // cells[flatIndex] = curCellData;
                 }
             }
         }
+
+        curCellData.seeExit = false;
+        RaycastInput ray = new RaycastInput
+        {
+            Start = curCellData.worldPos,
+            Filter = Constants.WallOnlyFilter
+        };
+        foreach (var index in dests)
+        {
+            ray.End = cells[index].worldPos;
+            if (!physicsWorld.CastRay(ray))
+            {
+                curCellData.seeExit = true;
+                break;
+            }
+        }
+
+        cells[flatIndex] = curCellData;
     }
 }
 

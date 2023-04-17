@@ -24,4 +24,22 @@ public static class Utilities
         itemRotation = math.mul(targetRotation, itemRotation);
         return (itemPosition, itemRotation);
     }
+
+    [BurstCompile]
+    public static float GetStandardVelByPGA(float pga)
+    {
+        var temp = pga * Constants.gravity;
+        if (temp < 0.222f)
+        {
+            return 1f;
+        }
+        else if (temp < 0.936f)
+        {
+            return 2f;
+        }
+        else
+        {
+            return 3f;
+        }
+    }
 }

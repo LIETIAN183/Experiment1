@@ -13,14 +13,14 @@ public class FlowFieldSettingDataAuthoring : MonoBehaviour
     {
         public override void Bake(FlowFieldSettingDataAuthoring authoring)
         {
-            AddComponent(new FlowFieldSettingData
+            Entity entity = GetEntity(authoring, TransformUsageFlags.None);
+            AddComponent(entity, new FlowFieldSettingData
             {
                 originPoint = authoring.originPoint,
                 gridSetSize = authoring.gridSize,
                 cellRadius = authoring.cellRadius,
                 destination = authoring.destination,
-                displayOffset = authoring.displayOffset,
-                agentIndex = -1
+                displayOffset = authoring.displayOffset
             });
         }
     }
@@ -35,8 +35,4 @@ public struct FlowFieldSettingData : IComponentData
     public float3 displayOffset;
 
     public int index;
-
-    public int agentIndex;
-
-    public float variable;
 }

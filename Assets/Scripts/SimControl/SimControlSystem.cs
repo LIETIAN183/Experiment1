@@ -25,9 +25,11 @@ public partial struct SimControlSystem : ISystem
             simEnvironment = true,
             itemDestructible = true,
             simFlowField = true,
-            simAgent = false,
-            displayTrajectories = false,
-            performStatistics = false
+            simAgent = true,
+            displayTrajectories = true,
+            performStatistics = false,
+            simIter = 2,
+            average = 1f
         });
         screenShotFlag = false;
         screenShotTimer = 0;
@@ -68,12 +70,15 @@ public partial struct SimControlSystem : ISystem
             {
                 // 这里需要 Allocator.Persistent，因为生成 Agent 需要花费较多时间， Allocator.TempJob 时间不够
                 var ecb = new EntityCommandBuffer(Allocator.Persistent);
+                // var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+                // var randomInitSeed = (uint)(SystemAPI.GetSingleton<RandomSeed>().seed + SystemAPI.Time.ElapsedTime.GetHashCode());
 
                 new SpawnerAgentJob
                 {
                     ecb = ecb,
                     physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
                     randomInitSeed = (uint)(SystemAPI.GetSingleton<RandomSeed>().seed + SystemAPI.Time.ElapsedTime.GetHashCode()),
+                    massList = SystemAPI.GetComponentLookup<PhysicsMass>(true)
                 }.Schedule(state.Dependency).Complete();
                 ecb.Playback(state.EntityManager);
                 ecb.Dispose();
@@ -115,10 +120,9 @@ public partial struct SimControlSystem : ISystem
         if (endEvent.isActivate)
         {
             // 截图
-            var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
+            var setting = SystemAPI.GetSingleton<SimConfigData>();
 
-            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/Index" + setting.index + "pga" + SystemAPI.GetSingleton<TimerData>().simPGA + ".png");
-            // ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/Index" + setting.index + SystemAPI.Time.ElapsedTime + ".png");
+            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + setting.average + ".png");
             screenShotFlag = true;
             screenShotTimer = 0.5f;
 
@@ -168,11 +172,13 @@ public partial struct SimControlSystem : ISystem
             unmanagedWorld.GetExistingSystemState<AgentStateChangeSystem>().Enabled = enabled;
             // 人群算法
             // 和多轮仿真的恢复 Job 相关联，需要同步修改
-            // state.World.GetExistingSystemManaged<AgentMovementSystem>().Enabled = enabled;
             unmanagedWorld.GetExistingSystemState<FlowFieldMovementSystem>().Enabled = enabled;
             // simulation.GetExistingSystemManaged<SFMmovementSystem>().Enabled = state;
             // simulation.GetExistingSystemManaged<SFMmovementSystem2>().Enabled = state;
             // simulation.GetExistingSystemManaged<SFMmovementSystem3>().Enabled = state;
+
+
+            state.World.GetExistingSystemManaged<AnimationSyncSystem>().Enabled = enabled;
 
             if (setting.displayTrajectories)
             {

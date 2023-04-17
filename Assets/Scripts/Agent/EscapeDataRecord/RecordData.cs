@@ -7,6 +7,7 @@ using Unity.Mathematics;
 public struct RecordData : IComponentData
 {
     public float3 lastPosition;
+    public float reactionTime;
     public float escapedTime;
     public float escapedLength;
     public float escapeAveVel;

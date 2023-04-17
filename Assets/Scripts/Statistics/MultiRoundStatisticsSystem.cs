@@ -102,9 +102,58 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 // }
 
 
+                // if (analysisCircledata.curSimulationTargetPGA > analysisCircledata.pgaThreshold + 0.01f)
+                // {
+                //     if (SystemAPI.GetSingleton<SimConfigData>().performStatistics)
+                //     {
+                //         var handle = unmanagedWorld.GetExistingUnmanagedSystem<SingleStatisticSystem>();
+                //         unmanagedWorld.GetUnsafeSystemRef<SingleStatisticSystem>(handle).ExportData();
+                //     }
+
+                //     SystemAPI.SetSingleton(new MessageEvent
+                //     {
+                //         isActivate = true,
+                //         message = "Simulation Finished",
+                //         displayForever = true
+                //     });
+                //     this.Enabled = false;
+                //     return;
+                // }
+                // else
+                // {
+                //     var data = SystemAPI.GetSingleton<SimConfigData>();
+                //     if (data.simIter >= 2)
+                //     {
+                //         analysisCircledata.curSimulationTargetPGA += analysisCircledata.pgaStep;
+                //         data.simIter = 0;
+                //     }
+                //     else
+                //     {
+                //         data.simIter++;
+                //     }
+                //     SystemAPI.SetSingleton(data);
+                //     // 配置 仿真系统参数
+                //     if (analysisCircledata.curSimulationTargetPGA > analysisCircledata.pgaThreshold + 0.01f)
+                //     {
+                //         break;
+                //     }
+                //     // 单个地震事件结束，选择下一个地震事件
+                //     // 设置当前仿真参数
+                //     SystemAPI.SetSingleton(new StartSeismicEvent
+                //     {
+                //         isActivate = true,
+                //         index = 0,
+                //         targetPGA = analysisCircledata.curSimulationTargetPGA
+                //     });
 
 
-                if (counter >= 5)
+                //     // 更新状态
+                //     analysisCircledata.curStage = AnalysisStage.Simulation;
+                // }
+
+
+
+                if (counter >= 2)
                 {
                     if (SystemAPI.GetSingleton<SimConfigData>().performStatistics)
                     {
@@ -123,7 +172,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 }
                 else
                 {
-                    var set = SystemAPI.GetSingleton<FlowFieldSettingData>();
+                    var set = SystemAPI.GetSingleton<SimConfigData>();
                     int targetIndex = 0;
                     float targetPGA = 0;
                     counter++;
@@ -131,36 +180,21 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                     switch (counter)
                     {
                         case 0:
-                            set.index = 0;
-                            targetPGA = 0.2f;
-                            break;
-                        case 1:
-                            set.index = 0;
-                            targetPGA = 0.3f;
-                            break;
-                        case 2:
-                            set.index = 0;
-                            targetPGA = 0.4f;
-                            break;
-                        case 3:
-                            set.index = 1;
-                            targetPGA = 0.2f;
-                            break;
-                        case 4:
-                            set.index = 1;
-                            targetPGA = 0.3f;
-                            break;
-                        case 5:
-                            set.index = 1;
-                            targetPGA = 0.4f;
-                            break;
-                        case 6:
-                            set.index = 0;
+                            targetIndex = 0;
+                            set.average = 0;
                             targetPGA = 0.5f;
                             break;
-                        case 7:
-                            set.index = 1;
-                            targetPGA = 0.8f;
+                        case 1:
+                            targetIndex = 1;
+                            set.average = 1;
+                            targetPGA = 0.5f;
+                            break;
+                        case 2:
+                            targetIndex = 2;
+                            set.average = 2;
+                            targetPGA = 0.5f;
+                            break;
+                        case 3:
                             break;
                         default:
                             break;
@@ -172,9 +206,9 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                     SystemAPI.SetSingleton(new StartSeismicEvent
                     {
                         isActivate = true,
-                        index = 0,
-                        // targetPGA = analysisCircledata.pgaThreshold
-                        targetPGA = targetPGA
+                        index = targetIndex,
+                        targetPGA = analysisCircledata.pgaThreshold
+                        // targetPGA = targetPGA
                     });
 
                     // 更新状态
@@ -224,6 +258,8 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 ecb = ecb,
                 physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
                 randomInitSeed = (uint)(SystemAPI.GetSingleton<RandomSeed>().seed + SystemAPI.Time.ElapsedTime.GetHashCode()),
+                massList = SystemAPI.GetComponentLookup<PhysicsMass>(true),
+                type = SystemAPI.GetSingleton<SimConfigData>().simIter
             }.Schedule(Dependency).Complete();
             ecb.Playback(this.EntityManager);
             ecb.Dispose();

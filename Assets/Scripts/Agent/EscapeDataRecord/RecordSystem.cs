@@ -45,6 +45,7 @@ partial struct InitialRecordDataJob : IJobEntity
     void Execute(ref RecordData data, in LocalTransform localTransform)
     {
         data.lastPosition = localTransform.Position;
+        data.reactionTime = 0;
         data.escapedTime = 0;
         data.escapedLength = 0;
         data.escapeAveVel = 0;
@@ -64,6 +65,10 @@ partial struct RecordAgentJob : IJobEntity
     {
         if (escapingList.IsComponentEnabled(e))
         {
+            if (data.reactionTime == 0)
+            {
+                data.reactionTime = elapsedTime;
+            }
             data.escapedLength += math.length(localTransform.Position.xz - data.lastPosition.xz);
             data.accumulatedY += math.abs(localTransform.Position.y - data.lastPosition.y);
             data.lastPosition = localTransform.Position;

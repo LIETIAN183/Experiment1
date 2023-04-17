@@ -96,7 +96,6 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
         state.EntityManager.CompleteDependencyBeforeRW<PhysicsVelocity>();
         state.EntityManager.CompleteDependencyBeforeRO<PhysicsWorldSingleton>();
         state.EntityManager.CompleteDependencyBeforeRW<LocalTransform>();
-        state.EntityManager.CompleteDependencyBeforeRW<WorldTransform>();
 
         childList.Update(ref state);
         linkedList.Update(ref state);

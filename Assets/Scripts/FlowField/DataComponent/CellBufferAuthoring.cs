@@ -8,7 +8,8 @@ public class CellBufferAuthoring : MonoBehaviour
     {
         public override void Bake(CellBufferAuthoring authoring)
         {
-            AddBuffer<CellBuffer>();
+            Entity entity = GetEntity(authoring, TransformUsageFlags.None);
+            AddBuffer<CellBuffer>(entity);
         }
     }
 }
@@ -26,6 +27,7 @@ public struct CellData
     public float massVariable;
     public float maxHeight;
     public int fluidElementCount;
+    public bool seeExit;
 }
 
 public struct DebugCellData

@@ -167,5 +167,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa214fb1e9c359048a13a9d407f3d742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agentPrefab: {fileID: 3102279564332726338, guid: d667d8206a9c09949a45dc81b45b91e4,
+  agentPrefab: {fileID: 7530782321942106993, guid: fab381279a3b1174cbe44a7d856bbe1e,
     type: 3}

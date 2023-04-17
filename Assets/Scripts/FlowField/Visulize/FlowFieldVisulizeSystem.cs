@@ -205,15 +205,7 @@ public struct DrawFlowFieldJob : IJob
                     else
                     {
                         var temp = new float3(cell.localDir.x, 0, cell.localDir.y);
-                        float3 dir = float3.zero;
-                        if (math.lengthsq(temp) >= 1)
-                        {
-                            dir = math.normalizesafe(temp);
-                        }
-                        else
-                        {
-                            dir = temp;
-                        }
+                        var dir = math.normalizesafe(temp);
                         var halfLength = cellRadius.x * 0.8f;
                         var originPos = cell.worldPos + displayOffset;
                         builder.Arrow(originPos - halfLength * dir, originPos + halfLength * dir, Color.black);

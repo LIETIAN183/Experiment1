@@ -67,28 +67,5 @@ public partial class InputManger : SystemBase
             simulation.GetExistingSystemManaged<SimInitializeSystem>().ReloadSubScene();
         }
 
-        // 
-        if (Input.GetKeyUp(KeyCode.K))
-        {
-            var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
-            setting.index += 1;
-            if (setting.index < -1 || setting.index > 3)
-            {
-                setting.index = 0;
-            }
-            SystemAPI.SetSingleton(setting);
-        }
-
-        if (Input.GetKeyUp(KeyCode.J))
-        {
-            var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
-            setting.agentIndex += 1;
-            if (setting.agentIndex < -1 || setting.agentIndex > 3)
-            {
-                setting.agentIndex = 0;
-            }
-            SystemAPI.SetSingleton(setting);
-        }
-
     }
 }

@@ -13,7 +13,7 @@ public struct TimerData : IComponentData
     // 根据事件间隔计算出每次仿真需要获得的地震数据的下标,根据 targetDeltaTime 判断 dataIndexInArray 的增长量
     public int accListIndex, accListIndexIncrement;
     // 当前时刻的地震加速度
-    public float3 curAcc;
+    public float3 curAcc, curVel;
     // 已经逝去的时间，地震事件时长，额外延长的仿真时间
     public float elapsedTime, eventDuration;
     // 到当前时刻为止的最大地震加速度

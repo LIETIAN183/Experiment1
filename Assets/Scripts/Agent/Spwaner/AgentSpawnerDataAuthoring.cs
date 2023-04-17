@@ -9,15 +9,16 @@ public class AgentSpawnerDataAuthoring : MonoBehaviour
     {
         public override void Bake(AgentSpawnerDataAuthoring authoring)
         {
-            AddComponent(new SpawnerData
+            Entity entity = GetEntity(authoring, TransformUsageFlags.None);
+            AddComponent(entity, new SpawnerData
             {
-                prefab = GetEntity(authoring.agentPrefab),
+                prefab = GetEntity(authoring.agentPrefab, TransformUsageFlags.Dynamic | TransformUsageFlags.WorldSpace),
                 center = new float3(0, 0.9f, 0),
                 sideLength = 10,
                 currentCount = 0,
                 desireCount = 0
             });
-            AddBuffer<PosBuffer>();
+            AddBuffer<PosBuffer>(entity);
         }
     }
 }

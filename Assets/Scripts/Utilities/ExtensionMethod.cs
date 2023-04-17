@@ -170,4 +170,37 @@ public static class ExtensionMethod
     {
         return data.cellRadius.x * data.cellRadius.y * data.cellRadius.z * 8;
     }
+
+    public static float2 GetPedestrainGlobalDir(this NativeArray<CellData> source, float3 localPosition, FlowFieldSettingData settingData)
+    {
+        var indices = FlowFieldUtility.Get4GridFlatIndexFromWorldPos(localPosition, settingData.originPoint, settingData.gridSetSize, settingData.cellRadius * 2);
+        float2 globalDir = 0;
+        foreach (var index in indices)
+        {
+            var delta = math.abs(source[index].worldPos.x - localPosition.x) + math.abs(source[index].worldPos.z - localPosition.z);
+            globalDir += (1 - delta) * source[index].globalDir;
+        }
+        var length = indices.Length;
+        indices.Dispose();
+        return math.normalizesafe(globalDir / length);
+    }
+
+    public static float2 GetPedestrainLocalDir(this NativeArray<CellData> source, float3 localPosition, FlowFieldSettingData settingData)
+    {
+        var indices = FlowFieldUtility.Get4GridFlatIndexFromWorldPos(localPosition, settingData.originPoint, settingData.gridSetSize, settingData.cellRadius * 2);
+        float2 localDir = 0;
+        foreach (var index in indices)
+        {
+            var delta = math.abs(source[index].worldPos.x - localPosition.x) + math.abs(source[index].worldPos.z - localPosition.z);
+            localDir += (1 - delta) * source[index].localDir;
+        }
+        var length = indices.Length;
+        indices.Dispose();
+        return math.normalizesafe(localDir / length);
+    }
+
+    public static float3 ToFloat3(this float2 resource)
+    {
+        return new float3(resource.x, 0, resource.y);
+    }
 }

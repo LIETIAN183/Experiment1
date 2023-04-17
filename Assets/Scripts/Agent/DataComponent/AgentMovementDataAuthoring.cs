@@ -2,27 +2,45 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+public class AgentMovementDataAuthoring : MonoBehaviour
+{
+    public float standardVel;
+    class Baker : Baker<AgentMovementDataAuthoring>
+    {
+        public override void Bake(AgentMovementDataAuthoring authoring)
+        {
+            Entity entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
+            AddComponent(entity, new AgentMovementData
+            {
+                stdVel = authoring.standardVel,
+                deltaHeight = 0,
+                forceForFootInteraction = 0,
+                desireSpeed = 0,
+                curSpeed = 0
+            });
+        }
+    }
+}
+
+
 public struct AgentMovementData : IComponentData
 {
     public float stdVel;
     public float3 originPosition;
 
+    public float3 forceForFootInteraction;
+
     public float desireSpeed;
 
     public float curSpeed;
+    public float deltaHeight;
 
-    public float nextSpeed;
-}
+    public float familiarity;
+    public float reactionCofficient;
 
-public class AgentMovementDataAuthoring : MonoBehaviour
-{
-    public float standardVel;
-}
+    public bool SeeExit;
 
-public class AgentMovementDataAuthoringBaker : Baker<AgentMovementDataAuthoring>
-{
-    public override void Bake(AgentMovementDataAuthoring authoring)
-    {
-        AddComponent(new AgentMovementData { stdVel = authoring.standardVel });
-    }
+    public float2 lastSelfDir;
+
+    public float angle;
 }

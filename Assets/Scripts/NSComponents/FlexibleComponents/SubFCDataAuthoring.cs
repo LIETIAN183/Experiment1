@@ -14,10 +14,11 @@ public class SubFCDataAuthoring : MonoBehaviour
     {
         public override void Bake(SubFCDataAuthoring authoring)
         {
-            AddComponent(new SubFCData
+            Entity entity = GetEntity(authoring, TransformUsageFlags.Dynamic);
+            AddComponent(entity, new SubFCData
             {
                 height = authoring.height,
-                parent = GetEntity(authoring.parent)
+                parent = GetEntity(authoring.parent, TransformUsageFlags.Dynamic)
             });
         }
     }

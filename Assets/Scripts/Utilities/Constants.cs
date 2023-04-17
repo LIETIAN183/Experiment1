@@ -16,6 +16,7 @@ public static class Constants
     public static readonly float c_s = 1;
     public static readonly float w_a = 10;
     public static readonly float w_avoid = 0.5f;
+    public static readonly float c_local = 0.75f;
     public static readonly float destinationAgentOverlapRadius = 5f;
 
     // 计算行人指导方向时使用的位置偏移
@@ -35,11 +36,20 @@ public static class Constants
         GroupIndex = 0
     };
 
+    public static readonly CollisionFilter WallOnlyFilter = new CollisionFilter
+    {
+        BelongsTo = ~0u,
+        CollidesWith = 1u << 29,
+        GroupIndex = 0
+    };
+
     public static readonly CollisionFilter ignorAgentGroundFilter = new CollisionFilter
     {
         BelongsTo = ~0u,
         CollidesWith = ~0u >> 2,
         GroupIndex = 0
     };
+
+    public static readonly int[] dirIterOrder = new int[13] { 0, -10, 10, -20, 20, -30, 30, -40, 40, -50, 50, -60, 60 };
 
 }

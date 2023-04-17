@@ -9,7 +9,8 @@ public class PosBufferAuthoring : MonoBehaviour
     {
         public override void Bake(PosBufferAuthoring authoring)
         {
-            AddBuffer<PosBuffer>();
+            Entity entity = GetEntity(authoring, TransformUsageFlags.None);
+            AddBuffer<PosBuffer>(entity);
         }
     }
 }

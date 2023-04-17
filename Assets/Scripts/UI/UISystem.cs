@@ -64,7 +64,7 @@ public partial class UISystem : SystemBase
         fontSizeArray = Enumerable.Range(5, 16).Select(x => (x * 2).ToString()).ToArray();
         timeStepArray = Enumerable.Range(1, 6).Select(x => (x * 0.01f).ToString()).ToArray();
         pgaThresholdArray = Enumerable.Range(0, 11).Select(x => (x * 0.1f).ToString()).ToArray();
-        pgaStepArray = Enumerable.Range(0, 6).Select(x => (x * 0.01f).ToString()).ToArray();
+        pgaStepArray = Enumerable.Range(0, 11).Select(x => (x * 0.01f).ToString()).ToArray();
         spawnNumberArray = new string[] { "1", "10", "50", "100", "200", "300" };
 
         debugFlag = false;
@@ -155,17 +155,18 @@ public partial class UISystem : SystemBase
             }
         }
 
+        var analysisCircledata = SystemAPI.GetSingleton<MultiRoundStatisticsData>();
+        var setting = SystemAPI.GetSingleton<SimConfigData>();
+        ImGui.Label("c_f:" + setting.average + $"|SimIter:" + setting.simIter, in textStyle);
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         DebugField();
         // ImGui.Label($"Acc Equals 0", in textStyle);
-        var setting = SystemAPI.GetSingleton<FlowFieldSettingData>();
-        ImGui.Label($"index:" + setting.index, in textStyle);
-        ImGui.Label($"Press K change index", in textStyle);
-        ImGui.Label($"index=0: GlobalFlowField", in textStyle);
-        ImGui.Label($"index=1: Baisc SFM+LocalFlowField", in textStyle);
-        // ImGui.Label($"w_a:" + setting.variable, in textStyle);
-        // ImGui.Label($"index=2: GlobalFlowField", in textStyle);
-        // ImGui.Label($"index=3: Basic FlowField", in textStyle);
+
+        // ImGui.Label($"simType=0: Basic SFM", in textStyle);
+        // ImGui.Label($"simType=1: Baisc Earthquake SFM", in textStyle);
+        // ImGui.Label($"simType=2: Our Model no reaction,familarity", in textStyle);
+        // ImGui.Label($"simType=3: Oue Model", in textStyle);
 #endif
         if (ImGui.Button("Switch Camera", in buttonStyle))
         {
@@ -299,7 +300,7 @@ public partial class UISystem : SystemBase
 
     private void SelectScene()
     {
-        var index = ImGui.Dropdown("Select Scene", sceneNameArray, in dropStyle);
+        var index = ImGui.Dropdown("Select Scene", 0, sceneNameArray, in dropStyle);
         if (index != managedWorld.GetExistingSystemManaged<SimInitializeSystem>().curSceneIndex)
         {
             managedWorld.GetExistingSystemManaged<SimInitializeSystem>().ChangeScene(index);

@@ -9,7 +9,8 @@ public class RandomSeedAuthoring : MonoBehaviour
     {
         public override void Bake(RandomSeedAuthoring authoring)
         {
-            AddComponent<RandomSeed>(new RandomSeed { seed = (uint)System.DateTime.Now.Ticks });
+            Entity entity = GetEntity(authoring, TransformUsageFlags.None);
+            AddComponent<RandomSeed>(entity, new RandomSeed { seed = (uint)System.DateTime.Now.Ticks });
         }
     }
 }

@@ -1,1 +1,4 @@
-NO SeismicName simulationPGA fullEscapeTime finalDropCount itemCount escapeTime_ave escapeLength_ave escapeVel_ave
+NO SeismicName simulationPGA fullEscapeTime finalDropCount itemCount escapeTime_ave escapeLength_ave escapeVel_ave reactionTime_ave
+0 RSN1063_NORTHR 0.5 20 0 10283 12.824 15.35128 1.104151 1.184
+1 RSN1063_NORTHR 0.5 20.24 0 10252 12.8408 15.25105 1.095996 1.1768
+2 RSN1063_NORTHR 0.5 21.24 0 10297 13.2264 15.40935 1.072923 1.1768

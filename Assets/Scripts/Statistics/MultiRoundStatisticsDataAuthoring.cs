@@ -5,6 +5,20 @@ using UnityEngine;
 
 public enum AnalysisStage { DataBackup, Start, Simulation, Recover }
 
+public class MultiRoundStatisticsDataAuthoring : MonoBehaviour
+{
+    class Baker : Baker<MultiRoundStatisticsDataAuthoring>
+    {
+        public override void Bake(MultiRoundStatisticsDataAuthoring authoring)
+        {
+            Entity entity = GetEntity(authoring, TransformUsageFlags.None);
+            AddComponent<MultiRoundStatisticsData>(entity);
+        }
+    }
+}
+
+
+
 public struct MultiRoundStatisticsData : IComponentData
 {
     // 多轮仿真的仿真状态标识
@@ -19,14 +33,4 @@ public struct MultiRoundStatisticsData : IComponentData
     public float pgaStep;// 不为 0 时按照间隔依次仿真，为 0 时只仿真 pgaThreshold 一次
     // 当前要仿真地震事件的目标 PGA
     public float curSimulationTargetPGA;
-}
-
-public class MultiRoundStatisticsDataAuthoring : MonoBehaviour { }
-
-public class MultiRoundStatisticsDataAuthoringBaker : Baker<MultiRoundStatisticsDataAuthoring>
-{
-    public override void Bake(MultiRoundStatisticsDataAuthoring authoring)
-    {
-        AddComponent<MultiRoundStatisticsData>();
-    }
 }

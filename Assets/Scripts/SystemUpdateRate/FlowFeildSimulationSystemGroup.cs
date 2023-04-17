@@ -12,7 +12,7 @@ namespace Unity.Entities
     // [UpdateAfter(typeof(BeginSimulationEntityCommandBufferSystem))]
     // [UpdateInGroup(typeof(SimulationSystemGroup))]
     // [UpdateAfter(typeof(FixedStepSimulationSystemGroup))]
-    public class FlowFieldSimulationSystemGroup : ComponentSystemGroup
+    public partial class FlowFieldSimulationSystemGroup : ComponentSystemGroup
     {
         [Preserve]
         public FlowFieldSimulationSystemGroup()

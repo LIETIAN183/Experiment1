@@ -12,7 +12,7 @@ namespace Unity.Entities
     [UpdateAfter(typeof(BeginSimulationEntityCommandBufferSystem))]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(AgentSimulationSystemGroup))]
-    public class AnalysisSystemGroup : ComponentSystemGroup
+    public partial class AnalysisSystemGroup : ComponentSystemGroup
     {
         [Preserve]
         public AnalysisSystemGroup()

@@ -9,7 +9,8 @@ public class MCDataAuthoring : MonoBehaviour
     {
         public override void Bake(MCDataAuthoring authoring)
         {
-            AddComponent<MCData>();
+            Entity entity = GetEntity(authoring, TransformUsageFlags.Dynamic | TransformUsageFlags.WorldSpace);
+            AddComponent<MCData>(entity);
         }
     }
 }

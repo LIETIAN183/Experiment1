@@ -34,6 +34,7 @@ public struct Summary
     public float escapeTime_ave;
     public float escapeLength_ave;
     public float escapeVel_ave;
+    public float reactionTime_ave;
 }
 [UpdateInGroup(typeof(AnalysisSystemGroup))]
 [BurstCompile]
@@ -91,6 +92,7 @@ public partial struct SingleStatisticSystem : ISystem
     [BurstCompile]
     private JobHandle GetDetail(ref SystemState state)
     {
+        countQueue.Clear();
         var countJob = new DroppedMCCountJob
         {
             counter = countQueue.AsParallelWriter()
@@ -116,12 +118,14 @@ public partial struct SingleStatisticSystem : ISystem
         NativeQueue<float> timeQueue = new NativeQueue<float>(Allocator.TempJob);
         NativeQueue<float> lengthQueue = new NativeQueue<float>(Allocator.TempJob);
         NativeQueue<float> velQueue = new NativeQueue<float>(Allocator.TempJob);
+        NativeQueue<float> recTimeQueue = new NativeQueue<float>(Allocator.TempJob);
 
         var calJob = new CalAgentAverageInfoJob
         {
             timeWriter = timeQueue.AsParallelWriter(),
             lengthWriter = lengthQueue.AsParallelWriter(),
-            velWriter = velQueue.AsParallelWriter()
+            velWriter = velQueue.AsParallelWriter(),
+            recTimeWriter = recTimeQueue.AsParallelWriter()
         }.ScheduleParallel(state.Dependency);
 
         new RecordSummaryJob
@@ -130,6 +134,7 @@ public partial struct SingleStatisticSystem : ISystem
             details = details,
             timeQueue = timeQueue,
             lengthQueue = lengthQueue,
+            recTimeQueue = recTimeQueue,
             velQueue = velQueue,
             data = SystemAPI.GetSingleton<TimerData>(),
             itemCount = mcQuery.CalculateEntityCount()
@@ -138,6 +143,7 @@ public partial struct SingleStatisticSystem : ISystem
         timeQueue.Dispose();
         lengthQueue.Dispose();
         velQueue.Dispose();
+        recTimeQueue.Dispose();
     }
 
     public void ExportData()
@@ -220,7 +226,7 @@ partial struct DroppedMCCountJob : IJobEntity
         //     }
 
         // 位于第二层货架上方的商品，低于0.5f且商品不在空中时，算掉落
-        if (localTransform.Position.y < 0.5f && !data.inAir)
+        if (localTransform.Position.y < 0.3f && !data.inAir)
         {
             counter.Enqueue(0);
         }
@@ -231,12 +237,13 @@ partial struct DroppedMCCountJob : IJobEntity
 [WithAll(typeof(Escaped), typeof(AgentMovementData)), WithOptions(EntityQueryOptions.IncludeDisabledEntities)]
 partial struct CalAgentAverageInfoJob : IJobEntity
 {
-    public NativeQueue<float>.ParallelWriter timeWriter, lengthWriter, velWriter;
+    public NativeQueue<float>.ParallelWriter timeWriter, lengthWriter, velWriter, recTimeWriter;
     void Execute(in RecordData recordData)
     {
         timeWriter.Enqueue(recordData.escapedTime);
         lengthWriter.Enqueue(recordData.escapedLength);
         velWriter.Enqueue(recordData.escapeAveVel);
+        recTimeWriter.Enqueue(recordData.reactionTime);
     }
 }
 
@@ -273,17 +280,18 @@ partial struct RecordSummaryJob : IJob
 {
     public NativeList<Summary> summaries;
     [ReadOnly] public NativeList<Detail> details;
-    public NativeQueue<float> timeQueue, lengthQueue, velQueue;
+    public NativeQueue<float> timeQueue, lengthQueue, velQueue, recTimeQueue;
     [ReadOnly] public TimerData data;
     [ReadOnly] public int itemCount;
 
     public void Execute()
     {
         var count = timeQueue.Count;
-        float sumTime = 0, sumLength = 0, sumVel = 0;
+        float sumTime = 0, sumLength = 0, sumVel = 0, sumRecTime = 0;
         while (timeQueue.Count > 0) sumTime += timeQueue.Dequeue();
         while (lengthQueue.Count > 0) sumLength += lengthQueue.Dequeue();
         while (velQueue.Count > 0) sumVel += velQueue.Dequeue();
+        while (recTimeQueue.Count > 0) sumRecTime += recTimeQueue.Dequeue();
         var curSummary = new Summary()
         {
             NO = summaries.Length,
@@ -295,7 +303,8 @@ partial struct RecordSummaryJob : IJob
             itemCount = itemCount,
             escapeTime_ave = sumTime / count,
             escapeLength_ave = sumLength / count,
-            escapeVel_ave = sumVel / count
+            escapeVel_ave = sumVel / count,
+            reactionTime_ave = sumRecTime / count
         };
         summaries.Add(curSummary);
     }

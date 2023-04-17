@@ -10,7 +10,7 @@ namespace Unity.Entities
 {
     [WorldSystemFilter(WorldSystemFilterFlags.Editor | WorldSystemFilterFlags.Default)]
     [UpdateInGroup(typeof(AgentSimulationSystemGroup))]
-    public class AgentMovementSystemGroup : ComponentSystemGroup
+    public partial class AgentMovementSystemGroup : ComponentSystemGroup
     {
     }
 }
