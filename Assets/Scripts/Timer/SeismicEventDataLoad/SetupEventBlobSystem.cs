@@ -9,13 +9,16 @@ using System.Linq;
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 public partial class SetupEventBlobSystem : SystemBase
 {
+    // 数据文件夹路径
     private static readonly string seismicDataPath = Application.streamingAssetsPath + "/SeismicData/";
 
     protected override void OnCreate()
     {
+        // 在系统中挂在表示数据读取成功状态的组件
         EntityManager.AddComponentData<DataLoadStateData>(this.SystemHandle, new DataLoadStateData { isLoadSuccessed = false });
     }
 
+    // 读取文件内所有地震事件的数据
     protected override void OnUpdate()
     {
         if (SystemAPI.TryGetSingletonEntity<TimerData>(out var entity))

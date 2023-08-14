@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Physics.Authoring;
 using Obi;
 
+// 生成用于与流体交互的 GameObject 地板
 [RequireComponent(typeof(PhysicsShapeAuthoring))]
 public class GenerateFluidGroundInGOAuthoring : MonoBehaviour
 {

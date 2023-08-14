@@ -183,8 +183,6 @@ namespace FischlWorks
         [ShowIf("giveWorldHeightOffset")]
         [SerializeField]
         private float worldHeightOffset = 0;
-        [SerializeField]
-        private bool isDraw = false;
         private ColliderCastHit leftFootCastHitInfo = new ColliderCastHit();
         private ColliderCastHit rightFootCastHitInfo = new ColliderCastHit();
 
@@ -237,7 +235,14 @@ namespace FischlWorks
         private CollisionFilter detectFilter = CollisionFilter.Default;
         private QueryInteraction detectInteraction = QueryInteraction.Default;
 
+        [BigHeader("Custom")]
+
+
+        [SerializeField]
+        private bool isDraw = false;
         public float curHeight, basicHeight, deltaHeight;
+        [Tooltip("重心降低比例，以减少因添加IK后导致的腿部僵直效果"), SerializeField]
+        private float reductionPercentageOfCenterOfMass = 0.05f;
 
         private void Start()
         {
@@ -662,8 +667,15 @@ namespace FischlWorks
 
             if (enableIKPositioning == true)
             {
+                // if (leftFootIKPositionBuffer.y < 0.7f)
+                // {
                 playerAnimator.SetIKPosition(AvatarIKGoal.LeftFoot, leftFootIKPositionBuffer);
+                // }
+
+                // if (rightFootIKPositionBuffer.y < 0.7f)
+                // {
                 playerAnimator.SetIKPosition(AvatarIKGoal.RightFoot, rightFootIKPositionBuffer);
+                // }
             }
 
             /* Rotation handling */
@@ -699,18 +711,25 @@ namespace FischlWorks
             float minFootHeight = Mathf.Min(
                     playerAnimator.GetIKPosition(AvatarIKGoal.LeftFoot).y,
                     playerAnimator.GetIKPosition(AvatarIKGoal.RightFoot).y);
+            // if (minFootHeight >= 0.7f)
+            // {
+            //     minFootHeight = transform.position.y;
+            // }
 
-            /* This part moves the body 'downwards' by the root gameobject's height */
-            curHeight = playerAnimator.bodyPosition.y + LimitValueByRange(minFootHeight - transform.position.y, 0);
-            playerAnimator.bodyPosition = new Vector3(
-            playerAnimator.bodyPosition.x,
-            curHeight,
-            playerAnimator.bodyPosition.z);
             if (basicHeight == 0)
             {
                 basicHeight = playerAnimator.bodyPosition.y - transform.position.y;
             }
+
+            /* This part moves the body 'downwards' by the root gameobject's height */
+            curHeight = playerAnimator.bodyPosition.y + LimitValueByRange(minFootHeight - transform.position.y, 0);
             deltaHeight = curHeight - basicHeight;
+            if (deltaHeight < 0) { deltaHeight = 0; }
+            curHeight -= basicHeight * reductionPercentageOfCenterOfMass;
+            playerAnimator.bodyPosition = new Vector3(
+            playerAnimator.bodyPosition.x,
+            curHeight,
+            playerAnimator.bodyPosition.z);
         }
 
 

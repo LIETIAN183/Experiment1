@@ -242,7 +242,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MotionType: 0
-  m_Smoothing: 0
+  m_Smoothing: 1
   m_Mass: 80
   m_LinearDamping: 0.01
   m_AngularDamping: 0.05
@@ -289,7 +289,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7530782321942106993}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e6a0f8b852ce434b9bf211edfe9d91a, type: 3}
+  m_Script: {fileID: 11500000, guid: fef3343e311a5784bb2f678922b55a83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   standardVel: 5

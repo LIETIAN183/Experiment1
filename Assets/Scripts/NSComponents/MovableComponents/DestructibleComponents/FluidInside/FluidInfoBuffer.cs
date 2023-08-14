@@ -8,6 +8,7 @@ using Unity.Mathematics;
 [InternalBufferCapacity(100)]
 public struct FluidInfoBuffer : IBufferElementData
 {
+    // 待生成流体的信息
     public fluidInfo info;
 
     public static implicit operator fluidInfo(FluidInfoBuffer fluidInfoBuffer) => fluidInfoBuffer.info;
@@ -17,6 +18,8 @@ public struct FluidInfoBuffer : IBufferElementData
 
 public struct fluidInfo
 {
+    // 待生成流体的位置
     public float3 position;
+    // 待生成流体的旋转角度
     public quaternion rotation;
 }

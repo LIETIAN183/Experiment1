@@ -65,7 +65,7 @@ public partial class UISystem : SystemBase
         timeStepArray = Enumerable.Range(1, 6).Select(x => (x * 0.01f).ToString()).ToArray();
         pgaThresholdArray = Enumerable.Range(0, 11).Select(x => (x * 0.1f).ToString()).ToArray();
         pgaStepArray = Enumerable.Range(0, 11).Select(x => (x * 0.01f).ToString()).ToArray();
-        spawnNumberArray = new string[] { "1", "10", "50", "100", "200", "300" };
+        spawnNumberArray = new string[] { "1", "2", "10", "50", "100", "200", "300" };
 
         debugFlag = false;
     }
@@ -157,7 +157,6 @@ public partial class UISystem : SystemBase
 
         var analysisCircledata = SystemAPI.GetSingleton<MultiRoundStatisticsData>();
         var setting = SystemAPI.GetSingleton<SimConfigData>();
-        ImGui.Label("c_f:" + setting.average + $"|SimIter:" + setting.simIter, in textStyle);
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         DebugField();

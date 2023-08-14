@@ -57,6 +57,7 @@
      <Compile Include="Assets\Scripts\Camera\CameraSyncSystem.cs" />
      <Compile Include="Assets\Scripts\SimControl\SceneReferenceAuthoring.cs" />
      <Compile Include="Assets\Scripts\Agent\DataComponent\Reaction.cs" />
+     <Compile Include="Assets\Scripts\HelperComponent\HighLightAuthoring.cs" />
      <Compile Include="Assets\Scripts\UI\FPSSystem.cs" />
      <Compile Include="Assets\Scripts\NSComponents\FlexibleComponents\FCOscSystem.cs" />
      <Compile Include="Assets\Obi\Samples\Common\SampleResources\Scripts\LookAroundCamera.cs" />
@@ -81,11 +82,13 @@
      <Compile Include="Assets\Scripts\Agent\TrajetoryDisplay\TrajectoryDisplaySystem.cs" />
      <Compile Include="Assets\Scripts\Timer\SeismicEventDataLoad\Data\DataLoadStateData.cs" />
      <Compile Include="Assets\Scripts\Statistics\BackupData.cs" />
+     <Compile Include="Assets\Scripts\Utilities\ObjectPool.cs" />
+     <Compile Include="Assets\Scripts\Stateful\StatefulCollisionEventBufferSystem.cs" />
      <Compile Include="Assets\Scripts\Statistics\MultiRoundStatisticsSystem.cs" />
+     <Compile Include="Assets\Scripts\Stateful\StatefulTriggerEvent.cs" />
      <Compile Include="Assets\Obi\Samples\Fluid\SampleResources\Scripts\MazeManager.cs" />
      <Compile Include="Assets\Scripts\NSComponents\MovableComponents\DestructibleComponents\FluidInside\FluidGOManager.cs" />
      <Compile Include="Assets\Scripts\Agent\EscapeSystem\ModelJob\BasicSFM_LocalFlowFieldJob.cs" />
-     <Compile Include="Assets\Scripts\HelperComponent\HighLightTag.cs" />
      <Compile Include="Assets\Obi\Samples\Common\SampleResources\Scripts\Blinker.cs" />
      <Compile Include="Assets\Scripts\HelperComponent\PosBufferAuthoring.cs" />
      <Compile Include="Assets\Obi\Samples\Common\SampleResources\Scripts\ColorRandomizer.cs" />
@@ -96,7 +99,6 @@
      <Compile Include="Assets\Obi\Samples\Common\SampleResources\Scripts\FPSDisplay.cs" />
      <Compile Include="Assets\Obi\Samples\Fluid\SampleResources\Scripts\SolidifyOnContact.cs" />
      <Compile Include="Assets\Scripts\FlowField\DataComponent\DestinationBuffer.cs" />
-     <Compile Include="Assets\Scripts\Agent\EscapeSystem\SFMmovementSystem3.cs" />
      <Compile Include="Assets\Scripts\Camera\SimpleCameraController.cs" />
      <Compile Include="Assets\Scripts\SimControl\SimControlSystem.cs" />
      <Compile Include="Assets\Scripts\Timer\TimerData.cs" />
@@ -109,6 +111,7 @@
      <Compile Include="Assets\Scripts\UI\Event\MessageEvent.cs" />
      <Compile Include="Assets\Scripts\NSComponents\MovableComponents\DestructibleComponents\DestructibleDataAuthoring.cs" />
      <Compile Include="Assets\Obi\Samples\Fluid\SampleResources\Scripts\EmitOnKeyPress.cs" />
+     <Compile Include="Assets\Scripts\Utilities\ReturnToPoolInTime.cs" />
      <Compile Include="Assets\Scripts\HelperComponent\OriginPos_RotInfo.cs" />
      <Compile Include="Assets\Obi\Samples\Fluid\SampleResources\Scripts\WaveGenerator.cs" />
      <Compile Include="Assets\Scripts\Agent\StateChange\AgentRecoverJob.cs" />
@@ -120,6 +123,7 @@
      <Compile Include="Assets\Scripts\Timer\SeismicEventDataLoad\SetupEventBlobSystem.cs" />
      <Compile Include="Assets\Scripts\Agent\AnimationInGO\ManagedComponent\GOReference.cs" />
      <Compile Include="Assets\Scripts\SimControl\Event\EndSeismicEvent.cs" />
+     <Compile Include="Assets\Scripts\HelperComponent\HelperSystem.cs" />
      <Compile Include="Assets\Obi\Samples\Common\SampleResources\Scripts\CharacterController\ObiCharacter.cs" />
      <Compile Include="Assets\Scripts\NSComponents\FlexibleComponents\FCDataAuthoring.cs" />
      <Compile Include="Assets\Obi\Samples\Fluid\SampleResources\Scripts\ViscositySurfTensionToUserData.cs" />
@@ -129,16 +133,19 @@
      <Compile Include="Assets\Scripts\FlowField\Debug\CellDebugSystem.cs" />
      <Compile Include="Assets\Scripts\FlowField\Visulize\FlowFieldVisulizeSystem.cs" />
      <Compile Include="Assets\Scripts\SystemUpdateRate\AnalysisSystemGroup.cs" />
-     <Compile Include="Assets\Scripts\Agent\DataComponent\Escaped.cs" />
+     <Compile Include="Assets\Scripts\Stateful\StatefulTriggerEventBufferSystem.cs" />
+     <Compile Include="Assets\Scripts\Stateful\IStatefulSimulationEvent.cs" />
      <Compile Include="Assets\Scripts\FlowField\System\FlowFieldSystem.cs" />
+     <Compile Include="Assets\Scripts\Agent\DataComponent\Escaped.cs" />
      <Compile Include="Assets\Scripts\Agent\EscapeSystem\ModelJob\OurModelJob.cs" />
+     <Compile Include="Assets\Scripts\Stateful\StatefulCollisionEvent.cs" />
      <Compile Include="Assets\Scripts\FlowField\DataComponent\CellBufferAuthoring.cs" />
      <Compile Include="Assets\Scripts\NSComponents\MovableComponents\MCMotionSystem.cs" />
      <Compile Include="Assets\Scripts\Agent\DataComponent\Escaping.cs" />
      <Compile Include="Assets\Scripts\Statistics\MultiRoundStatisticsDataAuthoring.cs" />
+     <Compile Include="Assets\Scripts\Stateful\StatefulSimulationEventBuffers.cs" />
      <Compile Include="Assets\Scripts\Agent\StateChange\AgentStateChangeSystem.cs" />
      <Compile Include="Assets\Obi\Samples\Common\SampleResources\Scripts\ColorFromVelocity.cs" />
-     <Compile Include="Assets\Scripts\Agent\EscapeSystem\SFMmovementSystem2.cs" />
      <Compile Include="Assets\Obi\Samples\Common\SampleResources\Scripts\ActorCOMTransform.cs" />
      <Compile Include="Assets\Scripts\SystemUpdateRate\AgentMovementSystemGroup.cs" />
      <Compile Include="Assets\Scripts\FlowField\Utilities\FMMExtension.cs" />
@@ -150,7 +157,9 @@
      <Compile Include="Assets\Scripts\Agent\EscapeSystem\ModelJob\GlobalFlowFieldJob.cs" />
      <Compile Include="Assets\Scripts\NSComponents\MovableComponents\DestructibleComponents\DestructionSystem.cs" />
      <Compile Include="Assets\Scripts\Timer\SeismicEventDataLoad\Data\BlobRefBuffer.cs" />
+     <Compile Include="Assets\Scripts\Stateful\StatefulTriggerEventBufferAuthoring.cs" />
      <Compile Include="Assets\Scripts\Agent\DataComponent\AgentMovementDataAuthoring.cs" />
+     <Compile Include="Assets\Scripts\Stateful\StatefulCollisionEventBufferAuthoring.cs" />
      <Compile Include="Assets\Scripts\Agent\EscapeDataRecord\RecordSystem.cs" />
      <Compile Include="Assets\Scripts\Agent\AnimationInGO\FootInteraction.cs" />
      <Compile Include="Assets\Obi\Samples\Fluid\SampleResources\Scripts\FluidJetController.cs" />
@@ -194,14 +203,12 @@
      <None Include="Assets\Obi\Resources\ObiMaterials\StandardVertexColors.shader" />
      <None Include="Assets\InitialPrefabs.ImGui\Shaders\SDF.shader" />
      <None Include="Assets\Obi\Resources\ObiMaterials\SimpleParticleShader.shader" />
-     <None Include="Assets\StreamingAssets\RecordData\Summary.txt" />
      <None Include="Assets\Obi\Resources\ObiMaterials\ObiEllipsoids.cginc" />
      <None Include="Assets\Obi\Resources\ObiMaterials\URP\ParticleShaderURP.shader" />
      <None Include="Assets\Obi\Resources\ObiMaterials\URP\SimpleParticleShaderURP.shader" />
      <None Include="Assets\Obi\CHANGELOG_fluid.txt" />
      <None Include="Assets\Obi\Resources\ObiMaterials\NormalReconstruction.shader" />
      <None Include="Assets\Obi\Resources\ObiMaterials\ScreenSpaceCurvatureFlow.shader" />
-     <None Include="Assets\StreamingAssets\RecordData\Detail.txt" />
      <None Include="Assets\Materials\Shader\Mask.shader" />
      <None Include="Assets\Obi\Resources\ObiMaterials\FluidColorsBlend.shader" />
      <None Include="Assets\Obi\Resources\ObiMaterials\ObiFluids.cginc" />
@@ -984,6 +991,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{bc40d5f0-adf5-2809-b5e7-dbe9c6d43eae}</Project>
+      <Name>Assembly-CSharp-firstpass</Name>
+    </ProjectReference>
     <ProjectReference Include="InitialPrefabs.ImGui.Collections.csproj">
       <Project>{0ecd6538-86e2-314f-38d6-f35b72c458fd}</Project>
       <Name>InitialPrefabs.ImGui.Collections</Name>

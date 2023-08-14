@@ -12,8 +12,4 @@ public struct SimConfigData : IComponentData
     public bool displayTrajectories;
 
     public bool performStatistics;
-
-    public int simIter;
-
-    public float average;
 }

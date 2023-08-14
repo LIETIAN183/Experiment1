@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 
+// 挂载柔性构件端点组件
 public class FCDataAuthoring : MonoBehaviour
 {
     public float length;
@@ -11,6 +12,8 @@ public class FCDataAuthoring : MonoBehaviour
     public bool directionConstrain;
 
     public bool randomInitialize;
+
+    public bool considerFriction;
 
     class Baker : Baker<FCDataAuthoring>
     {
@@ -37,21 +40,31 @@ public class FCDataAuthoring : MonoBehaviour
                 k = authoring.k + modify_k,
                 c = authoring.c + modify_c,
                 mass = authoring.mass,
-                directionConstrain = authoring.directionConstrain
+                directionConstrain = authoring.directionConstrain,
+                considerFriction = authoring.considerFriction
             });
         }
     }
 }
 
+// 柔性构件相关数据
 public struct FCData : IComponentData
 {
+    // 柔性构件长度
     public float length;
 
+    // 柔性构件端点位移、速度、加速度
     public float topDis, topVel, topAcc;
 
+    // 柔性构件弹性系数、阻尼系数和质量
     public float k, c, mass;
 
+    // 是否需要限制柔性构件振荡方向，若单侧货架背面靠墙则勾选该选项
     public bool directionConstrain;
 
+    // 货架正面向量
     public float3 forward;
+
+    // 判断是否需要考虑货架上物品的摩擦力
+    public bool considerFriction;
 }

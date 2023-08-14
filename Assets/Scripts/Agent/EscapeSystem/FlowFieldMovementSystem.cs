@@ -49,14 +49,13 @@ public partial struct FlowFieldMovementSystem : ISystem
             settingData = setting,
             accData = timerData,
             // standardVel = Utilities.GetStandardVelByPGA(timerData.curPGA),
-            standardVel = 3,
+            standardVel = 5,
             agentDataList = agentDataList,
             localTransformList = localTransformList,
             parallelECB = ecb.AsParallelWriter(),
             dests = des,
             // builder = builder,
-            randomInitSeed = (uint)(SystemAPI.GetSingleton<RandomSeed>().seed + SystemAPI.Time.ElapsedTime.GetHashCode()),
-            variable = SystemAPI.GetSingleton<SimConfigData>().average
+            randomInitSeed = (uint)(SystemAPI.GetSingleton<RandomSeed>().seed + SystemAPI.Time.ElapsedTime.GetHashCode())
         }.ScheduleParallel(state.Dependency).Complete();
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
@@ -65,13 +64,13 @@ public partial struct FlowFieldMovementSystem : ISystem
         // switch (type)
         // {
         //     case 0:
-        //         state.Dependency = new BasicSFMJob
-        //         {
-        //             deltaTime = deltaTime,
-        //             des = cells[des[0]].worldPos.xz,
-        //             standardVel = Utilities.GetStandardVelByPGA(timerData.curPGA),
-        //             physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld
-        //         }.ScheduleParallel(state.Dependency);
+        // state.Dependency = new BasicSFMJob
+        // {
+        //     deltaTime = deltaTime,
+        //     des = cells[des[0]].worldPos.xz,
+        //     standardVel = Utilities.GetStandardVelByPGA(timerData.curPGA),
+        //     physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld
+        // }.ScheduleParallel(state.Dependency);
         //         break;
         //     case 1:
         //         state.Dependency = new EarthquakeSFMJob
@@ -98,11 +97,11 @@ public partial struct FlowFieldMovementSystem : ISystem
         // if (setting.index == 0)
         // {
         //     // Global FlowField
-        //     state.Dependency = new GlobalFlowFieldJob
-        //     {
-        //         cells = cells,
-        //         settingData = setting
-        //     }.ScheduleParallel(state.Dependency);
+        // state.Dependency = new GlobalFlowFieldJob
+        // {
+        //     cells = cells,
+        //     settingData = setting
+        // }.ScheduleParallel(state.Dependency);
         // }
         // else if (setting.index == 1)
         // {// Basic SFM + Local FlowField

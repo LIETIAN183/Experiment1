@@ -34,7 +34,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &6192954190565344995
 MeshFilter:
@@ -186,7 +186,7 @@ MonoBehaviour:
     m_Template: {fileID: 11400000, guid: 0610155da24562048a8dc8a0e193fc71, type: 2}
     m_CollisionResponse:
       m_Override: 0
-      m_Value: 0
+      m_Value: 1
     m_Friction:
       m_Override: 0
       m_Value:
@@ -289,6 +289,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 7572169727763895292}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
+  m_Script: {fileID: 11500000, guid: 4778a281c965be74080d3198128ea379, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  applyAirResistance: 0
+  variable: 0

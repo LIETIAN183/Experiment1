@@ -854,9 +854,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{bc40d5f0-adf5-2809-b5e7-dbe9c6d43eae}</Project>
+      <Name>Assembly-CSharp-firstpass</Name>
+    </ProjectReference>
     <ProjectReference Include="Assembly-CSharp.csproj">
       <Project>{d2663852-49f8-1ce0-41fb-320d70dc5057}</Project>
       <Name>Assembly-CSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="Assembly-CSharp-Editor-firstpass.csproj">
+      <Project>{2a421fe4-88fb-fec2-4c59-9d8d466b5c29}</Project>
+      <Name>Assembly-CSharp-Editor-firstpass</Name>
     </ProjectReference>
     <ProjectReference Include="InitialPrefabs.ImGui.Collections.csproj">
       <Project>{0ecd6538-86e2-314f-38d6-f35b72c458fd}</Project>

@@ -8,6 +8,7 @@ using Unity.Transforms;
 using Unity.Burst;
 using Unity.Jobs;
 
+// 执行代价场、集成场与流场计算
 [UpdateInGroup(typeof(FlowFieldSimulationSystemGroup))]
 [BurstCompile]
 public partial struct FlowFieldSystem : ISystem
@@ -26,25 +27,36 @@ public partial struct FlowFieldSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        // 加载网格集合数据到系统
         var entity = state.EntityManager.CreateEntity();
         state.EntityManager.SetName(entity, "FlowFieldEntity");
         state.EntityManager.AddComponentData<FlowFieldSettingData>(entity, new FlowFieldSettingData
         {
             originPoint = new float3(-12, 1, -10),
+            // Layout 1-3、9-10
             gridSetSize = new int2(44, 40),
+            // Layout 4-6
+            // gridSetSize = new int2(44, 44),
+            // Layout 7-8
+            // gridSetSize = new int2(48, 44),
             cellRadius = new float3(0.25f, 1, 0.25f),
-            destination = new float3(-10.8f, 0, 8.8f),
             // displayOffset = math.up(),
             displayOffset = new float3(0, -0.9f, 0)
             // index = 2
             // agentIndex = -1
         });
         state.EntityManager.AddBuffer<CellBuffer>(entity);
+
+        // 设置网格出口
         var desBuffer = state.EntityManager.AddBuffer<DestinationBuffer>(entity);
         // desBuffer.Add(117);
         // desBuffer.Add(386);
         // desBuffer.Add(1657);
+        // desBuffer.Add(1665);
+        // desBuffer.Add(466);
 
+        // Layout1
+        desBuffer.Add(159);
         desBuffer.Add(158);
         desBuffer.Add(157);
         desBuffer.Add(156);
@@ -53,6 +65,101 @@ public partial struct FlowFieldSystem : ISystem
         desBuffer.Add(153);
         desBuffer.Add(152);
 
+        // Layout3
+        // desBuffer.Add(127);
+        // desBuffer.Add(126);
+        // desBuffer.Add(125);
+        // desBuffer.Add(124);
+        // desBuffer.Add(123);
+        // desBuffer.Add(122);
+        // desBuffer.Add(121);
+        // desBuffer.Add(120);
+
+        //Layout2
+        // desBuffer.Add(143);
+        // desBuffer.Add(142);
+        // desBuffer.Add(141);
+        // desBuffer.Add(140);
+        // desBuffer.Add(139);
+        // desBuffer.Add(138);
+        // desBuffer.Add(137);
+        // desBuffer.Add(136);
+
+        //Layout4
+        // desBuffer.Add(524);
+        // desBuffer.Add(480);
+        // desBuffer.Add(436);
+        // desBuffer.Add(392);
+        // desBuffer.Add(348);
+        // desBuffer.Add(304);
+        // desBuffer.Add(260);
+        // desBuffer.Add(216);
+
+        //Layout5
+        // desBuffer.Add(1228);
+        // desBuffer.Add(1184);
+        // desBuffer.Add(1140);
+        // desBuffer.Add(1096);
+        // desBuffer.Add(1052);
+        // desBuffer.Add(1008);
+        // desBuffer.Add(964);
+        // desBuffer.Add(920);
+
+        //Layout6
+        // desBuffer.Add(1228);
+        // desBuffer.Add(1184);
+        // desBuffer.Add(1140);
+        // desBuffer.Add(1096);
+        // desBuffer.Add(1052);
+        // desBuffer.Add(1008);
+        // desBuffer.Add(964);
+        // desBuffer.Add(920);
+        // desBuffer.Add(155);
+        // desBuffer.Add(154);
+        // desBuffer.Add(153);
+        // desBuffer.Add(152);
+        // desBuffer.Add(151);
+        // desBuffer.Add(150);
+        // desBuffer.Add(149);
+        // desBuffer.Add(148);
+
+        //Layout7
+        // desBuffer.Add(1959);
+        // desBuffer.Add(1958);
+        // desBuffer.Add(1957);
+        // desBuffer.Add(1956);
+        // desBuffer.Add(1955);
+        // desBuffer.Add(1954);
+        // desBuffer.Add(1953);
+        // desBuffer.Add(1952);
+        // desBuffer.Add(155);
+        // desBuffer.Add(154);
+        // desBuffer.Add(153);
+        // desBuffer.Add(152);
+        // desBuffer.Add(151);
+        // desBuffer.Add(150);
+        // desBuffer.Add(149);
+        // desBuffer.Add(148);
+
+        //Layout8
+        // desBuffer.Add(171);
+        // desBuffer.Add(170);
+        // desBuffer.Add(169);
+        // desBuffer.Add(168);
+        // desBuffer.Add(167);
+        // desBuffer.Add(166);
+        // desBuffer.Add(165);
+        // desBuffer.Add(164);
+        // desBuffer.Add(139);
+        // desBuffer.Add(138);
+        // desBuffer.Add(137);
+        // desBuffer.Add(136);
+        // desBuffer.Add(135);
+        // desBuffer.Add(134);
+        // desBuffer.Add(133);
+        // desBuffer.Add(132);
+
+
         localTransformList = SystemAPI.GetComponentLookup<LocalTransform>(true);
         physicsMassList = SystemAPI.GetComponentLookup<PhysicsMass>(true);
         bigObstacleHashMap = new NativeParallelMultiHashMap<Entity, float2>(1000, Allocator.Persistent);
@@ -60,6 +167,7 @@ public partial struct FlowFieldSystem : ISystem
         // state.Enabled = false;
     }
 
+    // 更新网格数据至全局，并进行新一轮的计算。由于其他系统读取全局网格数据，因此若先计算后更新，则可能由于计算量过大而延迟了数据更新，进而阻塞其他系统的数据读取。因此先更新数据再计算
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -87,16 +195,21 @@ public partial struct FlowFieldSystem : ISystem
 
         //----------END----------------
 
-        state.Dependency = CostJob(ref state, settingData);
-        state.Dependency = IntegrationJob(ref state, settingData);
-        state.Dependency = FlowFieldJob(ref state, settingData);
+        // 先更新数据
         var updateJob = new UpdateDataToBufferJob
         {
             source = localArray,
             target = SystemAPI.GetSingletonBuffer<CellBuffer>().Reinterpret<CellData>().AsNativeArray()
-        }.Schedule(localArray.Length, localArray.Length / 4, state.Dependency);
+        }.Schedule(localArray.Length, 64, state.Dependency);
 
         state.Dependency = updateJob;
+
+        // 再计算数据
+
+        state.Dependency = CostJob(ref state, settingData);
+        state.Dependency = IntegrationJob(ref state, settingData);
+        state.Dependency = FlowFieldJob(ref state, settingData);
+
     }
 
     [BurstCompile]
@@ -107,6 +220,7 @@ public partial struct FlowFieldSystem : ISystem
         if (localDests.IsCreated) localDests.Dispose();
     }
 
+    // 双缓冲，根据网格集合的属性初始化两个数组的空间
     [BurstCompile]
     public JobHandle ResizeData(FlowFieldSettingData settingData)
     {
@@ -139,6 +253,7 @@ public partial struct FlowFieldSystem : ISystem
         return new JobHandle();
     }
 
+    // 封装代价场的四个任务
     [BurstCompile]
     public JobHandle CostJob(ref SystemState state, FlowFieldSettingData settingData)
     {
@@ -190,6 +305,7 @@ public partial struct FlowFieldSystem : ISystem
         return costJob4;
     }
 
+    // 封装集成场的四个任务
     public JobHandle IntegrationJob(ref SystemState state, FlowFieldSettingData settingData)
     {
         var integrationJob1 = new CalculateIntegration_destsInit
@@ -236,6 +352,7 @@ public partial struct FlowFieldSystem : ISystem
         return integrationJob3;
     }
 
+    // 封装流场的四个任务
     public JobHandle FlowFieldJob(ref SystemState state, FlowFieldSettingData settingData)
     {
         var flowFieldJob1 = new CalculateGlobalFlowFieldJob_NotDestGrid
@@ -273,7 +390,7 @@ public partial struct FlowFieldSystem : ISystem
 }
 
 /// <summary>
-/// 计算目标网格的总代价
+/// 初始化化目标网格的集成代价
 /// </summary>
 [BurstCompile]
 public struct CalculateIntegration_destsInit : IJobParallelFor
@@ -290,6 +407,9 @@ public struct CalculateIntegration_destsInit : IJobParallelFor
     }
 }
 
+/// <summary>
+/// 判断出口附近的网格到出口是否存在障碍物，若不存在，则使用到出口的直接距离作为集成代价。并判断行人在该网格时能否看见出口
+/// </summary>
 [BurstCompile]
 public struct CalculateIntegration_FloodingJob : IJobParallelFor
 {
@@ -351,6 +471,10 @@ public struct CalculateIntegration_FloodingJob : IJobParallelFor
     }
 }
 
+/// <summary>
+/// 使用快速扫描法计算网格的集成代价
+/// https://mshgrid.com/2021/02/04/the-fast-sweeping-algorithm/
+/// </summary>
 [BurstCompile]
 public struct CalCulateIntegration_FSMJob : IJob
 {
@@ -424,6 +548,9 @@ public struct CalCulateIntegration_FSMJob : IJob
     }
 }
 
+/// <summary>
+/// 使用双缓冲技术，更新网格数据供其他系统使用
+/// </summary>
 [BurstCompile]
 public struct UpdateDataToBufferJob : IJobParallelFor
 {

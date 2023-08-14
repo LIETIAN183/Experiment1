@@ -87,7 +87,13 @@ partial struct ActiveEscapeJob : IJobEntity
     void Execute(Entity e, in AgentMovementData data)
     {
         // 当时间超过行人的反应时间后，行人开始移动
-        if (elapsedTime > data.reactionCofficient * 3.61f / PGAInms2)
+
+        if (PGAInms2 == 0)
+        {
+            idleList.SetComponentEnabled(e, false);
+            escapingList.SetComponentEnabled(e, true);
+        }
+        else if (PGAInms2 > 0 && elapsedTime > (data.reactionCofficient * 3.61f / PGAInms2))
         {
             idleList.SetComponentEnabled(e, false);
             escapingList.SetComponentEnabled(e, true);

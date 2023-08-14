@@ -29,9 +29,12 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
     private ComponentLookup<OriginPos_RotInfo> orgInfoList;
     private ComponentLookup<DCData> dcComponentList;
 
+    private ComponentLookup<MCData> mcComponentList;
+
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        // 获取相关需要的数据数组
         childList = SystemAPI.GetBufferLookup<Child>(true);
         linkedList = SystemAPI.GetBufferLookup<LinkedEntityGroup>(true);
         prefabList = SystemAPI.GetBufferLookup<ReplacePrefabsBuffer>(true);
@@ -40,6 +43,7 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
         physicsVelocityList = SystemAPI.GetComponentLookup<PhysicsVelocity>(true);
         orgInfoList = SystemAPI.GetComponentLookup<OriginPos_RotInfo>(true);
         dcComponentList = SystemAPI.GetComponentLookup<DCData>(true);
+        mcComponentList = SystemAPI.GetComponentLookup<MCData>(true);
 
         deletedEntity = new NativeList<Entity>(Allocator.Persistent);
 
@@ -58,7 +62,7 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
     [BurstCompile]
     public void OnDestroy(ref SystemState state) { }
 
-    [BurstCompile]
+    // [BurstCompile]
     public void OnStartRunning(ref SystemState state)
     {
         linkedList.Update(ref state);
@@ -68,6 +72,7 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
 
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
+        // 初始化破碎组件，因破碎组件的子物体与父物体独立，因此生成整个破碎模型时，每个子物体的坐标都被初始化为（0，0，0），因此需要保存每个破碎模型与父物体之间的相对坐标，从而在生成整个破碎模型时，调节每个子物体的位置
         state.EntityManager.CompleteDependencyBeforeRO<LocalTransform>();
         state.Dependency = new DCPrefabsInitialize
         {
@@ -105,7 +110,9 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
         physicsVelocityList.Update(ref state);
         orgInfoList.Update(ref state);
         dcComponentList.Update(ref state);
+        mcComponentList.Update(ref state);
 
+        // 获取场景中的碰撞事件
         var ecb = SystemAPI.GetSingleton<EndFixedStepSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
         var simulation = SystemAPI.GetSingleton<SimulationSingleton>();
         var havokSimulation = simulation.AsHavokSimulation();
@@ -119,15 +126,14 @@ public partial struct DestructionSystem : ISystem, ISystemStartStop
             var boolB = dcComponentList.HasComponent(e.EntityB);
             if (!boolA && !boolB) continue;
 
-            // 判断碰撞事件受力是否达到破碎阈值，破碎阈值为4f
+            // 判断碰撞事件受力是否达到破碎阈值，破碎阈值为10f
             var force = e.CalculateDetails(ref physicsWorld).EstimatedImpulse;
-            // 碰撞体受到的力大于15f时，破碎
-            // UnityEngine.Debug.Log(force);
             if (force < 10f) continue;
 
             if (boolA && !deletedEntity.Contains(e.EntityA))
             {
                 deletedEntity.Add(e.EntityA);
+                // 实现模型替换
                 state.Dependency = new DCReplaceJob
                 {
                     childList = childList,
@@ -231,9 +237,8 @@ partial struct DCReplaceJob : IJob
         // 随机挑选一个替换物
         var CandidateEntities = prefabList[replacedEntity].Reinterpret<Entity>();
         var random = new Random(seed);
-        // var targetEntity = CandidateEntities[random.NextInt(0, CandidateEntities.Length)];
-        var targetEntity = CandidateEntities[1];
-        // 获取替换物的位置、旋转角度和速度
+        var targetEntity = CandidateEntities[random.NextInt(0, CandidateEntities.Length)];
+        // 获取被替换物的位置、旋转角度和速度
         var targetRot = localTransformList[replacedEntity].Rotation;
         var targetPos = localTransformList[replacedEntity].Position;
         var targetVelocity = physicsVelocityList[replacedEntity];
@@ -243,6 +248,7 @@ partial struct DCReplaceJob : IJob
             fluidInfoBuffer[fluidEntity].Add(new fluidInfo { position = targetPos, rotation = targetRot });
         }
 
+        // 设置每个物理子元素的空间状态，并添加可动构件数据组件和设置相应的移动速度
         foreach (var child in linkedList[targetEntity].Reinterpret<Entity>())
         {
             if (child == targetEntity) continue;

@@ -24,8 +24,8 @@ public partial class SimInitializeSystem : SystemBase
 {
     // TODO: 手动添加 Scene 路径
     // 必须先将该 subscene 放置在 main scene 内，同时不可以激活，可以不 AutoLoad，同时还必需加入 Build 的 SceneList
-    // private static readonly string[] subScenesPath = { "Assets/Scenes/SubSceneForLoad/ForTest.unity", "Assets/Scenes/SubSceneForLoad/EnvironmentWithFluid.unity", "Assets/Scenes/SubSceneForLoad/Empty.unity", "Assets/Scenes/SubSceneForLoad/Environment.unity" };
-    private static readonly string[] subScenesPath = { "Assets/Scenes/SubSceneForLoad/ForTest.unity", "Assets/Scenes/SubSceneForLoad/EnvironmentWithFluid.unity" };
+    // private static readonly string[] subScenesPath = { "Assets/Scenes/SubSceneForLoad/Compare.unity", "Assets/Scenes/SubSceneForLoad/EnvironmentWithFluid.unity", "Assets/Scenes/SubSceneForLoad/Empty.unity", "Assets/Scenes/SubSceneForLoad/Environment.unity" };
+    private static readonly string[] subScenesPath = { "Assets/Scenes/SubSceneForLoad/EnvironmentWithFluid.unity", "Assets/Scenes/SubSceneForLoad/Empty.unity" };
 
     private static readonly Hash128 notExist = new Hash128();
     private List<sceneRef> sceneRefs;
@@ -46,7 +46,8 @@ public partial class SimInitializeSystem : SystemBase
         loadingFlag = false;
         // 初始化时设置时间间隔0.04f，防止太卡
         World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<FixedStepSimulationSystemGroup>().Timestep = 0.04f;
-        Application.targetFrameRate = -1;
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 300;
         // TODO:
         // Havok StepJob 异常的现版本解决办法
         // Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount = 6;

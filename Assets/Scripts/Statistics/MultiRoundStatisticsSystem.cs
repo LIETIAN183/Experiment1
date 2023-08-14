@@ -153,10 +153,11 @@ public partial class MultiRoundStatisticsSystem : SystemBase
 
 
 
-                if (counter >= 2)
+                if (counter >= 0)
                 {
                     if (SystemAPI.GetSingleton<SimConfigData>().performStatistics)
                     {
+                        // TODO:导出时需要确保 RecordData 文件夹存在
                         var handle = unmanagedWorld.GetExistingUnmanagedSystem<SingleStatisticSystem>();
                         unmanagedWorld.GetUnsafeSystemRef<SingleStatisticSystem>(handle).ExportData();
                     }
@@ -174,25 +175,18 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 {
                     var set = SystemAPI.GetSingleton<SimConfigData>();
                     int targetIndex = 0;
-                    float targetPGA = 0;
                     counter++;
                     var buffer = SystemAPI.GetSingletonBuffer<DestinationBuffer>();
                     switch (counter)
                     {
                         case 0:
                             targetIndex = 0;
-                            set.average = 0;
-                            targetPGA = 0.5f;
                             break;
                         case 1:
                             targetIndex = 1;
-                            set.average = 1;
-                            targetPGA = 0.5f;
                             break;
                         case 2:
                             targetIndex = 2;
-                            set.average = 2;
-                            targetPGA = 0.5f;
                             break;
                         case 3:
                             break;
@@ -258,8 +252,7 @@ public partial class MultiRoundStatisticsSystem : SystemBase
                 ecb = ecb,
                 physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld,
                 randomInitSeed = (uint)(SystemAPI.GetSingleton<RandomSeed>().seed + SystemAPI.Time.ElapsedTime.GetHashCode()),
-                massList = SystemAPI.GetComponentLookup<PhysicsMass>(true),
-                type = SystemAPI.GetSingleton<SimConfigData>().simIter
+                massList = SystemAPI.GetComponentLookup<PhysicsMass>(true)
             }.Schedule(Dependency).Complete();
             ecb.Playback(this.EntityManager);
             ecb.Dispose();

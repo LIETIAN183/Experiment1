@@ -62,7 +62,8 @@ public struct CalculateCostStep1Job : IJobParallelFor
             if ((hit.Material.CustomTags & 0b_0000_0010) != 0)
             {
                 bigObstacleHashMapWriter.Add(hit.Entity, new float2(flatIndex, (c1 * c2) / physicsMassList[hit.Entity].InverseMass));
-                curCell.maxHeight = math.max(curCell.maxHeight, hit.Position.y);
+                // curCell.maxHeight = math.max(curCell.maxHeight, hit.Position.y);
+                curCell.maxHeight = math.max(curCell.maxHeight, 1);
             }
         }
         cells[flatIndex] = curCell;
@@ -135,7 +136,6 @@ public struct CalculateCostStep3Job : IJobParallelFor
         {
             curCell.localCost = Constants.T_c;
         }
-
         // integration Field & Flow Field参数初始化
         curCell.globalDir = float2.zero;
         curCell.integrationCost = Constants.T_i;
@@ -144,7 +144,7 @@ public struct CalculateCostStep3Job : IJobParallelFor
 }
 
 /// <summary>
-/// 计算目标网格的总代价
+/// 计算目标网格的总代价，考虑出口附近的人群密度
 /// </summary>
 [BurstCompile]
 public struct CalculateCostStep4Job : IJobParallelFor

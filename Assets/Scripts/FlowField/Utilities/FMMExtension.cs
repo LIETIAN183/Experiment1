@@ -9,20 +9,25 @@ using System.Linq;
 public static class FMMExtension { }
 
 
+// 快速行进法网格的三个状态 Dead、Open、Far
+// https://www.pianshen.com/article/25591729174/
 public enum State { Dead, Open, Far };
 // [BurstCompile]
 public struct CalCulateIntegration_FMMJob : IJob
 {
     public NativeArray<CellData> cells;
+
+    [ReadOnly] public NativeArray<int> dests;
     [ReadOnly] public FlowFieldSettingData settingData;
 
     public void Execute()
     {
         var gridSetSize = settingData.gridSetSize;
 
-        var destinationIndex = FlowFieldUtility.GetCellIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
+        // var destinationIndex = FlowFieldUtility.GetCellIndexFromWorldPos(settingData.destination, settingData.originPoint, gridSetSize, settingData.cellRadius * 2);
+        // var destinationIndex = cells[dests[0]].gridIndex;
         // Update Destination Cell's cost and bestCost
-        int flatDestinationIndex = FlowFieldUtility.ToFlatIndex(destinationIndex, gridSetSize.y);
+        int flatDestinationIndex = FlowFieldUtility.ToFlatIndex(cells[dests[0]].gridIndex, gridSetSize.y);
         CellData destinationCell = cells[flatDestinationIndex];
         destinationCell.localCost = 0;
         destinationCell.integrationCost = 0;

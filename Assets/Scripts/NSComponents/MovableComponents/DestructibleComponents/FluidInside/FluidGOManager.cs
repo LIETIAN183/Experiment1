@@ -62,6 +62,7 @@ public class FluidGOManager : MonoBehaviour
         ClearEventCheck();
     }
 
+    // 生成流体
     public void GenerateFluid()
     {
         var list = fluidQuery.GetSingletonBuffer<FluidInfoBuffer>().Reinterpret<fluidInfo>();
@@ -104,6 +105,7 @@ public class FluidGOManager : MonoBehaviour
         }
     }
 
+    // 判断是否需要清除流体
     public void ClearEventCheck()
     {
         var clearEntity = fluidQuery.GetSingletonEntity();
@@ -118,6 +120,7 @@ public class FluidGOManager : MonoBehaviour
         }
     }
 
+    // 清除所有流体
     public void RemoveAllFluidInGo()
     {
         foreach (Transform child in transform)
@@ -131,6 +134,7 @@ public class FluidGOManager : MonoBehaviour
         }
     }
 
+    // 获取所有待生成流体的数据
     public void GetAllFluidPostion()
     {
         var fluidEntity = fluidQuery.GetSingletonEntity();

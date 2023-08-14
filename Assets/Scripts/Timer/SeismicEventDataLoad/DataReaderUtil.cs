@@ -10,8 +10,8 @@ public static class DataReaderUtil
     // 读取可选的仿真地震选项
     public static IEnumerable<string> SeismicEventFolders(string directoryPath)
     {
-        DirectoryInfo[] dirs = new DirectoryInfo(directoryPath).GetDirectories();
         // 提取DirectoryInfo中的文件夹名字property，创建新数组
+        DirectoryInfo[] dirs = new DirectoryInfo(directoryPath).GetDirectories();
         return dirs.Select(dir => dir.Name);
     }
 

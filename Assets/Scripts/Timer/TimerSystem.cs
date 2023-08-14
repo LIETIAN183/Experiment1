@@ -28,20 +28,23 @@ public partial struct TimerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        // 获取时间数据
         var data = SystemAPI.GetSingleton<TimerData>();
 
+        // 获得地震事件对应的加速度数据
         ref var accList = ref SystemAPI.GetSingletonBuffer<BlobRefBuffer>(true)[data.seismicEventIndex].Value.Value.eventAccArray;
 
+        // 根据当前时刻更新地震加速度、地震速度以及当前峰值地面加速度
         data.elapsedTime = data.accListIndex * data.eventDeltaTime;
         if (data.elapsedTime < data.eventDuration)
         {
             data.curAcc = accList[data.accListIndex] * data.adjustmentPGAFactor;
-            // data.curAcc = 0;
             data.curVel += data.curAcc * data.simDeltaTime;
 
             data.curPGA = math.max(data.curPGA, math.length(data.curAcc) / Constants.gravity);
         }
         else { data.curAcc = float3.zero; }
+        // 更新时刻
         data.accListIndex += data.accListIndexIncrement;
         SystemAPI.SetSingleton(data);
 
@@ -61,7 +64,7 @@ public partial struct TimerSystem : ISystem
 
 
 /// <summary>
-/// 初始化 TimerData Component
+/// 初始化时间数据 TimerData Component
 /// </summary>
 // SystemAPI 不可用, System Entity 不支持 IJobEntity
 // [BurstCompile]

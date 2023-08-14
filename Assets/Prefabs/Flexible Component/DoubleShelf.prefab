@@ -42,7 +42,7 @@ Transform:
   - {fileID: 6826800782911758011}
   - {fileID: 6826800781881246530}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4639422600978535707
 MonoBehaviour:
@@ -53,7 +53,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4639422600978535706}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a19b1b331cd7add48aa846585919aa64, type: 3}
+  m_Script: {fileID: 11500000, guid: fc59d2a11fe811c4fa132685a5cdc180, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   length: 2.22
@@ -62,6 +62,7 @@ MonoBehaviour:
   mass: 10
   directionConstrain: 0
   randomInitialize: 0
+  considerFriction: 0
 --- !u!1 &5548771432205122525
 GameObject:
   m_ObjectHideFlags: 0

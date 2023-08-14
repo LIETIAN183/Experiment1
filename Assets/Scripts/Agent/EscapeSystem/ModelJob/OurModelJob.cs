@@ -8,13 +8,7 @@ using Unity.Mathematics;
 using Unity.Physics;
 using Drawing;
 
-public struct ViewArea
-{
-    public int begin;
-    public int end;
-    public int size;
-}
-
+// 本文提出的地震人群疏散模型
 [BurstCompile]
 [WithAll(typeof(AgentMovementData), typeof(Escaping))]
 partial struct OurModelJob : IJobEntity
@@ -32,15 +26,39 @@ partial struct OurModelJob : IJobEntity
 
     [ReadOnly] public uint randomInitSeed;
 
-    [ReadOnly] public float variable;
 
     // public CommandBuilder builder;
     void Execute(Entity entity, [EntityIndexInQuery] int index, ref PhysicsVelocity velocity, in PhysicsMass mass)
     {
-        var random = Random.CreateFromIndex(randomInitSeed);
+        // velocity.Linear = new float3(0, 0, 3);
+        // return;
+        var random = Random.CreateFromIndex(randomInitSeed + (uint)index);
         // builder.PushLineWidth(3f);
         var curEntityLocalTransform = localTransformList[entity];
         var curEntityMovementData = agentDataList[entity];
+
+        // 行人站立后需要一定的恢复时间
+        if (curEntityMovementData.recoverTimer > 0f)
+        {
+            curEntityMovementData.recoverTimer -= deltaTime;
+            curEntityMovementData.fallTimer = 2f;
+            parallelECB.SetComponent<AgentMovementData>(index + 300, entity, curEntityMovementData);
+            return;
+        }
+
+        // 若行人摔倒，fallTimer 小于 0 后执行站立行为
+        if (curEntityMovementData.isFall)
+        {
+            curEntityMovementData.fallTimer -= deltaTime;
+            velocity.Linear.xz = 0;
+            if (curEntityMovementData.fallTimer < 0)
+            {
+                curEntityMovementData.isFall = false;
+                curEntityMovementData.recoverTimer = 2f;
+            }
+            parallelECB.SetComponent<AgentMovementData>(index + 300, entity, curEntityMovementData);
+            return;
+        }
 
         float2 globalGuideDir = cells.GetPedestrainGlobalDir(curEntityLocalTransform.Position, settingData);
 
@@ -117,16 +135,29 @@ partial struct OurModelJob : IJobEntity
                 // dirList 中存储没有发生碰撞的方向
                 float maxDistance = 0;
                 float3 corrDir = float3.zero;
-                for (int i = -60; i <= 60; i += 10)
+                float rayLength = 1f;
+                // for (int i = -60; i <= 60; i += 10)
+                for (int j = 0; j < 13; j++)
                 {
+                    int i = Constants.dirIterOrder[j];
                     // 相同夹角随机检测
                     var dir = math.normalizesafe(math.mul(quaternion.AxisAngle(math.up(), math.radians(i)), curEntityLocalTransform.Forward()));
-                    ray.End = ray.Start + dir * 5f;
-                    physicsWorld.CastRay(ray, out var closestHit);
-                    // if (flag)
-                    // {
-                    var dis = closestHit.Fraction * 5;
-                    if (dis > maxDistance)
+                    ray.End = ray.Start + dir * rayLength;
+                    var flag = physicsWorld.CastRay(ray, out var closestHit);
+                    if (!flag)
+                    {
+                        maxDistance = rayLength;
+                        corrDir = dir;
+                        break;
+                    }
+                    var dis = closestHit.Fraction * rayLength;
+                    if (dis > 0f)
+                    {
+                        maxDistance = dis;
+                        corrDir = dir;
+                        break;
+                    }
+                    else if (dis > maxDistance)
                     {
                         maxDistance = dis;
                         corrDir = dir;
@@ -141,9 +172,10 @@ partial struct OurModelJob : IJobEntity
                     //     }
                     // }
                 }
-                if (maxDistance == 0)
+                if (maxDistance <= 0)
                 {
-                    selfDir = math.normalizesafe(math.mul(quaternion.AxisAngle(math.up(), 30), curEntityLocalTransform.Forward()).xz);
+                    // UnityEngine.Debug.Log(maxDistance);
+                    selfDir = math.normalizesafe(math.mul(quaternion.AxisAngle(math.up(), math.radians(30)), curEntityLocalTransform.Forward()).xz);
                     // curEntityMovementData.lastSelfDir = selfDir;
                     // UnityEngine.Debug.Log("2");
                     // builder.Arrow(curEntityLocalTransform.Position, curEntityLocalTransform.Position + selfDir.ToFloat3(), UnityEngine.Color.blue);
@@ -175,7 +207,8 @@ partial struct OurModelJob : IJobEntity
 
         // 设置人物方向
         var targetRotation = quaternion.LookRotationSafe(new float3(desireDir.x, 0, desireDir.y), math.up());
-        curEntityLocalTransform.Rotation = UnityEngine.Quaternion.Slerp(curEntityLocalTransform.Rotation, targetRotation, 2.5f * deltaTime);
+        curEntityLocalTransform.Rotation = UnityEngine.Quaternion.Slerp(curEntityLocalTransform.Rotation, targetRotation, 5f * deltaTime);
+        // curEntityLocalTransform.Rotation = targetRotation;
         parallelECB.SetComponent<LocalTransform>(index, entity, curEntityLocalTransform);
 
         // 计算期望速度
@@ -193,6 +226,7 @@ partial struct OurModelJob : IJobEntity
         // 更新速度
         velocity.Linear.xz += curAcc * deltaTime;
         // builder.PopLineWidth();
+        // velocity.Linear.xz = math.normalizesafe(desireDir) * 0;
     }
 }
 

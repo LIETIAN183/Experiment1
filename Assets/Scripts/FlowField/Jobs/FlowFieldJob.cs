@@ -8,6 +8,9 @@ using Unity.Transforms;
 using Unity.Burst;
 using Unity.Jobs;
 
+/// <summary>
+/// 使用集成代价，计算非目标网格的全局指导方向
+/// </summary>
 [BurstCompile]
 public struct CalculateGlobalFlowFieldJob_NotDestGrid : IJobParallelFor
 {
@@ -21,6 +24,7 @@ public struct CalculateGlobalFlowFieldJob_NotDestGrid : IJobParallelFor
         float2 lowerDir = float2.zero, upperDir = float2.zero, dir;
         float diff;
         var flatNeighborIndexList = FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, gridSetSize);
+        //计算周围八个网格，得到加权梯度乘以相应的方向向量，计算褚网格的全局指导方向
         foreach (int flatNeighborIndex in flatNeighborIndexList)
         {
             CellData neighborCell = cells[flatNeighborIndex];
@@ -43,6 +47,9 @@ public struct CalculateGlobalFlowFieldJob_NotDestGrid : IJobParallelFor
     }
 }
 
+/// <summary>
+/// 设置目标网格的全局指导方向，即无方向
+/// </summary>
 [BurstCompile]
 public struct CalculateGlobalFlowFieldJob_DestGrid : IJobParallelFor
 {
@@ -57,6 +64,9 @@ public struct CalculateGlobalFlowFieldJob_DestGrid : IJobParallelFor
     }
 }
 
+/// <summary>
+/// 使用网格总代价，计算非目标网格的局部指导方向
+/// </summary>
 [BurstCompile]
 public struct CalculateLocalFlowFieldJob_NotDestGrid : IJobParallelFor
 {
@@ -94,7 +104,7 @@ public struct CalculateLocalFlowFieldJob_NotDestGrid : IJobParallelFor
 }
 
 /// <summary>
-/// 计算局部流场时，行人的影响结不考虑
+/// 计算目标网格的局部指导方向，此时不考虑总代价计算中的行人影响
 /// </summary>
 [BurstCompile]
 public struct CalculateLocalFlowFieldJob_DestGrid : IJob
@@ -125,6 +135,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
             {
                 curLocalCost = math.exp(-pgaInms2) * (curCell.massVariable + Constants.c2_fluid * curCell.fluidElementCount * 0.0083f) / gridVolume + (uint)(math.exp(curCell.maxHeight) + curCell.maxHeight * Constants.c_s);
             }
+            // 在计算目标网格的网格局部指导方向时，由于目标网格的邻接网格也可能是目标网格，而在代价场计算中得到的网格总代价均考虑了人群密度影响，因此在本计算过程中，当前玩个够以及其所有邻接网格都需要重新计算网格总代价并排除人群密度影响。
             NativeList<int> nbrList = FlowFieldUtility.Get8NeighborFlatIndices(curCell.gridIndex, gridSetSize);
             for (int i = 0; i < nbrList.Length; ++i)
             {
@@ -139,7 +150,7 @@ public struct CalculateLocalFlowFieldJob_DestGrid : IJob
                 {
                     nbrLocalCost = math.exp(-pgaInms2) * (nbrCell.massVariable + Constants.c2_fluid * nbrCell.fluidElementCount * 0.0083f) / gridVolume + (uint)(math.exp(nbrCell.maxHeight) + curCell.maxHeight * Constants.c_s);
                 }
-                //计算邻接网格的本地指导方向
+                //因邻接网格也可能是目标网格，所以需要计算邻接网格的本地指导方向
                 float2 lowerDir2 = float2.zero, upperDir2 = float2.zero;
                 nbrLowerDir = float2.zero;
                 nbrUpperDir = float2.zero;

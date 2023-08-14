@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4496842989592152350}
   - component: {fileID: 4496842989592152351}
   - component: {fileID: 4496842989592152337}
-  - component: {fileID: 4496842989592152338}
+  - component: {fileID: 2500501627456988084}
   m_Layer: 0
   m_Name: Vase03Var02
   m_TagString: Untagged
@@ -35,7 +35,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4496842989592152339
 MeshFilter:
@@ -300,7 +300,7 @@ MonoBehaviour:
   - {fileID: 9091776307555831762, guid: d642342de7344cb488041a8cdf957755, type: 3}
   - {fileID: 2010152907785486762, guid: 5a22b4a9ea81416439487e1557bd8a69, type: 3}
   - {fileID: 8104918276157937138, guid: e23c30c59c69d2941b105416d99254cc, type: 3}
---- !u!114 &4496842989592152338
+--- !u!114 &2500501627456988084
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -309,6 +309,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 181258780127255564}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b3f1531c83b87784a8d99eb349bdb90e, type: 3}
+  m_Script: {fileID: 11500000, guid: 4778a281c965be74080d3198128ea379, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  applyAirResistance: 0
+  variable: 0

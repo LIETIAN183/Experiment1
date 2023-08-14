@@ -11,6 +11,8 @@ public class GOReference : IComponentData, IDisposable
     public Animator animator;
     public csHomebrewIK information;
 
+    public FootInteraction ragdoll;
+
     public float aniSpeed;
 
     public void Dispose()

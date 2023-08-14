@@ -1421,7 +1421,7 @@ Transform:
   - {fileID: 105689415338048077}
   - {fileID: 327817351101968751}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &1661281010293374115
 Animator:
@@ -1453,9 +1453,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4870403599732722497}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b99960be29e8454eb719f6a1a52ef49, type: 3}
+  m_Script: {fileID: 11500000, guid: 5ef04fdd2ea8ab34fb2df43a123682c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
+  massCenterHeight: 0
   detectLayers:
     Category00: 1
     Category01: 1
@@ -1491,6 +1493,9 @@ MonoBehaviour:
     Category31: 0
   footOverlapSphereRadius: 0.15
   debug: 0
+  master: {fileID: 0}
+  offset: {x: 0, y: 0, z: 0}
+  headTransform: {fileID: 0}
 --- !u!114 &-7308601418473549224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1500,7 +1505,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4870403599732722497}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 726325959c0cb064597e2f1bd5eb6b21, type: 3}
+  m_Script: {fileID: 11500000, guid: 3e5dfacd3815e86428514856a4c73c5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   leftFootTransform: {fileID: 0}
@@ -1509,7 +1514,7 @@ MonoBehaviour:
   maxRotationAngle: 45
   ankleHeightOffset: 0
   enableIKPositioning: 1
-  enableIKRotating: 1
+  enableIKRotating: 0
   globalWeight: 1
   leftFootWeight: 1
   rightFootWeight: 1
@@ -1563,6 +1568,7 @@ MonoBehaviour:
   curHeight: 0
   basicHeight: 0
   deltaHeight: 0
+  reductionPercentageOfCenterOfMass: 0.05
 --- !u!1 &5397971207911693872
 GameObject:
   m_ObjectHideFlags: 0

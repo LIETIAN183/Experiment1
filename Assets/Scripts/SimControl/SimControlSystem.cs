@@ -23,13 +23,11 @@ public partial struct SimControlSystem : ISystem
         state.EntityManager.AddComponentData<SimConfigData>(state.SystemHandle, new SimConfigData
         {
             simEnvironment = true,
-            itemDestructible = true,
+            itemDestructible = false,
             simFlowField = true,
             simAgent = true,
-            displayTrajectories = true,
-            performStatistics = false,
-            simIter = 2,
-            average = 1f
+            displayTrajectories = false,
+            performStatistics = false
         });
         screenShotFlag = false;
         screenShotTimer = 0;
@@ -120,9 +118,9 @@ public partial struct SimControlSystem : ISystem
         if (endEvent.isActivate)
         {
             // 截图
-            var setting = SystemAPI.GetSingleton<SimConfigData>();
+            var timer = SystemAPI.GetSingleton<TimerData>();
 
-            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + setting.average + ".png");
+            ScreenCapture.CaptureScreenshot(Application.streamingAssetsPath + "/" + timer.elapsedTime + ".png");
             screenShotFlag = true;
             screenShotTimer = 0.5f;
 
@@ -153,7 +151,15 @@ public partial struct SimControlSystem : ISystem
         {
             // 环境系统
             unmanagedWorld.GetExistingSystemState<MCMotionSystem>().Enabled = enabled;
-            unmanagedWorld.GetExistingSystemState<FCOscSystem>().Enabled = enabled;
+
+            if (unmanagedWorld.GetExistingSystemState<MultiRoundStatisticsSystem>().Enabled)
+            {
+                unmanagedWorld.GetExistingSystemState<FCOscSystem>().Enabled = enabled;
+            }
+            else
+            {
+                unmanagedWorld.GetExistingSystemState<FCOscSystem>().Enabled = true;
+            }
 
             if (setting.itemDestructible)
             {
@@ -173,9 +179,6 @@ public partial struct SimControlSystem : ISystem
             // 人群算法
             // 和多轮仿真的恢复 Job 相关联，需要同步修改
             unmanagedWorld.GetExistingSystemState<FlowFieldMovementSystem>().Enabled = enabled;
-            // simulation.GetExistingSystemManaged<SFMmovementSystem>().Enabled = state;
-            // simulation.GetExistingSystemManaged<SFMmovementSystem2>().Enabled = state;
-            // simulation.GetExistingSystemManaged<SFMmovementSystem3>().Enabled = state;
 
 
             state.World.GetExistingSystemManaged<AnimationSyncSystem>().Enabled = enabled;

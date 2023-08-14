@@ -9,10 +9,10 @@ using System.Collections.Generic;
 [InternalBufferCapacity(10)]
 public struct ReplacePrefabsBuffer : IBufferElementData
 {
+    // 可用的替换破碎模型
     public Entity replacementItem;
 
     public static implicit operator Entity(ReplacePrefabsBuffer entityBufferElement) => entityBufferElement.replacementItem;
 
     public static implicit operator ReplacePrefabsBuffer(Entity e) => new ReplacePrefabsBuffer { replacementItem = e };
 }
-

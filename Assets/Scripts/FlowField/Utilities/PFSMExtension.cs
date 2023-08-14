@@ -4,7 +4,9 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
+// 并行版本的快速扫描法
 // https://www.sciencedirect.com/science/article/pii/S002199911200722X
+// https://github.com/double-free/Parallel-Fast-Sweeping-Method/blob/master/cpp/path_planner.cpp
 [BurstCompile]
 public static class PFSMExtension
 {
@@ -176,7 +178,6 @@ public struct ParallelFastSweepingMethodJob : IJobParallelFor
             queueWriter.Enqueue(0);
         }
 
-        // current.integrationCost = math.min(newIntCost, current.integrationCost);
         cells[currentIndex] = current;
     }
 }
