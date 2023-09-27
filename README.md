@@ -1,3 +1,6 @@
+# 部分仿真结果
+https://pan.baidu.com/s/1SGL38wK82ULBrTOChONPTA?pwd=gczf
+
 # 代码模块
 * 路径：Experiment1/Assets/Scripts
 * Agent 实现地震疏散过程中行人的控制逻辑，如行人踩踏地面障碍物并发生物理交互、状态改变以及相关动画状态调整
